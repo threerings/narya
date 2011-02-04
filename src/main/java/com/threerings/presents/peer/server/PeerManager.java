@@ -55,6 +55,8 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
+import com.threerings.presents.peer.data.DObjectAddress;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.MainInvoker;
@@ -488,15 +490,7 @@ public abstract class PeerManager
         byte[] requestBytes = flattenRequest(request);
 
         // build a set of node names (including the local node) to which to send the request
-        final Set<String> nodes = Sets.newHashSet();
-        if (request.isApplicable(_nodeobj)) {
-            nodes.add(_nodeobj.nodeName);
-        }
-        for (PeerNode peer : _peers.values()) {
-            if (request.isApplicable(peer.nodeobj)) {
-                nodes.add(peer.getNodeName());
-            }
-        }
+        final Set<String> nodes = findApplicableNodes(request);
         if (nodes.isEmpty()) {
             listener.requestsProcessed(new NodeRequestsResultImpl<T>());
             return;
@@ -512,13 +506,13 @@ public abstract class PeerManager
                     @SuppressWarnings("unchecked")
                     T castResult = (T) result;
                     results.put(node, castResult);
-                    nodeDone(node);
+                    nodeDone();
                 }
                 public void requestFailed (String cause) {
                     failures.put(node, cause);
-                    nodeDone(node);
+                    nodeDone();
                 }
-                protected void nodeDone (String node) {
+                protected void nodeDone () {
                     if (completedNodes.incrementAndGet() == nodes.size()) {
                         // if all nodes have responded, let caller know
                         listener.requestsProcessed(new NodeRequestsResultImpl<T>(results, failures));
@@ -529,6 +523,23 @@ public abstract class PeerManager
     }
 
     /**
+     * Returns all nodes for which <code>request.isApplicable</code> returns true.
+     */
+    public Set<String> findApplicableNodes (NodeRequest request)
+    {
+        Set<String> nodes = Sets.newHashSet();
+        if (request.isApplicable(_nodeobj)) {
+            nodes.add(_nodeobj.nodeName);
+        }
+        for (PeerNode peer : _peers.values()) {
+            if (request.isApplicable(peer.nodeobj)) {
+                nodes.add(peer.getNodeName());
+            }
+        }
+        return nodes;
+    }
+
+    /**
      * Invokes a node request on a specific node and returns the result through the listener.
      */
     public void invokeNodeRequest (String nodeName, NodeRequest request,
@@ -536,6 +547,7 @@ public abstract class PeerManager
     {
         invokeNodeRequest(nodeName, flattenRequest(request), listener);
     }
+
 
     /**
      * Initiates a proxy on an object that is managed by the specified peer. The object will be
@@ -548,27 +560,41 @@ public abstract class PeerManager
      * object.
      */
     public <T extends DObject> void proxyRemoteObject (
-        String nodeName, int remoteOid, final ResultListener<Integer> listener)
+        String nodeName, final int remoteOid, final ResultListener<Integer> listener)
     {
-        final Client peer = getPeerClient(nodeName);
+        proxyRemoteObject(new DObjectAddress(nodeName, remoteOid), listener);
+    }
+
+    public <T extends DObject> void proxyRemoteObject (
+        final DObjectAddress remote, final ResultListener<Integer> listener)
+    {
+     if (remote.nodeName.equals(_nodeName)) {
+            System.out.println("Found locally!");
+            _omgr.postRunnable(new Runnable() {
+                public void run () {
+                    listener.requestCompleted(remote.oid);
+                }
+            });
+            return;
+        }
+        final Client peer = getPeerClient(remote.nodeName);
         if (peer == null) {
-            String errmsg = "Have no connection to peer [node=" + nodeName + "].";
+            String errmsg = "Have no connection to peer [node=" + remote.nodeName + "].";
             listener.requestFailed(new ObjectAccessException(errmsg));
             return;
         }
 
-        final Tuple<String, Integer> key = Tuple.newTuple(nodeName, remoteOid);
-        if (_proxies.containsKey(key)) {
-            String errmsg = "Cannot proxy already proxied object [key=" + key + "].";
+        if (_proxies.containsKey(remote)) {
+            String errmsg = "Cannot proxy already proxied object [key=" + remote + "].";
             listener.requestFailed(new ObjectAccessException(errmsg));
             return;
         }
 
         // issue a request to subscribe to the remote object
-        peer.getDObjectManager().subscribeToObject(remoteOid, new Subscriber<T>() {
+        peer.getDObjectManager().subscribeToObject(remote.oid, new Subscriber<T>() {
             public void objectAvailable (T object) {
                 // make a note of this proxy mapping
-                _proxies.put(key, new Tuple<Subscriber<?>, DObject>(this, object));
+                _proxies.put(remote, new Tuple<Subscriber<?>, DObject>(this, object));
                 // map the object into our local oid space
                 _omgr.registerProxyObject(object, peer.getDObjectManager());
                 // then tell the caller about the (now remapped) oid
@@ -1581,7 +1607,7 @@ public abstract class PeerManager
     protected ArrayIntSet _suboids = new ArrayIntSet();
 
     /** Contains a mapping of proxied objects to subscriber instances. */
-    protected Map<Tuple<String,Integer>,Tuple<Subscriber<?>,DObject>> _proxies = Maps.newHashMap();
+    protected Map<DObjectAddress, Tuple<Subscriber<?>, DObject>> _proxies = Maps.newHashMap();
 
     /** Our stale cache observers. */
     protected Map<String, ObserverList<StaleCacheObserver>> _cacheobs = Maps.newHashMap();
