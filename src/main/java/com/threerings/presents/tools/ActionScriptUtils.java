@@ -218,6 +218,8 @@ public class ActionScriptUtils
             return "Boolean";
         } else if (Cloneable.class.equals(type)) {
             return "com.threerings.util.Cloneable";
+        } else if (Comparable.class.equals(type)) {
+            return "com.threerings.util.Comparable";
         } else {
             // inner classes are not supported by ActionScript so we _
             return type.getName().replaceAll("\\$", "_");
