@@ -35,6 +35,28 @@ import com.threerings.io.Streamable;
 public abstract class Credentials implements Streamable
 {
     /**
+     * Implemented by credentials that provide a machine identifier.
+     */
+    public interface HasMachineIdent
+    {
+        /**
+         * Gets the machine identifier associated with the submitting user's machine.
+         */
+        String getMachineIdent ();
+    }
+
+    /**
+     * Implemented by credentials that provide a language.
+     */
+    public interface HasLanguage
+    {
+        /**
+         * Gets the language selected by the submitting user.
+         */
+        String getLanguage ();
+    }
+
+    /**
      * Returns a string to use in a hash on the datagram contents to authenticate client datagrams.
      */
     public String getDatagramSecret ()
