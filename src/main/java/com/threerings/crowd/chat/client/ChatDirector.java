@@ -628,7 +628,7 @@ public class ChatDirector extends BasicDirector
      */
     public String mogrifyChat (String text)
     {
-        return mogrifyChat(text, false, true);
+        return mogrifyChat(text, (byte)-1, false, true);
     }
 
     // documentation inherited
@@ -819,7 +819,7 @@ public class ChatDirector extends BasicDirector
     protected String deliverChat (SpeakService speakSvc, String message, byte mode)
     {
         // run the message through our mogrification process
-        message = mogrifyChat(message, true, mode != ChatCodes.EMOTE_MODE);
+        message = mogrifyChat(message, mode, true, mode != ChatCodes.EMOTE_MODE);
 
         // mogrification may result in something being turned into a slash command, in which case
         // we have to run everything through again from the start
@@ -860,12 +860,14 @@ public class ChatDirector extends BasicDirector
     /**
      * Mogrifies common literary crutches into more appealing chat or commands.
      *
+     * @param mode the chat mode, or -1 if unknown.
      * @param transformsAllowed if true, the chat may transformed into a different mode. (lol ->
      * /emote laughs)
      * @param capFirst if true, the first letter of the text is capitalized. This is not desired if
      * the chat is already an emote.
      */
-    protected String mogrifyChat (String text, boolean transformsAllowed, boolean capFirst)
+    protected String mogrifyChat (
+        String text, byte mode, boolean transformsAllowed, boolean capFirst)
     {
         int tlen = text.length();
         if (tlen == 0) {
