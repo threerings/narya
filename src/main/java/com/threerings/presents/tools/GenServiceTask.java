@@ -337,7 +337,8 @@ public class GenServiceTask extends InvocationTask
         // get rid of java.lang stuff and any remaining primitives
         imports.removeGlobals();
 
-        if (imports.removeAll("[L*") > 0) {
+        imports.replace("[B", "flash.utils.ByteArray");
+        if (imports.removeAll("[*") > 0) {
             imports.add("com.threerings.io.TypedArray");
         }
 
@@ -379,8 +380,8 @@ public class GenServiceTask extends InvocationTask
             // convert primitive java types to ooo util types
             imports.replace("long", "com.threerings.util.Long");
 
-            // convert object arrays to typed arrays
-            if (imports.removeAll("[L*") > 0) {
+            imports.replace("[B", "flash.utils.ByteArray");
+            if (imports.removeAll("[*") > 0) {
                 imports.add("com.threerings.io.TypedArray");
             }
 
@@ -416,7 +417,7 @@ public class GenServiceTask extends InvocationTask
         // convert java primitive types to ooo util types
         imports.replace("java.lang.Integer", "com.threerings.util.Integer");
 
-        if (imports.removeAll("[L*") > 0) {
+        if (imports.removeAll("[*") > 0) {
             imports.add("com.threerings.io.TypedArray");
         }
 
@@ -459,8 +460,8 @@ public class GenServiceTask extends InvocationTask
             // change Foo$Bar to Foo_Bar
             imports.translateInnerClasses();
 
-            // use a typed array for any arrays of objects
-            if (imports.removeAll("[L*") > 0) {
+            imports.replace("[B", "flash.utils.ByteArray");
+            if (imports.removeAll("[*") > 0) {
                 imports.add("com.threerings.io.TypedArray");
             }
 
