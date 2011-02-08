@@ -308,13 +308,7 @@ public class GenServiceTask extends InvocationTask
         // replace inner classes with action script equivalents
         imports.translateInnerClasses();
 
-        // replace primitive types with OOO types (required for unboxing)
-        imports.replace("byte", "com.threerings.util.Byte");
-        imports.replace("int", "com.threerings.util.Integer");
-        imports.replace("boolean", "com.threerings.util.langBoolean");
-        imports.replace("[B", "flash.utils.ByteArray");
-        imports.replace("float", "com.threerings.util.Float");
-        imports.replace("[I", "com.threerings.io.TypedArray");
+        translateImportsToActionScript(imports);
 
         // ye olde special case - any method that uses a default listener
         // causes the need for the default listener marshaller
@@ -330,9 +324,6 @@ public class GenServiceTask extends InvocationTask
             "Listener", "Marshaller",
             ".client.", ".data.");
         imports.popIn();
-
-        // convert java primitive types to ooo util types
-        imports.replace(Integer.class, "com.threerings.util.Integer");
 
         // get rid of java.lang stuff and any remaining primitives
         imports.removeGlobals();
@@ -376,13 +367,7 @@ public class GenServiceTask extends InvocationTask
             // replace '$' with '_' for action script naming convention
             imports.translateInnerClasses();
 
-            // convert primitive java types to ooo util types
-            imports.replace("long", "com.threerings.util.Long");
-
-            // convert object arrays to typed arrays
-            if (imports.removeAll("[L*") > 0) {
-                imports.add("com.threerings.io.TypedArray");
-            }
+            translateImportsToActionScript(imports);
 
             // get rid of remaining primitives and java.lang types
             imports.removeGlobals();
@@ -409,16 +394,7 @@ public class GenServiceTask extends InvocationTask
         imports.add(Client.class);
         imports.add(InvocationService.class);
 
-        // allow primitive types in service methods
-        imports.replace("[B", "flash.utils.ByteArray");
-        imports.replace("[I", "com.threerings.io.TypedArray");
-
-        // convert java primitive types to ooo util types
-        imports.replace("java.lang.Integer", "com.threerings.util.Integer");
-
-        if (imports.removeAll("[L*") > 0) {
-            imports.add("com.threerings.io.TypedArray");
-        }
+        translateImportsToActionScript(imports);
 
         // get rid of primitives and java.lang classes
         imports.removeGlobals();
@@ -459,13 +435,8 @@ public class GenServiceTask extends InvocationTask
             // change Foo$Bar to Foo_Bar
             imports.translateInnerClasses();
 
-            // use a typed array for any arrays of objects
-            if (imports.removeAll("[L*") > 0) {
-                imports.add("com.threerings.io.TypedArray");
-            }
-
-            // convert java primitive types to ooo util types
-            imports.replace("long", "com.threerings.util.Long");
+            // convert Java type names to ActionScript ones
+            translateImportsToActionScript(imports);
 
             // get rid of remaining primitives and java.lang types
             imports.removeGlobals();
@@ -607,6 +578,31 @@ public class GenServiceTask extends InvocationTask
     {
         return GenUtil.getGeneratedAnnotation(getClass(), 0, false,
             "Derived from " + name + "Service.java.");
+    }
+
+    protected static void translateImportsToActionScript (ImportSet imports)
+    {
+        // convert java primitive types to ooo util types
+        imports.replace("boolean", "com.threerings.util.langBoolean");
+        imports.replace(Boolean.class, "com.threerings.util.langBoolean");
+
+        imports.replace("float", "com.threerings.util.Float");
+        imports.replace(Float.class, "com.threerings.util.Float");
+
+        imports.replace("byte", "com.threerings.util.Byte");
+        imports.replace(Byte.class, "com.threerings.util.Byte");
+
+        imports.replace("long", "com.threerings.util.Long");
+        imports.replace(Long.class, "com.threerings.util.Long");
+
+        imports.replace("int", "com.threerings.util.Integer");
+        imports.replace(Integer.class, "com.threerings.util.Integer");
+
+        imports.replace("[B", "flash.utils.ByteArray");
+
+        if (imports.removeAll("[*") > 0) {
+            imports.add("com.threerings.io.TypedArray");
+        }
     }
 
     /** Rolls up everything needed for the generate* methods. */
