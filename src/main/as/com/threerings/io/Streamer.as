@@ -21,13 +21,6 @@
 
 package com.threerings.io {
 
-import flash.utils.ByteArray;
-import flash.utils.Dictionary;
-
-import com.threerings.util.ByteEnum;
-import com.threerings.util.ClassUtil;
-import com.threerings.util.Enum;
-
 import com.threerings.io.streamers.ArrayStreamer;
 import com.threerings.io.streamers.ByteArrayStreamer;
 import com.threerings.io.streamers.ByteEnumStreamer;
@@ -36,9 +29,30 @@ import com.threerings.io.streamers.MapStreamer;
 import com.threerings.io.streamers.NumberStreamer;
 import com.threerings.io.streamers.SetStreamer;
 import com.threerings.io.streamers.StringStreamer;
+import com.threerings.util.ByteEnum;
+import com.threerings.util.ClassUtil;
+import com.threerings.util.Enum;
+import com.threerings.util.Log;
+
+import flash.utils.ByteArray;
+import flash.utils.Dictionary;
 
 public class Streamer
 {
+    public static function registerStreamer (st :Streamer, ... extraJavaNames) :void
+    {
+        initStreamers();
+
+        extraJavaNames.unshift(st.getJavaClassName());
+        for each (var name :String in extraJavaNames) {
+            if (name in _byJName) {
+                log.warning("Existing Streamer replaced", "name", name,
+                    "cur", _byJName[name], "replacement", st);
+            }
+            _byJName[name] = st;
+        }
+    }
+
     public static function getStreamer (obj :Object) :Streamer
     {
         var jname :String;
@@ -128,14 +142,6 @@ public class Streamer
         return "[Streamer(" + _jname + ")]";
     }
 
-    protected static function registerStreamer (st :Streamer, ... extraJavaNames) :void
-    {
-        _byJName[st.getJavaClassName()] = st;
-        for each (var name :String in extraJavaNames) {
-            _byJName[name] = st;
-        }
-    }
-
     /**
      * Initialize our streamers. This cannot simply be done statically
      * because we cannot instantiate a subclass when this class is still
@@ -147,6 +153,7 @@ public class Streamer
             return;
         }
         _byJName = new Dictionary();
+
         for each (var c :Class in [ StringStreamer, NumberStreamer, ByteArrayStreamer ]) {
             registerStreamer(Streamer(new c()));
         }
@@ -161,5 +168,7 @@ public class Streamer
     protected var _jname :String;
 
     protected static var _byJName :Dictionary;
+
+    protected static const log :Log = Log.getLog(Streamer);
 }
 }
