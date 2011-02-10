@@ -24,8 +24,6 @@ package com.threerings.presents.net;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import javax.crypto.Cipher;
-
 import com.threerings.presents.util.SecureUtil;
 
 /**

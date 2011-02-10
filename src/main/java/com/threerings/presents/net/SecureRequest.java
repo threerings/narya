@@ -22,9 +22,6 @@
 package com.threerings.presents.net;
 
 import java.security.PrivateKey;
-import java.security.PublicKey;
-
-import javax.crypto.Cipher;
 
 /**
  * Used to create a secure channel to the server.

@@ -21,14 +21,10 @@
 
 package com.threerings.presents.server.net;
 
+import static com.threerings.presents.Log.log;
+
 import java.io.IOException;
 import java.security.PrivateKey;
-import java.security.SecureRandom;
-
-import com.samskivert.util.ObjectUtil;
-import com.samskivert.util.StringUtil;
-
-import com.threerings.util.Name;
 
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AESAuthRequest;
@@ -39,8 +35,7 @@ import com.threerings.presents.net.Message;
 import com.threerings.presents.net.PublicKeyCredentials;
 import com.threerings.presents.net.SecureRequest;
 import com.threerings.presents.net.SecureResponse;
-
-import static com.threerings.presents.Log.log;
+import com.threerings.util.Name;
 
 /**
  * The authing connection manages the client connection until authentication has completed (for
