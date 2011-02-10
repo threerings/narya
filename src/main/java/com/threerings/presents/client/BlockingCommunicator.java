@@ -21,28 +21,25 @@
 
 package com.threerings.presents.client;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 import com.samskivert.util.LoopingThread;
 import com.samskivert.util.Queue;
 import com.samskivert.util.StringUtil;
 import com.samskivert.util.Throttle;
-
 import com.threerings.io.ByteBufferInputStream;
 import com.threerings.io.ByteBufferOutputStream;
 import com.threerings.io.FramedInputStream;
@@ -51,9 +48,7 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.UnreliableObjectInputStream;
 import com.threerings.io.UnreliableObjectOutputStream;
-
 import com.threerings.presents.net.AESAuthRequest;
-import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.DownstreamMessage;
