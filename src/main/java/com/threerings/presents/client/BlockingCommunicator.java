@@ -628,7 +628,7 @@ public class BlockingCommunicator extends Communicator
                     log.debug("Waiting for secure response.");
 
                     response = (AuthResponse)receiveMessage();
-                    // If we've recieved a secure response, proceed with authentication
+                    // If we've received a secure response, proceed with authentication
                     if (response instanceof SecureResponse) {
                         sendMessage(AESAuthRequest.createAuthRequest(
                                     _client.getCredentials(), _client.getVersion(),
