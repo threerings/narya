@@ -1205,7 +1205,6 @@ public class PresentsSession
     protected AuthRequest _areq;
     protected Object _authdata;
     protected Name _authname;
-    protected byte[] _secret;
     protected PresentsConnection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
