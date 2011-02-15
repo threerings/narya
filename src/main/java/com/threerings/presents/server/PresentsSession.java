@@ -131,7 +131,7 @@ public class PresentsSession
      */
     public byte[] getSecret ()
     {
-        return _areq.getSecret();
+        return (_areq == null) ? null : _areq.getSecret();
     }
 
     /**
