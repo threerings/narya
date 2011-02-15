@@ -255,6 +255,22 @@ public class Client
     }
 
     /**
+     * Sets the secret key to use with a session.
+     */
+    public void setSecret (byte[] secret)
+    {
+        _secret = secret;
+    }
+
+    /**
+     * Gets the secret key to use with a session.
+     */
+    public byte[] getSecret ()
+    {
+        return _secret;
+    }
+
+    /**
      * Returns the version string configured for this client.
      */
     public String getVersion ()
@@ -1044,6 +1060,9 @@ public class Client
 
     /** Our public key. */
     protected PublicKey _publicKey;
+
+    /** Our session secret key. */
+    protected byte[] _secret;
 
     /** If we require a secure connection to send our credentials. */
     protected boolean _requireSecureAuth = false;

@@ -127,6 +127,14 @@ public class PresentsSession
     }
 
     /**
+     * Returns the shared secret for this session.
+     */
+    public byte[] getSecret ()
+    {
+        return _areq.getSecret();
+    }
+
+    /**
      * Returns true if this session has been disconnected for sufficiently long that it should be
      * forcibly ended.
      */
@@ -1197,6 +1205,7 @@ public class PresentsSession
     protected AuthRequest _areq;
     protected Object _authdata;
     protected Name _authname;
+    protected byte[] _secret;
     protected PresentsConnection _conn;
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();

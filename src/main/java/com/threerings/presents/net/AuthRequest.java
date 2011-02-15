@@ -83,6 +83,14 @@ public class AuthRequest extends UpstreamMessage
         return _bootGroups;
     }
 
+    /**
+     * Returns a shared secret key used for sending encrypted data to the client.
+     */
+    public byte[] getSecret ()
+    {
+        return null;
+    }
+
     @Override
     public String toString ()
     {

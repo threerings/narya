@@ -88,6 +88,12 @@ public class AESAuthRequest extends AuthRequest
     }
 
     @Override // documentation inherited
+    public byte[] getSecret ()
+    {
+        return _key;
+    }
+
+    @Override // documentation inherited
     public String toString ()
     {
         return "[type=AESAREQ, msgid=" + messageId + ", creds=" + _clearCreds +

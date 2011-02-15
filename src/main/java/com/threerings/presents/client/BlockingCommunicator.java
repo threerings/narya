@@ -51,6 +51,7 @@ import com.threerings.io.UnreliableObjectOutputStream;
 import com.threerings.presents.net.AESAuthRequest;
 import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
+import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.PingRequest;
@@ -630,10 +631,12 @@ public class BlockingCommunicator extends Communicator
                     response = (AuthResponse)receiveMessage();
                     // If we've received a secure response, proceed with authentication
                     if (response instanceof SecureResponse) {
-                        sendMessage(AESAuthRequest.createAuthRequest(
+                        AuthRequest areq = AESAuthRequest.createAuthRequest(
                                     _client.getCredentials(), _client.getVersion(),
                                     _client.getBootGroups(), _client.requireSecureAuth(),
-                                    pkcreds, (SecureResponse)response));
+                                    pkcreds, (SecureResponse)response);
+                        sendMessage(areq);
+                        _client.setSecret(areq.getSecret());
 
                         // now wait for the auth response
                         log.debug("Waiting for auth response.");

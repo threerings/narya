@@ -34,5 +34,6 @@ import com.threerings.presents.data.ClientObject;
  */
 public class ClientLocal extends SimpleStreamableObject
 {
-    // nothing to track at this level
+    /** A shared secret key used for encrypting data. */
+    public byte[] secret;
 }

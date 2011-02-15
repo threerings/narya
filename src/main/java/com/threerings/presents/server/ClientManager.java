@@ -390,6 +390,12 @@ public class ClientManager
         // immediately
         clobj.release();
 
+        // Grab the shared secret from the session and stick it into the client local
+        PresentsSession session = getClient(username);
+        if (session != null) {
+            clobj.getLocal(ClientLocal.class).secret = session.getSecret();
+        }
+
         // stuff the object into the mapping table
         _objmap.put(username, clobj);
 
