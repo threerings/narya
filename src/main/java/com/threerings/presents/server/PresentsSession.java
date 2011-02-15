@@ -402,6 +402,9 @@ public class PresentsSession
             return;
         }
 
+        // Dump our secret into the client local for easy access
+        clobj.getLocal(ClientLocal.class).secret = getSecret();
+
         // finish up our regular business
         sessionWillStart();
         sendBootstrap();
@@ -544,6 +547,9 @@ public class PresentsSession
             endSession();
             return;
         }
+
+        // Update our client secret with the new auth request
+        _clobj.getLocal(ClientLocal.class).secret = getSecret();
 
         // let derived classes do any session resuming
         sessionWillResume();
