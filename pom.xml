@@ -4,7 +4,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya</artifactId>
   <packaging>jar</packaging>
-  <version>1.5</version>
+  <version>1.6-SNAPSHOT</version>
   <name>narya</name>
   <description>Facilities for making networked multiplayer games.</description>
   <url>http://code.google.com/p/narya/</url>
@@ -35,9 +35,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:http://narya.googlecode.com/svn/tags/narya-1.5</connection>
-    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/tags/narya-1.5</developerConnection>
-    <url>http://narya.googlecode.com/svn/tags/narya-1.5</url>
+    <connection>scm:svn:http://narya.googlecode.com/svn/trunk/</connection>
+    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk/</developerConnection>
+    <url>http://narya.googlecode.com/svn/trunk/</url>
   </scm>
 
   <dependencies>
