@@ -46,6 +46,9 @@ import com.threerings.io.Streamable;
 @Singleton
 public class ChatHistory
 {
+    /** The amount of time before chat history becomes... history. */
+    public static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
+
     /**
      * Recorded parcel of chat for historical purposes, maintained by
      * {@link #record(ChatChannel, UserMessage, Name...)},
@@ -199,7 +202,4 @@ public class ChatHistory
 
     // dependencies
     @Inject protected PresentsDObjectMgr _omgr;
-
-    /** The amount of time before chat history becomes... history. */
-    protected static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
 }
