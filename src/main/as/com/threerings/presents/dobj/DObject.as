@@ -37,7 +37,11 @@ import com.threerings.io.Streamable;
 public class DObject // extends EventDispatcher
     implements Streamable
 {
-    private static const log :Log = Log.getLog(DObject);
+    /** Dispatched when a message is posted to the DObject */
+    public const messageReceived :Signal = new Signal(String, Array);
+
+    /** Dispatched when the DObject is destroyed */
+    public const destroyed :Signal = new Signal();
 
     public function DObject ()
     {
@@ -77,9 +81,6 @@ public class DObject // extends EventDispatcher
             }
         }
     }
-
-    public const messageReceived :Signal = new Signal(String, Array);
-    public const destroyed :Signal = new Signal();
 
     public function setDestroyOnLastSubscriberRemoved (deathWish :Boolean) :void
     {
@@ -231,9 +232,9 @@ public class DObject // extends EventDispatcher
         }
     }
 
-    /** 
+    /**
      * Commits the transaction in which this distributed object is involved.
-     */ 
+     */
     public function commitTransaction () :void
     {
         if (_tevent == null) {
@@ -339,7 +340,7 @@ public class DObject // extends EventDispatcher
         // dispatch an attribute changed event
         postEvent(new ElementUpdatedEvent(_oid, name, value, oldValue, index));
     }
-    
+
     /**
      * Calls by derived instances when an oid adder method was called.
      */
@@ -348,7 +349,7 @@ public class DObject // extends EventDispatcher
         // dispatch an object added event
         postEvent(new ObjectAddedEvent(_oid, name, oid));
     }
-    
+
     /**
      * Calls by derived instances when an oid remover method was called.
      */
@@ -421,6 +422,8 @@ public class DObject // extends EventDispatcher
 
     /** Indicates whether we want to be destroyed when our last subscriber is removed. */
     protected var _deathWish :Boolean = false;
+
+    private static const log :Log = Log.getLog(DObject);
 }
 }
 
