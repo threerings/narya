@@ -23,11 +23,15 @@ package com.threerings.crowd.chat.server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.util.Name;
 
 import com.threerings.crowd.chat.data.ChatChannel;
@@ -102,8 +106,20 @@ public class ChatHistory
     /**
      * Clears the chat history for the specified user.
      */
-    public void clear (Name username)
+    public void clear (final Name username)
     {
+        // if we're holding this username for a session observer, postpone until after the current
+        // dispatch finishes
+        if (_holds.contains(username)) {
+            _holds.remove(username);
+            _omgr.postRunnable(new Runnable () {
+                public void run () {
+                    clear(username);
+                }
+            });
+            return;
+        }
+
         // Log.info("Clearing history for " + username + ".");
         _histories.remove(username);
     }
@@ -133,6 +149,15 @@ public class ChatHistory
                 prune(msg.timestamp, history);
             }
         }
+    }
+
+    /**
+     * Causes the chat history for the given user to be held briefly after the {@link #clear()}
+     * call so that session observers can grab it.
+     */
+    public void hold (Name username)
+    {
+        _holds.add(username);
     }
 
     /**
@@ -168,6 +193,12 @@ public class ChatHistory
 
     /** Recent chat history for the server. */
     protected Map<Name, List<Entry>> _histories = Maps.newHashMap();
+
+    /** Names we will hold for. */
+    protected Set<Name> _holds = Sets.newHashSet();
+
+    // dependencies
+    @Inject protected PresentsDObjectMgr _omgr;
 
     /** The amount of time before chat history becomes... history. */
     protected static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
