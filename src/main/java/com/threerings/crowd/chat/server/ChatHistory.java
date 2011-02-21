@@ -1,0 +1,174 @@
+//
+// $Id$
+//
+// Narya library - tools for developing networked games
+// Copyright (C) 2002-2011 Three Rings Design, Inc., All Rights Reserved
+// http://code.google.com/p/narya/
+//
+// This library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published
+// by the Free Software Foundation; either version 2.1 of the License, or
+// (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+package com.threerings.crowd.chat.server;
+
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Singleton;
+
+import com.threerings.util.Name;
+
+import com.threerings.crowd.chat.data.ChatChannel;
+import com.threerings.crowd.chat.data.ChatMessage;
+import com.threerings.crowd.chat.data.KeepNoHistory;
+import com.threerings.crowd.chat.data.UserMessage;
+import com.threerings.io.Streamable;
+
+/**
+ * Provides a server-wide history of chat messages.
+ */
+@Singleton
+public class ChatHistory
+{
+    /**
+     * Recorded parcel of chat for historical purposes, maintained by
+     * {@link #record(ChatChannel, UserMessage, Name...)},
+     * {@link #get(Name)}, and {@link #clear(Name)}.
+     */
+    public static class Entry
+        implements Streamable
+    {
+        /** The channel on which the message was sent, of null if the channel manager was not
+         * used. */
+        public ChatChannel channel;
+
+        /** The message sent. */
+        public ChatMessage message;
+
+        /** For deserialization. */
+        public Entry ()
+        {
+        }
+
+        /**
+         * Creates a new history entry.
+         */
+        public Entry (ChatChannel channel, ChatMessage message)
+        {
+            this.channel = channel;
+            this.message = message;
+        }
+    }
+
+    /**
+     * Creates a new chat history, automatically registering a message observer with
+     * {@link SpeakUtil}.
+     */
+    public ChatHistory ()
+    {
+        SpeakUtil.registerMessageObserver(new SpeakUtil.MessageObserver() {
+            public void messageDelivered (Name hearer, UserMessage message) {
+                record(null, message, hearer);
+            }
+        });
+    }
+
+    /**
+     * Returns a list of {@link Entry} objects, one for each message to which this user has been
+     * privy in the recent past.  If the given name implements {@link KeepNoHistory}, null is
+     * returned.
+     */
+    public List<Entry> get (Name username)
+    {
+        List<Entry> history = getList(username);
+        if (history != null) {
+            prune(System.currentTimeMillis(), history);
+        }
+        return history;
+    }
+
+    /**
+     * Clears the chat history for the specified user.
+     */
+    public void clear (Name username)
+    {
+        // Log.info("Clearing history for " + username + ".");
+        _histories.remove(username);
+    }
+
+    /**
+     * Records the specified channel and message to the specified users' chat histories.  If {@link
+     * ChatMessage#timestamp} is not already filled in, it will be.
+     */
+    public void record (ChatChannel channel, UserMessage msg, Name ...usernames)
+    {
+        // fill in the message's time stamp if necessary
+        if (msg.timestamp == 0L) {
+            msg.timestamp = System.currentTimeMillis();
+        }
+
+        for (Name username : usernames) {
+            // add the message to this user's chat history
+            List<Entry> history = getList(username);
+            if (history == null) {
+                continue;
+            }
+            history.add(new Entry(channel, msg));
+
+            // if the history is big enough, potentially prune it (we always prune when asked for
+            // the history, so this is just to balance memory usage with CPU expense)
+            if (history.size() > 15) {
+                prune(msg.timestamp, history);
+            }
+        }
+    }
+
+    /**
+     * Returns this user's chat history, creating one if necessary. If the given name implements
+     * {@link KeepNoHistory}, null is returned.
+     */
+    protected List<Entry> getList (Name username)
+    {
+        if (username instanceof KeepNoHistory) {
+            return null;
+        }
+        List<Entry> history = _histories.get(username);
+        if (history == null) {
+            _histories.put(username, history = Lists.newArrayList());
+        }
+        return history;
+    }
+
+    /**
+     * Prunes all messages from this history which are expired.
+     */
+    protected void prune (long now, List<Entry> history)
+    {
+        int prunepos = 0;
+        for (int ll = history.size(); prunepos < ll; prunepos++) {
+            Entry entry = history.get(prunepos);
+            if (now - entry.message.timestamp < HISTORY_EXPIRATION) {
+                break; // stop when we get to the first valid message
+            }
+        }
+        history.subList(0, prunepos).clear();
+    }
+
+    /** Recent chat history for the server. */
+    protected Map<Name, List<Entry>> _histories = Maps.newHashMap();
+
+    /** The amount of time before chat history becomes... history. */
+    protected static final long HISTORY_EXPIRATION = 5L * 60L * 1000L;
+}

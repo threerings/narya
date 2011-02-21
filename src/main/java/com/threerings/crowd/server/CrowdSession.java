@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 
 import com.threerings.presents.server.PresentsSession;
 
+import com.threerings.crowd.chat.server.ChatHistory;
 import com.threerings.crowd.chat.server.SpeakUtil;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.OccupantInfo;
@@ -80,7 +81,7 @@ public class CrowdSession extends PresentsSession
         _bodyman.updateOccupantStatus(body, OccupantInfo.ACTIVE);
 
         // clear our chat history
-        SpeakUtil.clearHistory(body.getVisibleName());
+        _chatHistory.clear(body.getVisibleName());
     }
 
     /**
@@ -97,4 +98,5 @@ public class CrowdSession extends PresentsSession
     @Inject protected BodyLocator _locator;
     @Inject protected BodyManager _bodyman;
     @Inject protected LocationManager _locman;
+    @Inject protected ChatHistory _chatHistory;
 }

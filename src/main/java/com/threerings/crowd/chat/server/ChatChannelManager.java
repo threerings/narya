@@ -57,7 +57,6 @@ import com.threerings.crowd.chat.data.ChannelSpeakMarshaller;
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.UserMessage;
-import com.threerings.crowd.chat.server.SpeakUtil.ChatHistoryEntry;
 import com.threerings.crowd.data.BodyObject;
 import com.threerings.crowd.data.CrowdCodes;
 import com.threerings.crowd.peer.data.CrowdClientInfo;
@@ -83,7 +82,7 @@ public abstract class ChatChannelManager
 
         /** The things in the user's chat history, aggregated from all nodes and sorted by
          * timestamp. */
-        public List<ChatHistoryEntry> history;
+        public List<ChatHistory.Entry> history;
     }
 
     /**
@@ -114,9 +113,9 @@ public abstract class ChatChannelManager
     @AnyThread
     public void collectChatHistory (Name user, final ResultListener<ChatHistoryResult> lner)
     {
-        NodeRequestsListener<List<ChatHistoryEntry>> listener =
-            new NodeRequestsListener<List<ChatHistoryEntry>>() {
-                public void requestsProcessed (NodeRequestsResult<List<ChatHistoryEntry>> rRes) {
+        NodeRequestsListener<List<ChatHistory.Entry>> listener =
+            new NodeRequestsListener<List<ChatHistory.Entry>>() {
+                public void requestsProcessed (NodeRequestsResult<List<ChatHistory.Entry>> rRes) {
                     ChatHistoryResult chRes = new ChatHistoryResult();
                     chRes.failedNodes = rRes.getNodeErrors().keySet();
                     chRes.history = Lists.newArrayList(
@@ -295,7 +294,7 @@ public abstract class ChatChannelManager
         for (int bodyId : bodyIds) {
             BodyObject bobj = getBodyObject(bodyId);
             if (bobj != null && shouldDeliverSpeak(channel, message, bobj)) {
-                SpeakUtil.recordToChatHistory(channel, message, bobj.getVisibleName());
+                _chatHistory.record(channel, message, bobj.getVisibleName());
                 bobj.postMessage(ChatCodes.CHAT_CHANNEL_NOTIFICATION, channel, message);
             }
         }
@@ -420,22 +419,23 @@ public abstract class ChatChannelManager
         {
             // find all the UserMessages for the given user and send them back
             listener.requestProcessed(Lists.newArrayList(Iterables.filter(
-                SpeakUtil.getChatHistory(_user), IS_USER_MESSAGE)));
+                _chatHistory.get(_user), IS_USER_MESSAGE)));
         }
 
         protected Name _user;
+        @Inject ChatHistory _chatHistory;
     }
 
-    protected static final Predicate<ChatHistoryEntry> IS_USER_MESSAGE =
-        new Predicate<ChatHistoryEntry>() {
-        public boolean apply (ChatHistoryEntry entry) {
+    protected static final Predicate<ChatHistory.Entry> IS_USER_MESSAGE =
+        new Predicate<ChatHistory.Entry>() {
+        public boolean apply (ChatHistory.Entry entry) {
             return entry.message instanceof UserMessage;
         }
     };
 
-    protected static final Comparator<ChatHistoryEntry> SORT_BY_TIMESTAMP =
-        new Comparator<ChatHistoryEntry>() {
-        public int compare (ChatHistoryEntry e1, ChatHistoryEntry e2) {
+    protected static final Comparator<ChatHistory.Entry> SORT_BY_TIMESTAMP =
+        new Comparator<ChatHistory.Entry>() {
+        public int compare (ChatHistory.Entry e1, ChatHistory.Entry e2) {
             return Longs.compare(e1.message.timestamp, e2.message.timestamp);
         }
     };
@@ -499,6 +499,9 @@ public abstract class ChatChannelManager
 
     /** Used for acquiring BodyObject references from Names and ClientObjects. */
     @Inject protected BodyLocator _locator;
+
+    /** Used for recording chat history. */
+    @Inject protected ChatHistory _chatHistory;
 
     /** The period on which we check for idle channels. */
     protected static final long IDLE_CHANNEL_CHECK_PERIOD = 5 * 1000L;
