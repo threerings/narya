@@ -44,7 +44,7 @@ import com.samskivert.util.StringUtil;
  * <p>A few methods also use a "pattern" string parameter that is used to match a class name.
  * This is a dumbed down regular expression (to avoid many \.) where "*" means .* and no other
  * characters have special meaning. The pattern is also implicitly enclosed with ^$ so that the
- * pattern must match the class name in its entirity. Callers will mostly use this to specify a
+ * pattern must match the class name in its entirety. Callers will mostly use this to specify a
  * prefix like "something*" or a suffix like "*something".
  */
 public class ImportSet

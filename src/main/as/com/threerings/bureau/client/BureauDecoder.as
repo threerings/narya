@@ -21,7 +21,6 @@
 
 package com.threerings.bureau.client {
 
-import com.threerings.bureau.client.BureauReceiver;
 import com.threerings.presents.client.InvocationDecoder;
 
 /**
@@ -49,31 +48,28 @@ public class BureauDecoder extends InvocationDecoder
         this.receiver = receiver;
     }
 
-    // documentation inherited
     public override function getReceiverCode () :String
     {
         return RECEIVER_CODE;
     }
 
-    // documentation inherited
     public override function dispatchNotification (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case CREATE_AGENT:
             BureauReceiver(receiver).createAgent(
-                args[0] as int
+                (args[0] as int)
             );
             return;
 
         case DESTROY_AGENT:
             BureauReceiver(receiver).destroyAgent(
-                args[0] as int
+                (args[0] as int)
             );
             return;
 
         default:
             super.dispatchNotification(methodId, args);
-            return;
         }
     }
 }

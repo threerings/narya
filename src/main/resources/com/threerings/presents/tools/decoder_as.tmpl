@@ -1,0 +1,51 @@
+package {{package}} {
+
+{{#imports}}
+import {{this}};
+{{/imports}}
+
+/**
+ * Dispatches calls to a {@link {{name}}Receiver} instance.
+ */
+public class {{name}}Decoder extends InvocationDecoder
+{
+    /** The generated hash code used to identify this receiver class. */
+    public static const RECEIVER_CODE :String = "{{receiver_code}}";
+
+{{#methods}}
+    /** The method id used to dispatch {@link {{name}}Receiver#{{method.name}}}
+     * notifications. */
+    public static const {{code}} :int = {{-index}};
+
+{{/methods}}
+    /**
+     * Creates a decoder that may be registered to dispatch invocation
+     * service notifications to the specified receiver.
+     */
+    public function {{name}}Decoder (receiver :{{name}}Receiver)
+    {
+        this.receiver = receiver;
+    }
+
+    public override function getReceiverCode () :String
+    {
+        return RECEIVER_CODE;
+    }
+
+    public override function dispatchNotification (methodId :int, args :Array) :void
+    {
+        switch (methodId) {
+{{#methods}}
+        case {{code}}:
+            {{name}}Receiver(receiver).{{method.name}}(
+                {{getASUnwrappedArgList}}
+            );
+            return;
+
+{{/methods}}
+        default:
+            super.dispatchNotification(methodId, args);
+        }
+    }
+}
+}

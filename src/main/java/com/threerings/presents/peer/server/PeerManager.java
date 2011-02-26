@@ -569,7 +569,6 @@ public abstract class PeerManager
         final DObjectAddress remote, final ResultListener<Integer> listener)
     {
      if (remote.nodeName.equals(_nodeName)) {
-            System.out.println("Found locally!");
             _omgr.postRunnable(new Runnable() {
                 public void run () {
                     listener.requestCompleted(remote.oid);

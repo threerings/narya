@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.crowd.client.LocationReceiver;
 import com.threerings.presents.client.InvocationDecoder;
 
 /**
@@ -45,19 +44,16 @@ public class LocationDecoder extends InvocationDecoder
         this.receiver = receiver;
     }
 
-    // documentation inherited
-    override public function getReceiverCode () :String
+    public override function getReceiverCode () :String
     {
         return RECEIVER_CODE;
     }
 
-    // documentation inherited
-    override public function dispatchNotification (
-            methodId :int, args :Array) :void
+    public override function dispatchNotification (methodId :int, args :Array) :void
     {
         switch (methodId) {
         case FORCED_MOVE:
-            (receiver as LocationReceiver).forcedMove(
+            LocationReceiver(receiver).forcedMove(
                 (args[0] as int)
             );
             return;

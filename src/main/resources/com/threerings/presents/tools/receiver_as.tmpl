@@ -1,0 +1,17 @@
+package {{package}} {
+
+{{#imports}}
+import {{this}};
+{{/imports}}
+
+public interface {{name}}Receiver extends InvocationReceiver
+{
+{{#methods}}
+{{^-first}}
+
+{{/-first}}
+    // from Java interface {{name}}Receiver
+    function {{method.name}} ({{getASArgList}}) :void;
+{{/methods}}
+}
+}

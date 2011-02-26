@@ -23,28 +23,12 @@ package com.threerings.bureau.client {
 
 import com.threerings.presents.client.InvocationReceiver;
 
-/**
- * Hooks for controlling a previously launched bureau client.
- */
 public interface BureauReceiver extends InvocationReceiver
 {
-    /**
-     * Creates a new agent. Implementors should create a new {@link Agent} and give it access to 
-     * the {@link AgentObject} referred to by the <code>agentId</code> parameter and must notify
-     * the service that the agent has been created using {@link BureauService#agentCreated}.
-     * @param client the client receiving the request
-     * @param agentId the id of the <code>AgentObject</code> that needs an <code>Agent</code>
-     */
-    function createAgent (agentId :int) :void;
+    // from Java interface BureauReceiver
+    function createAgent (arg1 :int) :void;
 
-    /**
-     * Destroys a previously created agent. Implementors should destroy the agent that was created 
-     * by the call to <code>createAgent</code> with the same agent id and must notify
-     * the service that the agent has been created using {@link BureauService#agentDestroyed}.
-     * @param client the client receiving the request
-     * @param agentId the id of the <code>AgentObject</code> whose <code>Agent</code> 
-     * should be destroyed
-     */
-    function destroyAgent (agentId :int) :void;
+    // from Java interface BureauReceiver
+    function destroyAgent (arg1 :int) :void;
 }
 }

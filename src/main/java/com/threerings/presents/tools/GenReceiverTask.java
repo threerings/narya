@@ -29,12 +29,14 @@ import java.util.List;
 
 import java.io.File;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.presents.client.InvocationDecoder;
+import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationSender;
 
@@ -43,6 +45,14 @@ import com.threerings.presents.server.InvocationSender;
  */
 public class GenReceiverTask extends InvocationTask
 {
+    /**
+     * Configures the path to our ActionScript source files.
+     */
+    public void setAsroot (File asroot)
+    {
+        _asroot = asroot;
+    }
+
     @Override
     public void processClass (File source, Class<?> receiver)
         throws Exception
@@ -57,11 +67,8 @@ public class GenReceiverTask extends InvocationTask
         }
 
         // verify that the receiver class name is as we expect it to be
-        if (!rname.endsWith("Receiver")) {
-            System.err.println("Cannot process '" + rname + "':");
-            System.err.println("Receiver classes must be named SomethingReceiver.");
-            return;
-        }
+        Preconditions.checkArgument(rname.endsWith("Receiver"), "Cannot process '%s'. " +
+            "Receiver classes must be named SomethingReceiver.", rname);
 
         ImportSet imports = new ImportSet();
         ComparableArrayList<ServiceMethod> methods = new ComparableArrayList<ServiceMethod>();
@@ -142,7 +149,32 @@ public class GenReceiverTask extends InvocationTask
             "package", rpackage,
             "methods", methods,
             "imports", implist);
+        if (_asroot == null) {
+            return;
+        }
+        // generate an ActionScript decoder
+        String sppath = rpackage.replace('.', File.separatorChar);
+        String aspath = _asroot + File.separator + sppath + File.separator + name + "Decoder.as";
+        writeTemplate(AS_DECODER_TMPL, aspath,
+            "name", name,
+            "receiver_code", rcode,
+            "package", rpackage,
+            "methods", methods,
+            "imports", implist);
+
+        // ... and an ActionScript receiver
+        aspath = _asroot + File.separator + sppath + File.separator + rname + ".as";
+        implist.remove(InvocationDecoder.class.getName());
+        checkedAdd(implist, InvocationReceiver.class.getName());
+        writeTemplate(AS_RECEIVER_TMPL, aspath,
+            "name", name,
+            "package", rpackage,
+            "methods", methods,
+            "imports", implist);
     }
+
+    /** The path to our ActionScript source files. */
+    protected File _asroot;
 
     /** Specifies the path to the sender template. */
     protected static final String SENDER_TMPL =
@@ -151,4 +183,12 @@ public class GenReceiverTask extends InvocationTask
     /** Specifies the path to the decoder template. */
     protected static final String DECODER_TMPL =
         "com/threerings/presents/tools/decoder.tmpl";
+
+    /** Specifies the path to the decoder template. */
+    protected static final String AS_DECODER_TMPL =
+        "com/threerings/presents/tools/decoder_as.tmpl";
+
+    /** Specifies the path to the decoder template. */
+    protected static final String AS_RECEIVER_TMPL =
+        "com/threerings/presents/tools/receiver_as.tmpl";
 }
