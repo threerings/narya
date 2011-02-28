@@ -79,6 +79,8 @@ public abstract class PersistingUnit extends Invoker.Unit
     {
         if (_listener instanceof InvocationService.ConfirmListener) {
             reportRequestProcessed();
+        } else if (_listener instanceof InvocationService.ResultListener && _resultSet) {
+            reportRequestProcessed(_result);
         }
     }
 
@@ -148,7 +150,19 @@ public abstract class PersistingUnit extends Invoker.Unit
         return this + " failed.";
     }
 
+    /**
+     * If the service listener is a ResultListener and this method is called, then the given
+     * result will be passed along to the listener on success.
+     */
+    protected void setResult (Object result)
+    {
+        _resultSet = true;
+        _result = result;
+    }
+
     protected InvocationService.InvocationListener _listener;
     protected Exception _error;
     protected Object[] _args;
+    protected boolean _resultSet;
+    protected Object _result;
 }
