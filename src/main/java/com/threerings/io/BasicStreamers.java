@@ -29,9 +29,12 @@ import java.util.Set;
 import java.io.EOFException;
 import java.io.IOException;
 
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
 /**
@@ -67,6 +70,8 @@ public class BasicStreamers
         .put(Collection.class, ListStreamer.INSTANCE)
         .put(Set.class, SetStreamer.INSTANCE)
         .put(Map.class, MapStreamer.INSTANCE)
+        .put(Multiset.class, MultisetStreamer.INSTANCE)
+        .put(Iterable.class, IterableStreamer.INSTANCE)
         .build();
 
     /** Streams {@link Boolean} instances. */
@@ -432,6 +437,15 @@ public class BasicStreamers
     /** A building-block class for streaming Collections. */
     protected abstract static class CollectionStreamer extends BasicStreamer
     {
+        /** The ordering for Collection/Iterable classes, most to least specific. */
+        public static final List<Class<?>> SPECIFICITY_ORDER = ImmutableList.of(
+            /** Pretty specific. */
+            List.class, Map.class, Set.class, Multiset.class,
+            /** General. */
+            Collection.class,
+            /** Last resort. */
+            Iterable.class);
+
         @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
@@ -463,6 +477,19 @@ public class BasicStreamers
         protected abstract Collection<Object> createCollection (int size);
     }
 
+    /** Streams {@link Set} instances. */
+    public static class SetStreamer extends CollectionStreamer
+    {
+        /** A singleton instance. */
+        public static final SetStreamer INSTANCE = new SetStreamer();
+
+        @Override
+        protected Collection<Object> createCollection (int size)
+        {
+            return Sets.newHashSetWithExpectedSize(size);
+        }
+    }
+
     /** Streams {@link List} instances. */
     public static class ListStreamer extends CollectionStreamer
     {
@@ -476,16 +503,18 @@ public class BasicStreamers
         }
     }
 
-    /** Streams {@link Set} instances. */
-    public static class SetStreamer extends CollectionStreamer
+    /** Copy a non-Collection {@link Iterable} into a List. */
+    public static class IterableStreamer extends ListStreamer
     {
         /** A singleton instance. */
-        public static final SetStreamer INSTANCE = new SetStreamer();
+        public static final IterableStreamer INSTANCE = new IterableStreamer();
 
         @Override
-        protected Collection<Object> createCollection (int size)
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
         {
-            return Sets.newHashSetWithExpectedSize(size);
+            // re-wrap the Iterable in a List and let superclass ListStreamer do the rest
+            super.writeObject(Lists.newArrayList((Iterable<?>)object), out, useWriter);
         }
     }
 
@@ -525,6 +554,49 @@ public class BasicStreamers
         protected Map<Object, Object> createMap (int size)
         {
             return Maps.newHashMapWithExpectedSize(size);
+        }
+    }
+
+    /** Streams {@link Multiset} instances. */
+    public static class MultisetStreamer extends BasicStreamer
+    {
+        /** A singleton instance. */
+        public static final MultisetStreamer INSTANCE = new MultisetStreamer();
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            int size = in.readInt();
+            Multiset<Object> set = createMultiset(size);
+            for (int ii = 0; ii < size; ii++) {
+                set.add(in.readObject(), in.readInt());
+            }
+            return set;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            // There seems to be a weird bug with the compiler: if I cast to Multiset<?>
+            // then it has a problem assigning the Set<Multiset.Entry<?>>.
+            @SuppressWarnings("unchecked")
+            Multiset<Object> set = (Multiset<Object>)object;
+            Set<Multiset.Entry<Object>> entrySet = set.entrySet();
+            out.writeInt(entrySet.size());
+            for (Multiset.Entry<Object> entry : entrySet) {
+                out.writeObject(entry.getElement());
+                out.writeInt(entry.getCount());
+            }
+        }
+
+        /**
+         * Overrideable if a subclass is desired to stream a different kind of multiset.
+         */
+        protected Multiset<Object> createMultiset (int size)
+        {
+            return HashMultiset.create(size);
         }
     }
 

@@ -33,7 +33,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import java.io.IOException;
 
@@ -109,17 +108,10 @@ public class Streamer
             // the class is natively streamable, let's ignore it
             return null;
         }
-        if (Map.class.isAssignableFrom(clazz)) {
-            return Map.class;
-        }
-        if (Set.class.isAssignableFrom(clazz)) {
-            return Set.class;
-        }
-        if (List.class.isAssignableFrom(clazz)) {
-            return List.class;
-        }
-        if (Collection.class.isAssignableFrom(clazz)) {
-            return Collection.class;
+        for (Class<?> collClass : BasicStreamers.CollectionStreamer.SPECIFICITY_ORDER) {
+            if (collClass.isAssignableFrom(clazz)) {
+                return collClass;
+            }
         }
         return null;
     }
