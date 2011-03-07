@@ -528,10 +528,9 @@ public class Streamer
         List<Field> fields = Lists.newArrayList();
         ClassUtil.getFields(_target, fields);
 
-        /** Checks whether or not we should stream the fields in alphabetical order.  This ensures
-         *  cross-JVM compatibility since Class.getDeclaredFields() does not define an order.  Due
-         *  to legacy issues, this is false by default.
-         */
+        // Checks whether or not we should stream the fields in alphabetical order.  This ensures
+        // cross-JVM compatibility since Class.getDeclaredFields() does not define an order.  Due
+        // to legacy issues, this is false by default.
         if (Boolean.getBoolean("com.threerings.io.streamFieldsAlphabetically")) {
             Collections.sort(fields, FIELD_ALPHA_COMPARATOR);
         }
