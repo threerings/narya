@@ -30,7 +30,8 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -526,6 +527,15 @@ public class Streamer
         // reflect on all the object's fields and remove all marked with NotStreamable
         List<Field> fields = Lists.newArrayList();
         ClassUtil.getFields(_target, fields);
+
+        /** Checks whether or not we should stream the fields in alphabetical order.  This ensures
+         *  cross-JVM compatibility since Class.getDeclaredFields() does not define an order.  Due
+         *  to legacy issues, this is false by default.
+         */
+        if (Boolean.getBoolean("com.threerings.io.streamFieldsAlphabetically")) {
+            Collections.sort(fields, FIELD_ALPHA_COMPARATOR);
+        }
+
         _fields = Iterables.toArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
         int fcount = _fields.length;
 
@@ -549,6 +559,13 @@ public class Streamer
             _streamers = Maps.newHashMap(BasicStreamers.BSTREAMERS);
         }
     }
+
+    protected Comparator<Field> FIELD_ALPHA_COMPARATOR = new Comparator<Field>() {
+        public int compare (Field arg0, Field arg1)
+        {
+            return arg0.getName().compareTo(arg1.getName());
+        }
+    };
 
     /** Used to coerce the type system into quietude when reading enums from the wire. */
     protected static enum EnumReader implements ByteEnum {
