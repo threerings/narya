@@ -75,7 +75,7 @@ public class Streamer
                 return true;
             }
 
-            // if it's not an array, it must be streamable, or a Collection or Map
+            // if it's not an array, it must be streamable, or an Iterable or Map
             if (!target.isArray()) {
                 return Streamable.class.isAssignableFrom(target) ||
                     Iterable.class.isAssignableFrom(target) ||
