@@ -68,10 +68,10 @@ public class BasicStreamers
         .put(Object[].class, new ObjectArrayStreamer())
         .put(List.class, ListStreamer.INSTANCE)
         .put(Collection.class, ListStreamer.INSTANCE)
-        .put(Set.class, SetStreamer.INSTANCE)
-        .put(Map.class, MapStreamer.INSTANCE)
-        .put(Multiset.class, MultisetStreamer.INSTANCE)
-        .put(Iterable.class, IterableStreamer.INSTANCE)
+        .put(Set.class, new SetStreamer())
+        .put(Map.class, new MapStreamer())
+        .put(Multiset.class, new MultisetStreamer())
+        .put(Iterable.class, new IterableStreamer())
         .build();
 
     /** Streams {@link Boolean} instances. */
@@ -480,9 +480,6 @@ public class BasicStreamers
     /** Streams {@link Set} instances. */
     public static class SetStreamer extends CollectionStreamer
     {
-        /** A singleton instance. */
-        public static final SetStreamer INSTANCE = new SetStreamer();
-
         @Override
         protected Collection<Object> createCollection (int size)
         {
@@ -506,9 +503,6 @@ public class BasicStreamers
     /** Copy a non-Collection {@link Iterable} into a List. */
     public static class IterableStreamer extends ListStreamer
     {
-        /** A singleton instance. */
-        public static final IterableStreamer INSTANCE = new IterableStreamer();
-
         @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
@@ -521,9 +515,6 @@ public class BasicStreamers
     /** Streams {@link Map} instances. */
     public static class MapStreamer extends BasicStreamer
     {
-        /** A singleton instance. */
-        public static final MapStreamer INSTANCE = new MapStreamer();
-
         @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
@@ -560,9 +551,6 @@ public class BasicStreamers
     /** Streams {@link Multiset} instances. */
     public static class MultisetStreamer extends BasicStreamer
     {
-        /** A singleton instance. */
-        public static final MultisetStreamer INSTANCE = new MultisetStreamer();
-
         @Override
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
@@ -599,15 +587,6 @@ public class BasicStreamers
             return HashMultiset.create(size);
         }
     }
-
-//    // TODO : We can't create an EnumMap of zero size- we need to know the key class
-//    public static class EnumMapStreamer extends MapStreamer
-//    {
-//    }
-//    // TODO : We can't create an EnumSet of zero size- we need to know the key class
-//    public static class EnumSetStreamer extends CollectionStreamer
-//    {
-//    }
 
     /** Streams {@link String} instances. */
     public static class BasicStreamer extends Streamer
