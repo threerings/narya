@@ -605,14 +605,12 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Reader extends LoopingThread
     {
-        public Reader ()
-        {
+        public Reader () {
             super("BlockingCommunicator_Reader");
         }
 
         @Override
-        protected void willStart ()
-        {
+        protected void willStart () {
             try {
                 // connect to the server
                 connect();
@@ -693,8 +691,7 @@ public class BlockingCommunicator extends Communicator
         // now that we're authenticated, we manage the reading half of things by continuously
         // reading messages from the socket and processing them
         @Override
-        protected void iterate ()
-        {
+        protected void iterate () {
             DownstreamMessage msg = null;
 
             try {
@@ -727,21 +724,18 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
-        protected void handleIterateFailure (Exception e)
-        {
+        protected void handleIterateFailure (Exception e) {
             log.warning("Uncaught exception it reader thread.", e);
         }
 
         @Override
-        protected void didShutdown ()
-        {
+        protected void didShutdown () {
             // let the communicator know when we finally go away
             readerDidExit();
         }
 
         @Override
-        protected void kick ()
-        {
+        protected void kick () {
             // we want to interrupt the reader thread as it may be blocked listening to the socket;
             // this is only called if the reader thread doesn't shut itself down
 
@@ -759,21 +753,18 @@ public class BlockingCommunicator extends Communicator
      */
     protected class Writer extends LoopingThread
     {
-        public Writer ()
-        {
+        public Writer () {
             super("BlockingCommunicator_Writer");
         }
 
         @Override
-        public synchronized void shutdown ()
-        {
+        public synchronized void shutdown () {
             // we want to finish off what's in our queue before we actually shutdown
             postMessage(new TerminationMessage());
         }
 
         @Override
-        protected void iterate ()
-        {
+        protected void iterate () {
             // fetch the next message from the queue
             UpstreamMessage msg = _msgq.get();
 
@@ -798,14 +789,12 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
-        protected void handleIterateFailure (Exception e)
-        {
+        protected void handleIterateFailure (Exception e) {
             log.warning("Uncaught exception it writer thread.", e);
         }
 
         @Override
-        protected void didShutdown ()
-        {
+        protected void didShutdown () {
             writerDidExit();
         }
     }
@@ -815,14 +804,12 @@ public class BlockingCommunicator extends Communicator
      */
     protected class DatagramReader extends LoopingThread
     {
-        public DatagramReader ()
-        {
+        public DatagramReader () {
             super("BlockingCommunicator_DatagramReader");
         }
 
         @Override
-        protected void willStart ()
-        {
+        protected void willStart () {
             try {
                 connect();
             } catch (IOException ioe) {
@@ -922,8 +909,7 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
-        protected void iterate ()
-        {
+        protected void iterate () {
             DownstreamMessage msg = null;
 
             try {
@@ -949,20 +935,17 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
-        protected void handleIterateFailure (Exception e)
-        {
+        protected void handleIterateFailure (Exception e) {
             log.warning("Uncaught exception in datagram reader thread.", e);
         }
 
         @Override
-        protected void didShutdown ()
-        {
+        protected void didShutdown () {
             datagramReaderDidExit();
         }
 
         @Override
-        protected void kick ()
-        {
+        protected void kick () {
             // if we have a selector, wake it up
             if (_selector != null) {
                 _selector.wakeup();
@@ -975,14 +958,12 @@ public class BlockingCommunicator extends Communicator
      */
     protected class DatagramWriter extends LoopingThread
     {
-        public DatagramWriter ()
-        {
+        public DatagramWriter () {
             super("BlockingCommunicator_DatagramWriter");
         }
 
         @Override
-        protected void iterate ()
-        {
+        protected void iterate () {
             // fetch the next message from the queue
             UpstreamMessage msg = _dataq.get();
 
@@ -1010,20 +991,17 @@ public class BlockingCommunicator extends Communicator
         }
 
         @Override
-        protected void handleIterateFailure (Exception e)
-        {
+        protected void handleIterateFailure (Exception e) {
             log.warning("Uncaught exception in datagram writer thread.", e);
         }
 
         @Override
-        protected void didShutdown ()
-        {
+        protected void didShutdown () {
             datagramWriterDidExit();
         }
 
         @Override
-        protected void kick ()
-        {
+        protected void kick () {
             // post a bogus message to the outgoing queue to ensure that the writer thread notices
             // that it's time to go
             _dataq.append(new TerminationMessage());

@@ -74,19 +74,19 @@ public class AuthingConnection extends PresentsConnection
                         ((AESAuthRequest)msg).decrypt(_serverSecret);
 
                     } catch (ClassCastException cce) {
-                        log.warning("Received non-encrypted request during secure " +
-                                "authentication process",
-                                "conn", AuthingConnection.this, "msg", msg);
+                        log.warning(
+                            "Received non-encrypted request during secure authentication process",
+                            "conn", AuthingConnection.this, "msg", msg);
                     } catch (ClassNotFoundException cnfe) {
                         log.warning(
-                                "Failed to decrypt request during secure authentication process",
-                                "conn", AuthingConnection.this, "msg", msg, cnfe);
+                            "Failed to decrypt request during secure authentication process",
+                            "conn", AuthingConnection.this, "msg", msg, cnfe);
                         safePostMessage(new SecureResponse(AuthCodes.FAILED_TO_SECURE));
                         return;
                     } catch (IOException ioe) {
                         log.warning(
-                                "Failed to decrypt request during secure authentication process",
-                                "conn", AuthingConnection.this, "msg", msg, ioe);
+                            "Failed to decrypt request during secure authentication process",
+                            "conn", AuthingConnection.this, "msg", msg, ioe);
                         safePostMessage(new SecureResponse(AuthCodes.FAILED_TO_SECURE));
                         return;
                     }
@@ -96,7 +96,7 @@ public class AuthingConnection extends PresentsConnection
                     _authreq = (AuthRequest)msg;
                 } catch (ClassCastException cce) {
                     log.warning("Received non-authreq message during authentication process",
-                                "conn", AuthingConnection.this, "msg", msg);
+                        "conn", AuthingConnection.this, "msg", msg);
                 }
 
                 if (_authreq != null) {

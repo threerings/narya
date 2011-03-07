@@ -186,7 +186,6 @@ public abstract class ConnectionManager extends LoopingThread
         // totally done so that we can send shutdown-related events out to our clients; during
         // those last moments we don't want to accept new connections or read any incoming messages
         if (super.isRunning()) {
-
             handleIncoming(iterStamp);
         }
 
@@ -195,8 +194,8 @@ public abstract class ConnectionManager extends LoopingThread
         }
     }
 
-    protected void handleIncoming(long iterStamp) {
-
+    protected void handleIncoming (long iterStamp)
+    {
         SocketChannel accepted;
         while ((accepted = _acceptedq.getNonBlocking()) != null) {
             handleAcceptedSocket(accepted);
