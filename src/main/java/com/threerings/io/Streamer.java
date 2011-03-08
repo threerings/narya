@@ -272,7 +272,7 @@ public abstract class Streamer
                     return new ByteEnumStreamer(target);
                 }
             }
-            // otherwise, if OLD and not a ByteEnum, stream by name
+            // otherwise, if by name and not a ByteEnum...
             if (ENUM_POLICY == EnumPolicy.NAME_WITH_BYTE_ENUM) {
                 return new NameEnumStreamer(target);
 
@@ -474,6 +474,9 @@ public abstract class Streamer
         protected CustomClassStreamer (Class<?> target, Method reader, Method writer)
         {
             super(target, false); // we will lazy-initialize the marshallers only if needed
+            // (It's possible there is only a writer method, but the object is never read
+            // from clients, so don't get cute and set up the marshallers now if one of the
+            // methods is null).
             _reader = reader;
             _writer = writer;
         }
