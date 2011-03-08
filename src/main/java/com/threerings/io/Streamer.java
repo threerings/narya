@@ -67,27 +67,20 @@ public abstract class Streamer
         // if we have not yet initialized ourselves, do so now
         maybeInit();
 
-        while (true) {
-            // if we've got a streamer for it, it's good
-            if (_streamers.containsKey(target)) {
-                return true;
-            }
-
-            // enums can be streamed
-            if (target.isEnum()) {
-                return true;
-            }
-
-            // if it's not an array, it must be streamable, or an Iterable or Map
-            if (!target.isArray()) {
-                return Streamable.class.isAssignableFrom(target) ||
-                    Iterable.class.isAssignableFrom(target) ||
-                    Map.class.isAssignableFrom(target);
-            }
-
-            // otherwise extract the component type and loop back around for another check...
-            target = target.getComponentType();
+        // if we already have a streamer, or it's an enum, it's good
+        if (_streamers.containsKey(target) || target.isEnum()) {
+            return true;
         }
+
+        // arrays are streamable, let's check the component type
+        if (target.isArray()) {
+            return isStreamable(target.getComponentType());
+        }
+
+        // otherwise it must be Streamable, or an Iterable or Map
+        return Streamable.class.isAssignableFrom(target) ||
+            Iterable.class.isAssignableFrom(target) ||
+            Map.class.isAssignableFrom(target);
     }
 
     /**
