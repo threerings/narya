@@ -74,6 +74,17 @@ public class BasicStreamers
         .put(Iterable.class, new IterableStreamer())
         .build();
 
+    /** Abstract base class for basic streamers. */
+    public abstract static class BasicStreamer extends Streamer
+    {
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            // nothing to do here
+        }
+    }
+
     /** Streams {@link Boolean} instances. */
     public static class BooleanStreamer extends BasicStreamer
     {
@@ -585,17 +596,6 @@ public class BasicStreamers
         protected Multiset<Object> createMultiset (int size)
         {
             return HashMultiset.create(size);
-        }
-    }
-
-    /** Streams {@link String} instances. */
-    public static class BasicStreamer extends Streamer
-    {
-        @Override
-        public void readObject (Object object, ObjectInputStream in, boolean useReader)
-            throws IOException, ClassNotFoundException
-        {
-            // nothing to do here
         }
     }
 

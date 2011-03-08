@@ -30,14 +30,15 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import java.io.IOException;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -45,6 +46,7 @@ import com.google.common.collect.Maps;
 import com.samskivert.util.ByteEnum;
 import com.samskivert.util.ByteEnumUtil;
 import com.samskivert.util.ClassUtil;
+import com.samskivert.util.QuickSort;
 
 import static com.threerings.NaryaLog.log;
 
@@ -55,7 +57,7 @@ import static com.threerings.NaryaLog.log;
  * and caches the information necessary to efficiently read and write objects of the class in
  * question.
  */
-public class Streamer
+public abstract class Streamer
 {
     /**
      * Returns true if the supplied target class can be streamed using a streamer.
@@ -159,7 +161,7 @@ public class Streamer
                     stream = AccessController.doPrivileged(
                         new PrivilegedExceptionAction<Streamer>() {
                             public Streamer run () throws IOException {
-                                return new Streamer(target);
+                                return create(target);
                             }
                         });
                 } catch (PrivilegedActionException pae) {
@@ -180,153 +182,16 @@ public class Streamer
      * @param out the stream to which to write the instance.
      * @param useWriter whether or not to use the custom <code>writeObject</code> if one exists.
      */
-    public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
-        throws IOException
-    {
-        // if we're supposed to and one exists, use the writer method
-        if (useWriter && _writer != null) {
-            try {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Writing with writer", "class", _target.getName());
-                }
-                _writer.invoke(object, new Object[] { out });
-
-            } catch (Throwable t) {
-                if (t instanceof InvocationTargetException) {
-                    t = ((InvocationTargetException)t).getTargetException();
-                }
-                if (t instanceof IOException) {
-                    throw (IOException)t;
-                }
-                String errmsg = "Failure invoking streamable writer " +
-                    "[class=" + _target.getName() + "]";
-                throw (IOException) new IOException(errmsg).initCause(t);
-            }
-            return;
-        }
-
-        // if we're writing an array, do some special business
-        if (_target.isArray()) {
-            int length = Array.getLength(object);
-            out.writeInt(length);
-
-            // if the component class is final, we can be sure that all instances in the array will
-            // be of the same class and thus can serialize things more efficiently
-            int cmods = _target.getComponentType().getModifiers();
-            if (Modifier.isFinal(cmods)) {
-                // compute a mask indicating which elements are null and which are populated
-                ArrayMask mask = new ArrayMask(length);
-                for (int ii = 0; ii < length; ii++) {
-                    if (Array.get(object, ii) != null) {
-                        mask.set(ii);
-                    }
-                }
-                // write that mask out to the stream
-                mask.writeTo(out);
-
-                // now write out the populated elements
-                for (int ii = 0; ii < length; ii++) {
-                    Object element = Array.get(object, ii);
-                    if (element != null) {
-                        out.writeBareObject(element, _delegate, useWriter);
-                    }
-                }
-
-            } else {
-                // otherwise we've got to write each array element with its own class identifier
-                // because it could be any derived class of the array element type
-                for (int ii = 0; ii < length; ii++) {
-                    out.writeObject(Array.get(object, ii));
-                }
-            }
-            return;
-        }
-
-        // if we're writing an enum; write its string value (to avoid future compatibility issues
-        // if someone serializes an enum to a file and then adds a value to the enum, changing the
-        // ordinal assignments)
-        if (_target.isEnum()) {
-            if (object instanceof ByteEnum) {
-                out.writeByte(((ByteEnum) object).toByte());
-            } else {
-                out.writeUTF(((Enum<?>)object).name());
-            }
-            return;
-        }
-
-        // otherwise simply write out the fields via our field marshallers
-        if (_marshallers == null) {
-            initMarshallers();
-        }
-        int fcount = _fields.length;
-        for (int ii = 0; ii < fcount; ii++) {
-            Field field = _fields[ii];
-            FieldMarshaller fm = _marshallers[ii];
-            if (fm == null) {
-                String errmsg = "Unable to marshall field [class=" + _target.getName() +
-                    ", field=" + field.getName() + ", type=" + field.getType().getName() + "]";
-                throw new IOException(errmsg);
-            }
-            try {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Writing field", "class", _target.getName(), "field", field.getName());
-                }
-                fm.writeField(field, object, out);
-            } catch (Exception e) {
-                String errmsg = "Failure writing streamable field [class=" + _target.getName() +
-                    ", field=" + field.getName() + "]";
-                throw (IOException) new IOException(errmsg).initCause(e);
-            }
-        }
-    }
+    public abstract void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+        throws IOException;
 
     /**
      * Creates a blank object that can subsequently be read by this streamer.  Data may be read
      * from the input stream as a result of this method (in the case of arrays, the length of the
      * array must be read before creating the array).
      */
-    public Object createObject (ObjectInputStream in)
-        throws IOException, ClassNotFoundException
-    {
-        try {
-            // if our target class is an array type, read in the element count and create an array
-            // instance of the appropriate type and size
-            if (_target.isArray()) {
-                int length = in.readInt();
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Creating array '" +
-                             _target.getComponentType().getName() + "[" + length + "]'.");
-                }
-                return Array.newInstance(_target.getComponentType(), length);
-
-            } else if (_target.isEnum()) {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Creating enum '" + _target.getName() + "'.");
-                }
-                @SuppressWarnings("unchecked") Class<EnumReader> eclass =
-                    (Class<EnumReader>)_target;
-                if (ByteEnum.class.isAssignableFrom(_target)) {
-                    return ByteEnumUtil.fromByte(eclass, in.readByte());
-                } else {
-                    return Enum.valueOf(eclass, in.readUTF());
-                }
-
-            } else {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Creating object '" + _target.getName() + "'.");
-                }
-                return _target.newInstance();
-            }
-
-        } catch (InstantiationException ie) {
-            String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
-            throw (IOException) new IOException(errmsg).initCause(ie);
-
-        } catch (IllegalAccessException iae) {
-            String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
-            throw (IOException) new IOException(errmsg).initCause(iae);
-        }
-    }
+    public abstract Object createObject (ObjectInputStream in)
+        throws IOException, ClassNotFoundException;
 
     /**
      * Reads and populates the fields of the supplied object from the specified stream.
@@ -335,122 +200,24 @@ public class Streamer
      * @param in the stream from which to read the instance.
      * @param useReader whether or not to use the custom <code>readObject</code> if one exists.
      */
-    public void readObject (Object object, ObjectInputStream in, boolean useReader)
-        throws IOException, ClassNotFoundException
+    public abstract void readObject (Object object, ObjectInputStream in, boolean useReader)
+        throws IOException, ClassNotFoundException;
     {
-        // if we're supposed to and one exists, use the reader method
-        if (useReader && _reader != null) {
-            try {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Reading with reader '" + _target.getName() + "." +
-                             _reader.getName() + "()'.");
-                }
-                _reader.invoke(object, new Object[] { in });
-
-            } catch (Throwable t) {
-                if (t instanceof InvocationTargetException) {
-                    t = ((InvocationTargetException)t).getTargetException();
-                }
-                if (t instanceof IOException) {
-                    throw (IOException)t;
-                }
-                String errmsg = "Failure invoking streamable reader " +
-                    "[class=" + _target.getName() + "]";
-                throw (IOException) new IOException(errmsg).initCause(t);
-            }
-            return;
-        }
-
-        if (ObjectInputStream.STREAM_DEBUG) {
-            log.info(in.hashCode() + ": Reading '" + _target.getName() + "'.");
-        }
-
-        // if we're reading in an array, do some special business
-        if (_target.isArray()) {
-            int length = Array.getLength(object);
-            // if the component class is final, we can be sure that all instances in the array will
-            // be of the same class and thus have serialized things more efficiently
-            int cmods = _target.getComponentType().getModifiers();
-            if (Modifier.isFinal(cmods)) {
-                // read in the nullness mask
-                ArrayMask mask = new ArrayMask();
-                mask.readFrom(in);
-                // now read in the array elements given that we know which elements to read
-                for (int ii = 0; ii < length; ii++) {
-                    if (mask.isSet(ii)) {
-                        if (ObjectInputStream.STREAM_DEBUG) {
-                            log.info(in.hashCode() + ": Reading fixed element '" + ii + "'.");
-                        }
-                        Object element = _delegate.createObject(in);
-                        in.readBareObject(element, _delegate, useReader);
-                        Array.set(object, ii, element);
-                    } else if (ObjectInputStream.STREAM_DEBUG) {
-                        log.info(in.hashCode() + ": Skipping null element '" + ii + "'.");
-                    }
-                }
-
-            } else {
-                // otherwise we had to write each object out individually
-                for (int ii = 0; ii < length; ii++) {
-                    if (ObjectInputStream.STREAM_DEBUG) {
-                        log.info(in.hashCode() + ": Reading free element '" + ii + "'.");
-                    }
-                    Array.set(object, ii, in.readObject());
-                }
-            }
-            return;
-        }
-
-        // an enum has no additional state
-        if (_target.isEnum()) {
-            return;
-        }
-
-        // otherwise simply read the fields via our field marshallers
-        if (_marshallers == null) {
-            initMarshallers();
-        }
-        int fcount = _fields.length;
-        for (int ii = 0; ii < fcount; ii++) {
-            Field field = _fields[ii];
-            FieldMarshaller fm = _marshallers[ii];
-            if (fm == null) {
-                String errmsg = "Unable to marshall field [class=" + _target.getName() +
-                    ", field=" + field.getName() + ", type=" + field.getType().getName() + "]";
-                throw new IOException(errmsg);
-            }
-            try {
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info(in.hashCode() + ": Reading field '" + field.getName() + "' " +
-                             "with " + fm + ".");
-                }
-                // gracefully deal with objects that have had new fields added to their class
-                // definition
-                if (in.available() > 0) {
-                    fm.readField(field, object, in);
-                } else {
-                    log.info("Streamed instance missing field (probably newly added)",
-                             "class", _target.getName(), "field", field.getName());
-                }
-            } catch (Exception e) {
-                String errmsg = "Failure reading streamable field [class=" + _target.getName() +
-                    ", field=" + field.getName() + ", error=" + e + "]";
-                throw (IOException) new IOException(errmsg).initCause(e);
-            }
-        }
-
-        if (ObjectInputStream.STREAM_DEBUG) {
-            log.info(in.hashCode() + ": Read object '" + object + "'.");
-        }
     }
 
     @Override
     public String toString ()
     {
-        return (_target == null) ? getClass().getName() :
-            "[target=" + _target.getName() + ", delegate=" + _delegate +
-            ", fcount=" + (_fields == null ? 0 : _fields.length) +
-            ", reader=" + _reader + ", writer=" + _writer + "]";
+        return toStringHelper(Objects.toStringHelper(this)).toString();
+    }
+
+    /**
+     * Overrideable to add more information to this class' toString() representation.
+     */
+    protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+    {
+        // nada in the base class
+        return otsh;
     }
 
     /**
@@ -461,93 +228,677 @@ public class Streamer
     }
 
     /**
-     * Constructs a streamer for the specified target class.
+     * Create the appropriate Streamer for a newly-seen class.
      */
-    protected Streamer (Class<?> target)
+    protected static Streamer create (Class<?> target)
         throws IOException
     {
-        // keep a handle on the class
-        _target = target;
-
-        // if this is a non-static inner class, freak out because we cannot stream those
-        boolean isInner = false, isStatic = Modifier.isStatic(_target.getModifiers());
+        // validate that the class is really streamable
+        boolean isInner = false, isStatic = Modifier.isStatic(target.getModifiers());
         try {
-            isInner = (_target.getDeclaringClass() != null);
+            isInner = (target.getDeclaringClass() != null);
         } catch (Throwable t) {
-            log.warning("Failure checking innerness of class", "class", _target.getName(),
-                        "error", t);
+            log.warning("Failure checking innerness of class",
+                "class", target.getName(), "error", t);
         }
         if (isInner && !isStatic) {
             throw new IllegalArgumentException(
-                "Cannot stream non-static inner class: " + _target.getName());
+                "Cannot stream non-static inner class: " + target.getName());
         }
 
-        // if our target class is an array, we want to get a handle on a streamer delegate that
-        // we'll use to stream our elements
-        if (_target.isArray()) {
-            _delegate = Streamer.getStreamer(_target.getComponentType());
+        // create streamers for array types
+        if (target.isArray()) {
+            Class<?> componentType = target.getComponentType();
+            Streamer delegate = Streamer.getStreamer(componentType);
             // sanity check
-            if (_delegate == null) {
+            if (delegate == null) {
                 String errmsg = "Aiya! Streamer created for array type but we have no registered " +
-                    "streamer for the element type [type=" + _target.getName() + "]";
+                    "streamer for the element type [type=" + target.getName() + "]";
                 throw new RuntimeException(errmsg);
             }
-            // and that's all we'll need
-            return;
+            if (Modifier.isFinal(componentType.getModifiers())) {
+                return new FinalArrayStreamer(componentType, delegate);
 
-        } else if (_target.isEnum()) {
-            // nothing extra for enums
-            return;
+            } else {
+                return new ArrayStreamer(componentType, delegate);
+            }
         }
 
-        // look up the reader and writer methods
+        // create streamers for enum types
+        if (target.isEnum()) {
+            // if not NEW and we have a ByteEnum, stream using that
+            if (ENUM_POLICY != EnumPolicy.NEW) {
+                if (ByteEnum.class.isAssignableFrom(target)) {
+                    return new ByteEnumStreamer(target);
+                }
+            }
+            // otherwise, if OLD and not a ByteEnum, stream by name
+            if (ENUM_POLICY == EnumPolicy.OLD) {
+                return new NameEnumStreamer(target);
+
+            } else {
+                // if NEW, or NEW_WITH_BYTE_ENUM and not a ByteEnum, stream by ordinal (optimized!)
+                List<?> universe = ImmutableList.copyOf(target.getEnumConstants());
+                int size = universe.size();
+                if (size <= (1 << (Byte.SIZE - 1))) {
+                    return new ByteOrdEnumStreamer(target, universe);
+
+                } else if (size <= (1 << (Short.SIZE - 1))) {
+                    return new ShortOrdEnumStreamer(target, universe);
+
+                } else {
+                    return new IntOrdEnumStreamer(target, universe);
+                }
+            }
+        }
+
+        // create Streamers for other types
+        Method reader = null;
+        Method writer = null;
         try {
-            _reader = target.getMethod(READER_METHOD_NAME, READER_ARGS);
+            reader = target.getMethod(READER_METHOD_NAME, READER_ARGS);
         } catch (NoSuchMethodException nsme) {
             // nothing to worry about, we just don't have one
         }
         try {
-            _writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
+            writer = target.getMethod(WRITER_METHOD_NAME, WRITER_ARGS);
         } catch (NoSuchMethodException nsme) {
             // nothing to worry about, we just don't have one
         }
 
-        // let's try to fail fast and initialize the marshallers now if we know
-        // we're going to need them.
-        if ((_reader == null) || (_writer == null)) {
-            initMarshallers();
+        // if there is no reader and no writer, we can do a simpler thing
+        if ((reader == null) && (writer == null)) {
+            return new ClassStreamer(target);
+
+        } else {
+            return new CustomClassStreamer(target, reader, writer);
         }
     }
 
     /**
-     * Initialize the marshallers.
+     * A streamer that streams the fields of a class.
      */
-    protected void initMarshallers ()
+    protected static class ClassStreamer extends Streamer
     {
-        // reflect on all the object's fields and remove all marked with NotStreamable
-        List<Field> fields = Lists.newArrayList();
-        ClassUtil.getFields(_target, fields);
-
-        // Checks whether or not we should stream the fields in alphabetical order.  This ensures
-        // cross-JVM compatibility since Class.getDeclaredFields() does not define an order.  Due
-        // to legacy issues, this is false by default.
-        if (Boolean.getBoolean("com.threerings.io.streamFieldsAlphabetically")) {
-            Collections.sort(fields, FIELD_ALPHA_COMPARATOR);
+        /** Constructor. */
+        protected ClassStreamer (Class<?> target)
+        {
+            this(target, true); // initialize now, we'll need them and we want to fail fast
         }
 
-        _fields = Iterables.toArray(Iterables.filter(fields, _isStreamableFieldPred), Field.class);
-        int fcount = _fields.length;
-
-        // obtain field marshallers for all of our fields
-        _marshallers = new FieldMarshaller[fcount];
-        for (int ii = 0; ii < fcount; ii++) {
-            _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
-            if (ObjectInputStream.STREAM_DEBUG) {
-                log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
-                         _fields[ii].getName() + ".");
+        /** Constructor. */
+        protected ClassStreamer (Class<?> target, boolean initMarshallers)
+        {
+            _target = target;
+            if (initMarshallers) {
+                initMarshallers();
             }
         }
-    }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            int fcount = _fields.length;
+            for (int ii = 0; ii < fcount; ii++) {
+                Field field = _fields[ii];
+                FieldMarshaller fm = _marshallers[ii];
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info("Writing field",
+                            "class", _target.getName(), "field", field.getName());
+                    }
+                    fm.writeField(field, object, out);
+                } catch (Exception e) {
+                    String errmsg = "Failure writing streamable field [class=" + _target.getName() +
+                        ", field=" + field.getName() + "]";
+                    throw (IOException) new IOException(errmsg).initCause(e);
+                }
+            }
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            try {
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info(in.hashCode() + ": Creating object '" + _target.getName() + "'.");
+                }
+                return _target.newInstance();
+
+            } catch (InstantiationException ie) {
+                String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
+                throw (IOException) new IOException(errmsg).initCause(ie);
+
+            } catch (IllegalAccessException iae) {
+                String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
+                throw (IOException) new IOException(errmsg).initCause(iae);
+            }
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            int fcount = _fields.length;
+            for (int ii = 0; ii < fcount; ii++) {
+                Field field = _fields[ii];
+                FieldMarshaller fm = _marshallers[ii];
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info(in.hashCode() + ": Reading field '" + field.getName() + "' " +
+                                 "with " + fm + ".");
+                    }
+                    // gracefully deal with objects that have had new fields added to their class
+                    // definition
+                    if (in.available() > 0) {
+                        fm.readField(field, object, in);
+                    } else {
+                        log.info("Streamed instance missing field (probably newly added)",
+                                 "class", _target.getName(), "field", field.getName());
+                    }
+                } catch (Exception e) {
+                    String errmsg = "Failure reading streamable field [class=" + _target.getName() +
+                        ", field=" + field.getName() + ", error=" + e + "]";
+                    throw (IOException) new IOException(errmsg).initCause(e);
+                }
+            }
+
+            if (ObjectInputStream.STREAM_DEBUG) {
+                log.info(in.hashCode() + ": Read object '" + object + "'.");
+            }
+        }
+
+        /**
+         * Initialize the marshallers.
+         */
+        protected void initMarshallers ()
+        {
+            // reflect on all the object's fields and remove all marked with NotStreamable
+            List<Field> fields = Lists.newArrayList();
+            ClassUtil.getFields(_target, fields);
+
+            // Checks whether or not we should stream the fields in alphabetical order.
+            // This ensures cross-JVM compatibility since Class.getDeclaredFields() does not
+            // define an order. Due to legacy issues, this is not used by default.
+            if (SORT_FIELDS) {
+                QuickSort.sort(fields, FIELD_NAME_ORDER);
+            }
+
+            _fields = Iterables.toArray(
+                Iterables.filter(fields, _isStreamableFieldPred), Field.class);
+            int fcount = _fields.length;
+
+            // obtain field marshallers for all of our fields
+            _marshallers = new FieldMarshaller[fcount];
+            for (int ii = 0; ii < fcount; ii++) {
+                _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
+                if (_marshallers[ii] == null) {
+                    String errmsg = "Unable to marshall field [class=" + _target.getName() +
+                        ", field=" + _fields[ii].getName() +
+                        ", type=" + _fields[ii].getType().getName() + "]";
+                    throw new RuntimeException(errmsg);
+                }
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
+                             _fields[ii].getName() + ".");
+                }
+            }
+        }
+
+        @Override
+        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        {
+            return super.toStringHelper(otsh)
+                .add("target", _target.getName())
+                .add("fcount", (_fields == null) ? 0 : _fields.length);
+        }
+
+        /** The class for which this streamer instance is configured. */
+        protected Class<?> _target;
+
+        /** The non-transient, non-static public fields that we will stream when requested. */
+        protected Field[] _fields;
+
+        /** Field marshallers for each field that will be read or written in our objects. */
+        protected FieldMarshaller[] _marshallers;
+    } // end: static class ClassStreamer
+
+    /**
+     * Extends basic class streaming with support for customized streaming.
+     */
+    protected static class CustomClassStreamer extends ClassStreamer
+    {
+        /** Constructor. */
+        protected CustomClassStreamer (Class<?> target, Method reader, Method writer)
+        {
+            super(target, false); // we will lazy-initialize the marshallers only if needed
+            _reader = reader;
+            _writer = writer;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            // if we're supposed to and one exists, use the writer method
+            if (useWriter && _writer != null) {
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info("Writing with writer", "class", _target.getName());
+                    }
+                    _writer.invoke(object, new Object[] { out });
+
+                } catch (Throwable t) {
+                    if (t instanceof InvocationTargetException) {
+                        t = ((InvocationTargetException)t).getTargetException();
+                    }
+                    if (t instanceof IOException) {
+                        throw (IOException)t;
+                    }
+                    String errmsg = "Failure invoking streamable writer " +
+                        "[class=" + _target.getName() + "]";
+                    throw (IOException) new IOException(errmsg).initCause(t);
+                }
+                return;
+            }
+
+            // otherwise, ensure the marshallers are initialized and call super
+            if (_marshallers == null) {
+                initMarshallers();
+            }
+            super.writeObject(object, out, useWriter);
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            // if we're supposed to and one exists, use the reader method
+            if (useReader && _reader != null) {
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info(in.hashCode() + ": Reading with reader '" + _target.getName() +
+                            "." + _reader.getName() + "()'.");
+                    }
+                    _reader.invoke(object, new Object[] { in });
+
+                } catch (Throwable t) {
+                    if (t instanceof InvocationTargetException) {
+                        t = ((InvocationTargetException)t).getTargetException();
+                    }
+                    if (t instanceof IOException) {
+                        throw (IOException)t;
+                    }
+                    String errmsg = "Failure invoking streamable reader " +
+                        "[class=" + _target.getName() + "]";
+                    throw (IOException) new IOException(errmsg).initCause(t);
+                }
+                return;
+            }
+
+            if (ObjectInputStream.STREAM_DEBUG) {
+                log.info(in.hashCode() + ": Reading '" + _target.getName() + "'.");
+            }
+
+            // otherwise, ensure the marshallers are iniitalized and call super
+            if (_marshallers == null) {
+                initMarshallers();
+            }
+            super.readObject(object, in, useReader);
+        }
+
+        @Override
+        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        {
+            return super.toStringHelper(otsh)
+                .add("reader", _reader)
+                .add("writer", _writer);
+        }
+
+        /** A reference to the <code>readObject</code> method if one is defined by our target. */
+        protected Method _reader;
+
+        /** A reference to the <code>writeObject</code> method if one is defined by our target. */
+        protected Method _writer;
+    } // end: static class CustomClassStreamer
+
+    /**
+     * A streamer for array types.
+     */
+    protected static class ArrayStreamer extends Streamer
+    {
+        /** Constructor. */
+        protected ArrayStreamer (Class<?> componentType, Streamer delegate)
+        {
+            _componentType = componentType;
+            _delegate = delegate;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            int length = Array.getLength(object);
+            out.writeInt(length);
+            // write each array element with its own class identifier
+            // because it could be any derived class of the array element type
+            for (int ii = 0; ii < length; ii++) {
+                out.writeObject(Array.get(object, ii));
+            }
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            int length = in.readInt();
+            if (ObjectInputStream.STREAM_DEBUG) {
+                log.info(in.hashCode() + ": Creating array '" +
+                    _componentType.getName() + "[" + length + "]'.");
+            }
+            return Array.newInstance(_componentType, length);
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            int length = Array.getLength(object);
+            for (int ii = 0; ii < length; ii++) {
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info(in.hashCode() + ": Reading free element '" + ii + "'.");
+                }
+                Array.set(object, ii, in.readObject());
+            }
+        }
+
+        @Override
+        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        {
+            return super.toStringHelper(otsh)
+                .add("componentType", _componentType.getName())
+                .add("delegate", _delegate);
+        }
+
+        /** The class of our component type. */
+        protected Class<?> _componentType;
+
+        /** Our delegate streamer. */
+        protected Streamer _delegate;
+    } // end: static class ArrayStreamer
+
+    /**
+     * A streamer for arrays with a final component type.
+     */
+    protected static class FinalArrayStreamer extends ArrayStreamer
+    {
+        /** Constructor. */
+        protected FinalArrayStreamer (Class<?> componentType, Streamer delegate)
+        {
+            super(componentType, delegate);
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            int length = Array.getLength(object);
+            out.writeInt(length);
+            // The component class is final, we can be sure that all instances in the array will
+            // be of the same class and thus can serialize things more efficiently.
+            // Compute a mask indicating which elements are null and which are populated
+            ArrayMask mask = new ArrayMask(length);
+            for (int ii = 0; ii < length; ii++) {
+                if (Array.get(object, ii) != null) {
+                    mask.set(ii);
+                }
+            }
+            // write that mask out to the stream
+            mask.writeTo(out);
+
+            // now write out the populated elements
+            for (int ii = 0; ii < length; ii++) {
+                Object element = Array.get(object, ii);
+                if (element != null) {
+                    out.writeBareObject(element, _delegate, useWriter);
+                }
+            }
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            int length = Array.getLength(object);
+            // The component class is final, we can be sure that all instances in the array will
+            // be of the same class and thus have serialized things more efficiently
+            // Read in the nullness mask.
+            ArrayMask mask = new ArrayMask();
+            mask.readFrom(in);
+            // now read in the array elements given that we know which elements to read
+            for (int ii = 0; ii < length; ii++) {
+                if (mask.isSet(ii)) {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info(in.hashCode() + ": Reading fixed element '" + ii + "'.");
+                    }
+                    Object element = _delegate.createObject(in);
+                    in.readBareObject(element, _delegate, useReader);
+                    Array.set(object, ii, element);
+                } else if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info(in.hashCode() + ": Skipping null element '" + ii + "'.");
+                }
+            }
+        }
+    } // end: static class FinalArrayStreamer
+
+    /**
+     * Base class for Enum streamers.
+     */
+    protected static abstract class EnumStreamer extends Streamer
+    {
+        /** Constructor. */
+        protected EnumStreamer (Class<?> target)
+        {
+            @SuppressWarnings("unchecked")
+            Class<EnumReader> eclass = (Class<EnumReader>)target;
+            _eclass = eclass;
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            // nothing here: handled in createObject
+        }
+
+        @Override
+        public Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        {
+            return super.toStringHelper(otsh)
+                .add("eclass", _eclass.getName());
+        }
+
+        /** Used to coerce the type system into quietude when reading enums from the wire. */
+        protected static enum EnumReader implements ByteEnum {
+            NOT_USED;
+            public byte toByte () { return 0; }
+        }
+
+        /** Our enum class, not actually an EnumReader. */
+        protected Class<EnumReader> _eclass;
+    } // end: static abstract class EnumStreamer
+
+    /**
+     * Streams ByteEnums, if that's what's desired.
+     */
+    protected static class ByteEnumStreamer extends EnumStreamer
+    {
+        /** Constructor. */
+        protected ByteEnumStreamer (Class<?> target)
+        {
+            super(target);
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            out.writeByte(((ByteEnum) object).toByte());
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return ByteEnumUtil.fromByte(_eclass, in.readByte());
+        }
+    } // end: static class ByteEnumStreamer
+
+    /**
+     * Streams enums by name.
+     */
+    protected static class NameEnumStreamer extends EnumStreamer
+    {
+        /** Constructor. */
+        protected NameEnumStreamer (Class<?> target)
+        {
+            super(target);
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            out.writeUTF(((Enum<?>)object).name());
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return Enum.valueOf(_eclass, in.readUTF());
+        }
+    } // end: static class NameEnumStreamer
+
+    /**
+     * Base class for enum streamers that stream by ordinal.
+     */
+    protected static abstract class OrdEnumStreamer extends EnumStreamer
+    {
+        /** Constructor. */
+        protected OrdEnumStreamer (Class<?> target, List<?> universe)
+        {
+            super(target);
+            _universe = universe;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            int code = (object == null) ? -1 : ((Enum<?>)object).ordinal();
+            writeCode(out, code);
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            int code = readCode(in);
+            return (code == -1) ? null : _universe.get(code);
+        }
+
+        /** Write the ordinal code. */
+        protected abstract void writeCode (ObjectOutputStream out, int code)
+            throws IOException;
+
+        /** Read the ordinal code. */
+        protected abstract int readCode (ObjectInputStream in)
+            throws IOException;
+
+        /** The universe of this enum. */
+        protected List<?> _universe;
+    } // end: static abstract class OrdEnumStreamer
+
+    /**
+     * Streams enums by the byte value of their ordinal.
+     */
+    protected static class ByteOrdEnumStreamer extends OrdEnumStreamer
+    {
+        /** Constructor. */
+        protected ByteOrdEnumStreamer (Class<?> target, List<?> universe)
+        {
+            super(target, universe);
+        }
+
+        @Override
+        protected void writeCode (ObjectOutputStream out, int code)
+            throws IOException
+        {
+            out.writeByte((byte)code);
+        }
+
+        @Override
+        protected int readCode (ObjectInputStream in)
+            throws IOException
+        {
+            return in.readByte();
+        }
+    } // end: static class ByteOrdEnumStreamer
+
+    /**
+     * Streams enums by the short value of their ordinal.
+     */
+    protected static class ShortOrdEnumStreamer extends OrdEnumStreamer
+    {
+        /** Constructor. */
+        protected ShortOrdEnumStreamer (Class<?> target, List<?> universe)
+        {
+            super(target, universe);
+        }
+
+        @Override
+        protected void writeCode (ObjectOutputStream out, int code)
+            throws IOException
+        {
+            out.writeShort((short)code);
+        }
+
+        @Override
+        protected int readCode (ObjectInputStream in)
+            throws IOException
+        {
+            return in.readShort();
+        }
+    } // end: static class ShortOrdEnumStreamer
+
+    /**
+     * Streams enums by the int value of their ordinal.
+     */
+    protected static class IntOrdEnumStreamer extends OrdEnumStreamer
+    {
+        /** Constructor. */
+        protected IntOrdEnumStreamer (Class<?> target, List<?> universe)
+        {
+            super(target, universe);
+        }
+
+        @Override
+        protected void writeCode (ObjectOutputStream out, int code)
+            throws IOException
+        {
+            out.writeInt(code);
+        }
+
+        @Override
+        protected int readCode (ObjectInputStream in)
+            throws IOException
+        {
+            return in.readInt();
+        }
+    } // end: static class IntOrdEnumStreamer
 
     /**
      * Initializes static state if necessary.
@@ -559,41 +910,44 @@ public class Streamer
         }
     }
 
-    protected Comparator<Field> FIELD_ALPHA_COMPARATOR = new Comparator<Field>() {
+    /** Contains the mapping from class names to configured streamer instances. */
+    protected static Map<Class<?>, Streamer> _streamers;
+
+    /** Should we sort fields in streamable classes? */
+    protected static final boolean SORT_FIELDS =
+        Boolean.getBoolean("com.threerings.io.streamFieldsAlphabetically");
+
+    /** Our policy on handling enum classes. */
+    protected static final EnumPolicy ENUM_POLICY = EnumPolicy.create();
+
+    /** Compares fields by name. */
+    protected static final Comparator<Field> FIELD_NAME_ORDER = new Comparator<Field>() {
         public int compare (Field arg0, Field arg1)
         {
             return arg0.getName().compareTo(arg1.getName());
         }
     };
 
-    /** Used to coerce the type system into quietude when reading enums from the wire. */
-    protected static enum EnumReader implements ByteEnum {
-        NOT_USED;
-        public byte toByte () { return 0; }
+    /**
+     * The enum policy of this streamer, determined at start time by examining
+     * a system property.
+     */
+    protected enum EnumPolicy
+    {
+        OLD, NEW, NEW_WITH_BYTE_ENUM;
+
+        /**
+         * Create the static enum policy by checking the com.threerings.io.enumPolicy system prop.
+         */
+        public static EnumPolicy create ()
+        {
+            try {
+                return valueOf(System.getProperty("com.threerings.io.enumPolicy", OLD.name()));
+            } catch (Exception e) {
+                return OLD;
+            }
+        }
     }
-
-    /** The class for which this streamer instance is configured. */
-    protected Class<?> _target;
-
-    /** If our target class is an array, this is a reference to a streamer that can stream our
-     * array elements, otherwise it is null. */
-    protected Streamer _delegate;
-
-    /** The non-transient, non-static public fields that we will stream when requested. */
-    protected Field[] _fields;
-
-    /** Field marshallers for each field that will be read or written in our objects. */
-    protected FieldMarshaller[] _marshallers;
-
-    /** A reference to the <code>readObject</code> method if one is defined by our target class. */
-    protected Method _reader;
-
-    /** A reference to the <code>writeObject</code> method if one is defined by our target
-     * class. */
-    protected Method _writer;
-
-    /** Contains the mapping from class names to configured streamer instances. */
-    protected static Map<Class<?>, Streamer> _streamers;
 
     /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
     protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
