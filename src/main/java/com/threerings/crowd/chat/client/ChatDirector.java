@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -106,7 +107,8 @@ public class ChatDirector extends BasicDirector
          */
         public String getUsage (String command)
         {
-            return MessageBundle.tcompose(_usageKey, command);
+            return MessageBundle.tcompose(_usageKey,
+                _showAliasesInUsage ? Joiner.on('|').join(_aliases) : command);
         }
 
         /**
@@ -136,6 +138,9 @@ public class ChatDirector extends BasicDirector
 
         /** The command's usage message translation key. */
         protected String _usageKey;
+
+        /** The command's translated aliases. */
+        protected String[] _aliases;
     }
 
     /**
@@ -264,14 +269,9 @@ public class ChatDirector extends BasicDirector
         handler._usageKey = "m.usage_" + command;
 
         String key = "c." + command;
-        if (msg.exists(key)) {
-            StringTokenizer st = new StringTokenizer(msg.get(key));
-            while (st.hasMoreTokens()) {
-                _handlers.put(st.nextToken(), handler);
-            }
-        } else {
-            // fall back to just using the English command
-            _handlers.put(command, handler);
+        handler._aliases = msg.exists(key) ? msg.get(key).split("\\s+") : new String[] { command };
+        for (String alias : handler._aliases) {
+            _handlers.put(alias, handler);
         }
     }
 
@@ -993,7 +993,11 @@ public class ChatDirector extends BasicDirector
                 matches.put(entry.getKey(), entry.getValue());
                 return matches;
             }
-            matches.put(entry.getKey(), entry.getValue());
+            // if we're providing the full list and we show aliases in the usage text,
+            // only map to the first alias
+            String key = (_showAliasesInUsage && command.equals("")) ?
+                entry.getValue()._aliases[0] : entry.getKey();
+            matches.put(key, entry.getValue());
         }
         return matches;
     }
@@ -1495,6 +1499,10 @@ public class ChatDirector extends BasicDirector
 
     /** A history of chat commands. */
     protected static ArrayList<String> _history = Lists.newArrayList();
+
+    /** If set, only show the first alias (translation) of each command in the full list
+     * and show the full list of aliases in the command usage. */
+    protected static boolean _showAliasesInUsage;
 
     /** The maximum number of chatter usernames to track. */
     protected static final int MAX_CHATTERS = 6;
