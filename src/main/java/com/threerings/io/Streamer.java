@@ -266,18 +266,18 @@ public abstract class Streamer
 
         // create streamers for enum types
         if (target.isEnum()) {
-            // if not NEW and we have a ByteEnum, stream using that
-            if (ENUM_POLICY != EnumPolicy.NEW) {
+            // if not ORDINAL and we have a ByteEnum, stream using that
+            if (ENUM_POLICY != EnumPolicy.ORDINAL) {
                 if (ByteEnum.class.isAssignableFrom(target)) {
                     return new ByteEnumStreamer(target);
                 }
             }
             // otherwise, if OLD and not a ByteEnum, stream by name
-            if (ENUM_POLICY == EnumPolicy.OLD) {
+            if (ENUM_POLICY == EnumPolicy.NAME_WITH_BYTE_ENUM) {
                 return new NameEnumStreamer(target);
 
             } else {
-                // if NEW, or NEW_WITH_BYTE_ENUM and not a ByteEnum, stream by ordinal (optimized!)
+                // if ORDINAL, or ORDINAL_WITH_BYTE_ENUM and not a ByteEnum, stream by ordinal
                 List<?> universe = ImmutableList.copyOf(target.getEnumConstants());
                 int size = universe.size();
                 if (size <= (1 << (Byte.SIZE - 1))) {
@@ -934,17 +934,18 @@ public abstract class Streamer
      */
     protected enum EnumPolicy
     {
-        OLD, NEW, NEW_WITH_BYTE_ENUM;
+        NAME_WITH_BYTE_ENUM, ORDINAL, ORDINAL_WITH_BYTE_ENUM;
 
         /**
          * Create the static enum policy by checking the com.threerings.io.enumPolicy system prop.
          */
         public static EnumPolicy create ()
         {
+            String policy = System.getProperty("com.threerings.io.enumPolicy");
             try {
-                return valueOf(System.getProperty("com.threerings.io.enumPolicy", OLD.name()));
+                return valueOf(policy);
             } catch (Exception e) {
-                return OLD;
+                return NAME_WITH_BYTE_ENUM;
             }
         }
     }
