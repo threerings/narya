@@ -119,7 +119,9 @@ public abstract class FieldMarshaller
         if (fm == null) {
             Class<?> collClass = Streamer.getCollectionClass(ftype);
             if (collClass != null && !collClass.equals(ftype)) {
-                log.warning("Specific field types are discouraged for Collections and Maps.",
+                log.warning("Specific field types are discouraged " +
+                    "for Iterables/Collections and Maps. The implementation type may not be " +
+                    "recreated on the other side.",
                     "class", field.getDeclaringClass(), "field", field.getName(),
                     "type", ftype, "shouldBe", collClass);
                 fm = _marshallers.get(collClass);
