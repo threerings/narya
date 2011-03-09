@@ -275,11 +275,11 @@ public abstract class Streamer
 
             default:
                 List<?> universe = ImmutableList.copyOf(target.getEnumConstants());
-                int size = universe.size();
-                if (size <= (1 << (Byte.SIZE - 1))) {
+                int maxOrdinal = universe.size() - 1;
+                if (maxOrdinal <= Byte.MAX_VALUE) {
                     return new ByteOrdEnumStreamer(target, universe);
 
-                } else if (size <= (1 << (Short.SIZE - 1))) {
+                } else if (maxOrdinal <= Short.MAX_VALUE) {
                     return new ShortOrdEnumStreamer(target, universe);
 
                 } else {
