@@ -888,8 +888,7 @@ public class BlockingCommunicator extends Communicator
         protected boolean connect (int port)
             throws IOException
         {
-            _datagramChannel.connect(new InetSocketAddress(
-                _channel.socket().getInetAddress(), port));
+            _datagramChannel.connect(new InetSocketAddress(_client.getHostname(), port));
             for (int ii = 0; ii < DATAGRAM_ATTEMPTS_PER_PORT; ii++) {
                 // send a ping datagram
                 sendDatagram(new PingRequest(Transport.UNRELIABLE_UNORDERED));
