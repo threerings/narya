@@ -78,7 +78,7 @@
     <javadoc sourcepath="${src.dir}" packagenames="com.threerings.*"
              destdir="${deploy.dir}/docs" stylesheetfile="docs/stylesheet.css"
              link="http://www.threerings.net/code/narya/docs/api"
-             additionalparam="-breakiterator" classpathref="compile.classpath">
+             additionalparam="-breakiterator" classpathref="built.classpath">
       <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
@@ -129,7 +129,7 @@
   <target name="genrecord" depends="-prepare"
           description="Generates fields for persistent record classes.">
     <taskdef name="grecord" classname="com.samskivert.depot.tools.GenRecordTask"
-             classpathref="compile.classpath"/>
+             classpathref="built.classpath"/>
     <!-- make sure the record class files are all compiled -->
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
         classpathref="pom.xml.path">
