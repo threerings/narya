@@ -29,7 +29,10 @@ import com.threerings.presents.net.Transport;
 public abstract class EntryEvent<T extends DSet.Entry> extends NamedEvent
 {
     /**
-     * {@inheritDoc}
+     * Constructs a new event for the specified target object with the supplied attribute name.
+     *
+     * @param targetOid the object id of the object in question.
+     * @param name the name associated with this event.
      */
     public EntryEvent (int targetOid, String name)
     {
@@ -37,7 +40,11 @@ public abstract class EntryEvent<T extends DSet.Entry> extends NamedEvent
     }
 
     /**
-     * {@inheritDoc}
+     * Constructs a new event for the specified target object with the supplied attribute name.
+     *
+     * @param targetOid the object id of the object in question.
+     * @param name the name associated with this event.
+     * @param transport a hint as to the type of transport desired for the event.
      */
     public EntryEvent (int targetOid, String name, Transport transport)
     {

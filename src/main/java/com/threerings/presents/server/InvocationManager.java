@@ -245,9 +245,9 @@ public class InvocationManager
     }
 
     /**
-     * @Deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
+     * @deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
      */
-    public <T extends InvocationMarshaller> T registerDispatcher (
+    @Deprecated public <T extends InvocationMarshaller> T registerDispatcher (
         InvocationDispatcher<T> dispatcher, boolean bootstrap)
     {
         return registerDispatcher(dispatcher, null);

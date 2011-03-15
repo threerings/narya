@@ -34,7 +34,6 @@ import java.nio.channels.SocketChannel;
  */
 public abstract class Connection implements NetEventHandler
 {
-
     /** The key used by the NIO code to track this connection. */
     public SelectionKey selkey;
 

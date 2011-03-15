@@ -155,7 +155,7 @@ public class ChatHistory
     }
 
     /**
-     * Causes the chat history for the given user to be held briefly after the {@link #clear()}
+     * Causes the chat history for the given user to be held briefly after the {@link #clear}
      * call so that session observers can grab it.
      */
     public void hold (Name username)

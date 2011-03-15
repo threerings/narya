@@ -128,7 +128,7 @@ public class Client
      * ports (which will be tried in succession).
      *
      * @see #logon
-     * @see #moveToServer(String,int[],ConfirmListener)
+     * @see #moveToServer
      */
     public void setServer (String hostname, int[] ports)
     {
@@ -140,7 +140,7 @@ public class Client
      * ports (which will be tried in succession), and datagram ports.
      *
      * @see #logon
-     * @see #moveToServer(String,int[],ConfirmListener)
+     * @see #moveToServer
      */
     public void setServer (String hostname, int[] ports, int[] datagramPorts)
     {
@@ -969,8 +969,7 @@ public class Client
         return false;
     }
 
-    /** Handles the process of switching between servers.
-     * See {@link Client#moveToServer(String,int[],int[],ConfirmListener)}. */
+    /** Handles the process of switching between servers. See {@link Client#moveToServer}. */
     protected class ServerSwitcher extends ClientAdapter
     {
         public ServerSwitcher (

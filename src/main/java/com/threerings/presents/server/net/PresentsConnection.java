@@ -50,7 +50,7 @@ import static com.threerings.presents.Log.log;
  */
 public class PresentsConnection extends Connection
 {
-    /** Used with {@link Connection#setMessageHandler}. */
+    /** Used with {@link #setMessageHandler}. */
     public static interface MessageHandler {
         /** Called when a complete message has been parsed from incoming network data. */
         void handleMessage (Message message);

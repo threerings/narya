@@ -31,9 +31,10 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
+import com.samskivert.util.Lifecycle;
+
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.server.PresentsSession;
-import com.threerings.presents.server.ShutdownManager;
 
 import com.threerings.bureau.data.AgentObject;
 import com.threerings.bureau.data.BureauCredentials;
@@ -87,7 +88,7 @@ public class RegistryTester
     /**
      * Creates a new registry tester.
      */
-    @Inject public RegistryTester (TestServer server, ShutdownManager shutmgr)
+    @Inject public RegistryTester (TestServer server, Lifecycle cycle)
     {
         _server = server;
 
@@ -105,7 +106,7 @@ public class RegistryTester
 
         // stop the tests when the server shuts down
         // TODO: this is not called on Ctrl-C, need a way to shut down gracefully
-        shutmgr.registerShutdowner(new ShutdownManager.Shutdowner() {
+        cycle.addComponent(new Lifecycle.ShutdownComponent() {
             public void shutdown () {
                 log.info("Shutting down tests");
                 _stop = true;

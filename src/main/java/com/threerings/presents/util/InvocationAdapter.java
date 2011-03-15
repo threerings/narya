@@ -27,7 +27,7 @@ import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.server.InvocationException;
 
 /**
- * Adapts the response from a {@link InvocationService.ResultListener} to a {@link ResultListener}.
+ * Adapts the response from a {@code InvocationService.ResultListener} to a {@link ResultListener}.
  * In the event of failure, the failure string is wrapped in an {@link InvocationException}.
  */
 public class InvocationAdapter implements InvocationService.ResultListener

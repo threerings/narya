@@ -40,7 +40,7 @@ public class LocationMarshaller extends InvocationMarshaller
     implements LocationService
 {
     /**
-     * Marshalls results to implementations of {@link LocationService.MoveListener}.
+     * Marshalls results to implementations of {@code LocationService.MoveListener}.
      */
     public static class MoveMarshaller extends ListenerMarshaller
         implements MoveListener

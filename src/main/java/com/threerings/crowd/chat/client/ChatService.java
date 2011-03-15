@@ -52,7 +52,6 @@ public interface ChatService extends InvocationService
      * Requests that a tell message be delivered to the user with username equal to
      * <code>target</code>.
      *
-     * @param client a connected, operational client instance.
      * @param target the username of the user to which the tell message should be delivered.
      * @param message the contents of the message.
      * @param listener the reference that will receive the tell response.
@@ -62,7 +61,6 @@ public interface ChatService extends InvocationService
     /**
      * Requests that a message be broadcast to all users in the system.
      *
-     * @param client a connected, operational client instance.
      * @param message the contents of the message.
      * @param listener the reference that will receive a failure response.
      */

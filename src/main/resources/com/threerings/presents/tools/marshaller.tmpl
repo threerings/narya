@@ -19,7 +19,7 @@ public class {{name}}Marshaller extends InvocationMarshaller
 {
 {{#listeners}}
     /**
-     * Marshalls results to implementations of {@code {{name}}Service#{{listenerName}}Listener}.
+     * Marshalls results to implementations of {@code {{name}}Service.{{listenerName}}Listener}.
      */
     public static class {{listenerName}}Marshaller extends ListenerMarshaller
         implements {{listenerName}}Listener

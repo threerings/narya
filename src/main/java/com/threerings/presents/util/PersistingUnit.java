@@ -32,7 +32,7 @@ import static com.threerings.presents.Log.log;
 
 /**
  * Simplifies a common pattern which is to post an {@link Invoker} unit which does some database
- * operation and then calls back to an {@link InvocationService.InvocationListener} of some
+ * operation and then calls back to an {@code InvocationService.InvocationListener} of some
  * sort. If the database operation fails, the error will be logged and the result listener will be
  * replied to with {@link InvocationCodes#INTERNAL_ERROR}.
  */

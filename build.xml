@@ -82,7 +82,7 @@
       <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
       <!-- ant documentation is not available online, sorry kids -->
       <link href="file:///usr/share/doc/ant-doc/javadocs"/>
-      <link href="http://samskivert.com/code/samskivert/samskivert/docs/api"/>
+      <link href="http://samskivert.googlecode.com/svn/apidocs"/>
     </javadoc>
   </target>
 

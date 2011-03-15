@@ -29,9 +29,9 @@ import com.samskivert.util.Lifecycle;
 /**
  * Handles the orderly shutdown of all server services.
  *
- * @Deprecated use Lifecycle
+ * @deprecated use Lifecycle
  */
-@Singleton
+@Deprecated @Singleton
 public class ShutdownManager
 {
     /** Implementers of this interface will be notified when the server is shutting down. */

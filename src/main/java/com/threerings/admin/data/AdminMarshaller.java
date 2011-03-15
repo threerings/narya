@@ -40,7 +40,7 @@ public class AdminMarshaller extends InvocationMarshaller
     implements AdminService
 {
     /**
-     * Marshalls results to implementations of {@link AdminService.ConfigInfoListener}.
+     * Marshalls results to implementations of {@code AdminService.ConfigInfoListener}.
      */
     public static class ConfigInfoMarshaller extends ListenerMarshaller
         implements ConfigInfoListener

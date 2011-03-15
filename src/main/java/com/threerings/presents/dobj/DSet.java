@@ -277,7 +277,7 @@ public class DSet<E extends DSet.Entry>
      * the <code>array</code> argument is null, an object array of sufficient size to contain all
      * of the elements of this set will be created and returned.
      *
-     * @deprecated use {@link #clone} or add this to an {@link ArrayList}. Arrays are an untypesafe
+     * @deprecated use {@link #clone} or add this to an ArrayList. Arrays are an untypesafe
      * quagmire.
      */
     @Deprecated
@@ -292,7 +292,7 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * @deprecated use {@link #clone} or add this to an {@link ArrayList}. Arrays are an untypesafe
+     * @deprecated use {@link #clone} or add this to an ArrayList. Arrays are an untypesafe
      * quagmire.
      */
     @Deprecated

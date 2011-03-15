@@ -42,7 +42,7 @@ public class ChatMarshaller extends InvocationMarshaller
     implements ChatService
 {
     /**
-     * Marshalls results to implementations of {@link ChatService.TellListener}.
+     * Marshalls results to implementations of {@code ChatService.TellListener}.
      */
     public static class TellMarshaller extends ListenerMarshaller
         implements TellListener

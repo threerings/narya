@@ -66,7 +66,8 @@ public class CrowdObjectAccess
     };
 
     /**
-     * Extends the access control in {@link #PLACE} to allow Bureau clients to subscribe.
+     * Extends the access control in {@link PlaceAccessController} to allow Bureau clients to
+     * subscribe.
      */
     @Singleton
     public static class BureauAccessController extends PlaceAccessController

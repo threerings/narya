@@ -510,7 +510,7 @@ public class PlaceManager
 
     /**
      * Creates an access controller for this place's distributed object, which by default is {@link
-     * CrowdObjectAccess#PLACE}.
+     * PlaceAccessController}.
      */
     protected AccessController getAccessController ()
     {
@@ -639,7 +639,7 @@ public class PlaceManager
      * Adds this occupant's info to the {@link PlaceObject}. This is called in a transaction on the
      * place object so if a derived class needs to add additional information for an occupant it
      * should override this method. It may opt to add the information before calling super if it
-     * wishes to rely on its information being configured when {@link #bodyAdded} is called.
+     * wishes to rely on its information being configured when {@link #bodyEntered} is called.
      */
     protected void addOccupantInfo (BodyObject body, OccupantInfo info)
     {

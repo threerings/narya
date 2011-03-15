@@ -45,8 +45,8 @@ public class ServerSocketChannelAcceptor
 {
     /**
      * Configures the connection manager with the hostname and ports on which it will listen for
-     * socket connections. This must be called before the connection manager is started (via
-     * {@via #start}) as the sockets will be bound at that time.
+     * socket connections. This must be called before the connection manager is started as the
+     * sockets will be bound at that time.
      *
      * @param socketHostname the hostname to which we bind our sockets or null to bind to all
      * interfaces.

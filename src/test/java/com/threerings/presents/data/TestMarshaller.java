@@ -41,7 +41,7 @@ public class TestMarshaller extends InvocationMarshaller
     implements TestService
 {
     /**
-     * Marshalls results to implementations of {@link TestService.TestFuncListener}.
+     * Marshalls results to implementations of {@code TestService.TestFuncListener}.
      */
     public static class TestFuncMarshaller extends ListenerMarshaller
         implements TestFuncListener
@@ -76,7 +76,7 @@ public class TestMarshaller extends InvocationMarshaller
     }
 
     /**
-     * Marshalls results to implementations of {@link TestService.TestOidListener}.
+     * Marshalls results to implementations of {@code TestService.TestOidListener}.
      */
     public static class TestOidMarshaller extends ListenerMarshaller
         implements TestOidListener

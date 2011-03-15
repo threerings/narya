@@ -148,7 +148,6 @@ public class ChatDirector extends BasicDirector
      * register itself as a location observer so that it can automatically process place
      * constrained chat.
      *
-     * @param msgmgr the message manager via which we do our translations.
      * @param bundle the message bundle from which we obtain our chat-related translation strings.
      */
     public ChatDirector (CrowdContext ctx, String bundle)
@@ -894,7 +893,7 @@ public class ChatDirector extends BasicDirector
         return buf.toString();
     }
 
-    /** Helper function for {@link #mogrifyChat(String,boolean,boolean)}. */
+    /** Helper function for {@link #mogrifyChat(String,byte,boolean,boolean)}. */
     protected StringBuffer mogrifyChat (
         StringBuffer buf, boolean transformsAllowed, boolean capFirst)
     {

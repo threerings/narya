@@ -46,8 +46,6 @@ public interface LocationService extends InvocationService
     /**
      * Requests that this client's body be moved to the specified location.
      *
-     * @param client a reference to the client object that defines the context in which this
-     * invocation service should be executed.
      * @param placeId the object id of the place object to which the body should be moved.
      * @param listener the listener that will be informed of success or failure.
      */
