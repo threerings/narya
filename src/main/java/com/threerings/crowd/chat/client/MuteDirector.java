@@ -82,6 +82,7 @@ public class MuteDirector extends BasicDirector
             _chatdir.removeChatFilter(this);
             _chatdir = null;
         }
+        _ctx.getClient().removeClientObserver(this);
     }
 
     /**
