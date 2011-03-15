@@ -196,7 +196,7 @@
     <genservice header="lib/SOURCE_HEADER" classpathref="test.classpath" checking="${gencheck}">
       <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
     </genservice>
-    <gencppservice classpathref="built.classpath" cpproot="src/cpp">
+    <gencppservice header="lib/SOURCE_HEADER" classpathref="built.classpath" cpproot="src/cpp">
         <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
     </gencppservice>
   </target>
