@@ -53,10 +53,6 @@ public class NodeObject extends DObject
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String CLIENTS = "clients";
 
-    /** The field name of the <code>nodeProxies</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public static final String NODE_PROXIES = "nodeProxies";
-
     /** The field name of the <code>locks</code> field. */
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String LOCKS = "locks";
@@ -155,9 +151,6 @@ public class NodeObject extends DObject
 
     /** Contains information on all clients connected to this node. */
     public DSet<ClientInfo> clients = new DSet<ClientInfo>();
-
-    /** Contains information on all node objects proxied by this node. */
-    public DSet<NodeProxyInfo> nodeProxies = new DSet<NodeProxyInfo>();
 
     /** The set of locks held by this node. */
     public DSet<Lock> locks = new DSet<Lock>();
@@ -272,57 +265,6 @@ public class NodeObject extends DObject
         requestAttributeChange(CLIENTS, value, this.clients);
         DSet<ClientInfo> clone = (value == null) ? null : value.clone();
         this.clients = clone;
-    }
-
-    /**
-     * Requests that the specified entry be added to the
-     * <code>nodeProxies</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void addToNodeProxies (NodeProxyInfo elem)
-    {
-        requestEntryAdd(NODE_PROXIES, nodeProxies, elem);
-    }
-
-    /**
-     * Requests that the entry matching the supplied key be removed from
-     * the <code>nodeProxies</code> set. The set will not change until the
-     * event is actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void removeFromNodeProxies (Comparable<?> key)
-    {
-        requestEntryRemove(NODE_PROXIES, nodeProxies, key);
-    }
-
-    /**
-     * Requests that the specified entry be updated in the
-     * <code>nodeProxies</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void updateNodeProxies (NodeProxyInfo elem)
-    {
-        requestEntryUpdate(NODE_PROXIES, nodeProxies, elem);
-    }
-
-    /**
-     * Requests that the <code>nodeProxies</code> field be set to the
-     * specified value. Generally one only adds, updates and removes
-     * entries of a distributed set, but certain situations call for a
-     * complete replacement of the set value. The local value will be
-     * updated immediately and an event will be propagated through the
-     * system to notify all listeners that the attribute did
-     * change. Proxied copies of this object (on clients) will apply the
-     * value change when they received the attribute changed notification.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void setNodeProxies (DSet<NodeProxyInfo> value)
-    {
-        requestAttributeChange(NODE_PROXIES, value, this.nodeProxies);
-        DSet<NodeProxyInfo> clone = (value == null) ? null : value.clone();
-        this.nodeProxies = clone;
     }
 
     /**

@@ -339,14 +339,6 @@ public abstract class PeerManager
     }
 
     /**
-     * Sets the strategy used to determine relationships between peers.
-     */
-    public void setRelationshipStrategy (RelationshipStrategy strategy)
-    {
-        _relationshipStrategy = strategy;
-    }
-
-    /**
      * Returns true if the supplied peer credentials match our shared secret.
      */
     public boolean isAuthenticPeer (PeerCreds creds)
@@ -576,7 +568,7 @@ public abstract class PeerManager
     public <T extends DObject> void proxyRemoteObject (
         final DObjectAddress remote, final ResultListener<Integer> listener)
     {
-        if (remote.nodeName.equals(_nodeName)) {
+     if (remote.nodeName.equals(_nodeName)) {
             _omgr.postRunnable(new Runnable() {
                 public void run () {
                     listener.requestCompleted(remote.oid);
@@ -1074,7 +1066,6 @@ public abstract class PeerManager
             }
             @Override
             public void handleSuccess () {
-                _relationshipStrategy.determineRelationships(_nodes, _nodeName);
                 for (NodeRecord record : _nodes) {
                     if (record.nodeName.equals(_nodeName)) {
                         continue;
@@ -1602,9 +1593,6 @@ public abstract class PeerManager
             return peer.nodeobj;
         }
     };
-
-    /** The strategy used to determine this peer's relationship to others. */
-    protected RelationshipStrategy _relationshipStrategy = RelationshipStrategy.FULLY_CONNECTED;
 
     protected String _nodeName, _sharedSecret;
     protected NodeRecord _self;

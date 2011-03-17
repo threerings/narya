@@ -47,7 +47,6 @@ import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.net.PeerBootstrapData;
 import com.threerings.presents.peer.server.persist.NodeRecord;
-import com.threerings.presents.peer.server.persist.NodeRecord.Relationship;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.presents.server.net.PresentsConnectionManager;
 import com.threerings.presents.server.net.ServerCommunicator;
@@ -129,17 +128,16 @@ public class PeerNode
 
     public void refresh (NodeRecord record)
     {
-        // if the hostname of this node changed or we have an indirect relationship, log off
-        if ((!record.hostName.equals(_record.hostName) ||
-                record.relationship == Relationship.INDIRECT) && _client.isActive()) {
+        // if the hostname of this node changed, kill our existing client and connect anew
+        if (!record.hostName.equals(_record.hostName) && _client.isActive()) {
             _client.logoff(false);
         }
 
         // use our new record
         _record = record;
 
-        // if our client is active or needn't be, we're groovy
-        if (_client.isActive() || record.relationship == Relationship.INDIRECT) {
+        // if our client is active, we're groovy
+        if (_client.isActive()) {
             return;
         }
 
