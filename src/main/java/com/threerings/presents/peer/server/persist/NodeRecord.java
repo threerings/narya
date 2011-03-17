@@ -38,6 +38,9 @@ import com.samskivert.depot.expression.ColumnExp;
 @Entity(name="NODES")
 public class NodeRecord extends PersistentRecord
 {
+    /** The types of relationships between nodes. */
+    public enum Relationship { PARENT, CHILD, DIRECT_EQUAL, INDIRECT };
+
     // AUTO-GENERATED: FIELDS START
     public static final Class<NodeRecord> _R = NodeRecord.class;
     public static final ColumnExp<String> NODE_NAME = colexp(_R, "nodeName");
@@ -71,6 +74,9 @@ public class NodeRecord extends PersistentRecord
     /** The last time this node has reported in. */
     @Column(name="LAST_UPDATED")
     public Timestamp lastUpdated;
+
+    /** The relationship of the local node to the node described. */
+    public transient Relationship relationship;
 
     /** Used to create a blank instance when loading from the database. */
     public NodeRecord ()
