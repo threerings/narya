@@ -96,8 +96,23 @@ public class MessageManager
      */
     public void setLocale (Locale locale)
     {
+        setLocale(locale, false);
+    }
+
+    /**
+     * Sets the locale to the specified locale. Subsequent message bundles fetched via the message
+     * manager will use the new locale. The message bundle cache will also be cleared.
+     *
+     * @param updateGlobal set to true if you want the global bundle reloaded in the new locale
+     */
+    public void setLocale (Locale locale, boolean updateGlobal)
+    {
         _locale = locale;
         _cache.clear();
+
+        if (updateGlobal) {
+            _global = getBundle(GLOBAL_BUNDLE);
+        }
     }
 
     /**
