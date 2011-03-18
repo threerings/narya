@@ -266,6 +266,10 @@ public abstract class Streamer
                     return new ByteEnumStreamer(target);
                 }
                 break;
+            case NAME:
+            case ORDINAL:
+                // We explicitly do nothing here...
+                break;
             }
 
             switch (ENUM_POLICY) {
