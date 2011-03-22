@@ -44,6 +44,24 @@ import static com.threerings.NaryaLog.log;
 @Singleton
 public class PolicyServer extends ConnectionManager
 {
+    public static void main (String[] args)
+    {
+        int port = MASTER_PORT;
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        }
+        PolicyServer server = null;
+        try {
+            server = new PolicyServer(new Lifecycle());
+        } catch (IOException e) {
+            System.err.println("Failed to create policy server!");
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+        server.init(port);
+    }
+
+
     @Inject
     public PolicyServer (Lifecycle cycle)
         throws IOException
@@ -84,6 +102,7 @@ public class PolicyServer extends ConnectionManager
         super.willStart();
         if (!_acceptor.bind()) {
             log.warning("Policy server failed to bind!");
+            shutdown();
         }
     }
 
