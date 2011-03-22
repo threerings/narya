@@ -429,6 +429,14 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Clears the current set of unit profiles.
+     */
+    public void clearUnitProfiles ()
+    {
+        _profiles.clear();
+    }
+
+    /**
      * Called as a helper for <code>ObjectDestroyedEvent</code> events. It removes the object from
      * the object table.
      *
@@ -678,8 +686,8 @@ public class PresentsDObjectMgr
             // do some jiggery pokery to get more fine grained profiling details on certain
             // "popular" unit types
             if (unit instanceof Interval.RunBuddy) {
-                Interval ival = ((Interval.RunBuddy)unit).getInterval();
-                cname = StringUtil.shortClassName(ival);
+                cname = StringUtil.shortClassName(
+                    ((Interval.RunBuddy)unit).getIntervalClassName());
             } else if (unit instanceof InvocationRequestEvent) {
                 InvocationRequestEvent ire = (InvocationRequestEvent)unit;
                 Class<?> c = _invmgr.getDispatcherClass(ire.getInvCode());
