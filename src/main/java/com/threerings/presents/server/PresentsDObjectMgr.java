@@ -419,6 +419,22 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Sets the frequency at which we take profiling samples.
+     */
+    public void setUnitProfInterval (int interval)
+    {
+        _unitProfInterval = interval;
+    }
+
+    /**
+     * Returns the profiling sample frequency.
+     */
+    public int getUnitProfInterval ()
+    {
+        return _unitProfInterval;
+    }
+
+    /**
      * Dumps collected profiling information to the system log.
      */
     public void dumpUnitProfiles ()
@@ -681,7 +697,7 @@ public class PresentsDObjectMgr
         }
 
         // periodically sample and record the time spent processing a unit
-        if (UNIT_PROF_ENABLED && _eventCount % UNIT_PROF_INTERVAL == 0) {
+        if (UNIT_PROF_ENABLED && _eventCount % _unitProfInterval == 0) {
             String cname;
             // do some jiggery pokery to get more fine grained profiling details on certain
             // "popular" unit types
@@ -1098,11 +1114,11 @@ public class PresentsDObjectMgr
     /** Used to resolve unit names when profiling. Injected by the invmgr when it's created. */
     protected InvocationManager _invmgr;
 
+    /** The frequency at which we take a profiling sample. */
+    protected int _unitProfInterval = 100;
+
     /** Whether or not unit profiling is enabled. */
     protected static final boolean UNIT_PROF_ENABLED = true;
-
-    /** The frequency with which we take a profiling sample. */
-    protected static final int UNIT_PROF_INTERVAL = 100;
 
     /** The default size of an oid list refs vector. */
     protected static final int DEFREFVEC_SIZE = 4;
