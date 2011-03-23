@@ -716,7 +716,7 @@ public class PresentsDObjectMgr
             if (uprof == null) {
                 _profiles.put(cname, uprof = new UnitProfile());
             }
-            uprof.record(start, elapsed);
+            uprof.record(elapsed);
         }
     }
 
@@ -1030,10 +1030,11 @@ public class PresentsDObjectMgr
      * enabled. */
     protected static class UnitProfile
     {
-        public void record (long start, long elapsed)
+        public void record (long elapsed)
         {
             _totalElapsed += elapsed;
             _histo.addValue((int)elapsed);
+            _longest = Math.max(elapsed, _longest);
         }
 
         @Override
@@ -1041,10 +1042,10 @@ public class PresentsDObjectMgr
         {
             int count = _histo.size();
             return _totalElapsed + "us/" + count + " = " + (_totalElapsed/count) + "us avg " +
-                StringUtil.toString(_histo.getBuckets());
+                StringUtil.toString(_histo.getBuckets() + " " + _longest + "us longest");
         }
 
-        protected long _totalElapsed;
+        protected long _totalElapsed, _longest;
         protected Histogram _histo = new Histogram(0, 20000, 10);
     }
 
