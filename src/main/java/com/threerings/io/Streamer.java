@@ -40,10 +40,12 @@ import java.io.IOException;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ByteEnum;
 import com.samskivert.util.ByteEnumUtil;
 import com.samskivert.util.ClassUtil;
@@ -456,22 +458,36 @@ public abstract class Streamer
             }
 
             // obtain the constructor we'll use to create instances
-            _ctorArgs = isClosure ? SINGLE_NULL_ARG : NO_ARGS;
-            for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
-                if (ctor.getParameterTypes().length == _ctorArgs.length) {
-                    if (_ctor != null) {
-                        throw new RuntimeException(
-                            "Streamable has multiple applicable ctors [class=" + _target.getName() +
-                            ", argCount=" + _ctorArgs.length + "]");
+            if (!isClosure) {
+                // local our zero argument constructor
+                _ctorArgs = ArrayUtil.EMPTY_OBJECT;
+                for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
+                    if (ctor.getParameterTypes().length == 0) {
+                        _ctor = ctor;
+                        break;
                     }
-                    _ctor = ctor;
-                    // keep going, to be sure we catch conflicting ctors
+                }
+
+            } else {
+                // a closure should have only one constructor, and we're going to pass bogus
+                // arguments to it (because unstreaming will take care of further initialization)
+                Constructor<?>[] ctors = _target.getDeclaredConstructors();
+                if (ctors.length > 1) {
+                    throw new RuntimeException("Streamable closure classes must have only " +
+                                               "one constructor [class=" + _target.getName() + "]");
+                }
+                _ctor = ctors[0];
+                _ctor.setAccessible(true);
+                Class<?>[] ptypes = _ctor.getParameterTypes();
+                _ctorArgs = new Object[ptypes.length];
+                for (int ii = 0; ii < ptypes.length; ii++) {
+                    // this will be the appropriately typed zero, or null
+                    _ctorArgs[ii] = ZEROS.get(ptypes[ii]);
                 }
             }
-
-            // if this is a streamable closure, we need to make the constructor accessible
-            if (isClosure) {
-                _ctor.setAccessible(true);
+            if (_ctor == null) {
+                throw new RuntimeException("Unable to find applicable ctor " +
+                                           "[class=" + _target.getName() + "]");
             }
         }
 
@@ -1009,13 +1025,20 @@ public abstract class Streamer
     /** Filters "NotStreamable" members and enclosing class refs from a field list. */
     protected static final Predicate<Field> IS_STREAMCLOSURE = new Predicate<Field>() {
         public boolean apply (Field obj) {
-            return IS_STREAMABLE.apply(obj) && !obj.isSynthetic();
+            return IS_STREAMABLE.apply(obj) &&
+                !(obj.isSynthetic() && obj.getName().startsWith("this$"));
         }
     };
 
-    /** Used by {@link ClassStreamer} to create instances. */
-    protected static final Object[] NO_ARGS = new Object[] {};
-
-    /** Used by {@link ClassStreamer} to create instances. */
-    protected static final Object[] SINGLE_NULL_ARG = new Object[] { null };
+    /** Zero values for the primitive types. */
+    protected static final Map<Class<?>,Object> ZEROS = ImmutableMap.<Class<?>,Object>builder().
+        put(Boolean.TYPE, false).
+        put(Byte.TYPE, Byte.valueOf((byte)0)).
+        put(Short.TYPE, Short.valueOf((short)0)).
+        put(Character.TYPE, Character.valueOf((char)0)).
+        put(Integer.TYPE, Integer.valueOf(0)).
+        put(Long.TYPE, Long.valueOf(0)).
+        put(Float.TYPE, Float.valueOf(0)).
+        put(Double.TYPE, Double.valueOf(0)).
+        build();
 }

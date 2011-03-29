@@ -398,17 +398,13 @@ public class StreamableTest
         throws IOException, ClassNotFoundException
     {
         abstract class Action implements Streamable {
-            public int count;
-            public String arg;
             public abstract String act ();
         }
         Action act = new Action() {
             public String act () {
-                return count + ":" + arg;
+                return "bang!";
             }
         };
-        act.count = 3;
-        act.arg = "hello";
         Action react = (Action)unflatten(flatten(act));
         assertEquals(act.act(), react.act());
     }
@@ -418,17 +414,15 @@ public class StreamableTest
         throws IOException, ClassNotFoundException
     {
         abstract class Action implements Streamable.Closure {
-            public int count;
-            public String arg;
             public abstract String act ();
         }
+        final int count = unsafeOuterCall();
+        final String arg = "hello";
         Action act = new Action() {
             public String act () {
                 return count + ":" + arg;
             }
         };
-        act.count = 3;
-        act.arg = "hello";
         Action react = (Action)unflatten(flatten(act));
         assertEquals(act.act(), react.act());
     }
@@ -441,22 +435,19 @@ public class StreamableTest
         throws IOException, ClassNotFoundException
     {
         abstract class Action implements Streamable.Closure {
-            public int count;
-            public String arg;
             public abstract String act ();
         }
+        final String arg = "hello";
         Action act = new Action() {
             public String act () {
-                return count + ":" + arg + ":" + naughtyOuterCall();
+                return unsafeOuterCall() + ":" + arg;
             }
         };
-        act.count = 3;
-        act.arg = "hello";
         Action react = (Action)unflatten(flatten(act));
         assertEquals(act.act(), react.act());
     }
 
-    protected int naughtyOuterCall ()
+    protected int unsafeOuterCall ()
     {
         return 42;
     }
