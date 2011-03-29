@@ -218,7 +218,6 @@ public abstract class ConnectionManager extends LoopingThread
             channel.configureBlocking(false);
             conn.init(this, channel, System.currentTimeMillis());
             conn.selkey = register(channel, SelectionKey.OP_READ, conn);
-            _handlers.put(conn.selkey, conn);
             synchronized (this) {
                 _stats.connects++;
             }
