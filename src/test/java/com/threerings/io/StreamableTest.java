@@ -325,12 +325,7 @@ public class StreamableTest
         throws IOException, ClassNotFoundException
     {
         Widget w = new Widget();
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectOutputStream oout = new ObjectOutputStream(bout);
-        oout.writeObject(w);
-        ObjectInputStream oin = new ObjectInputStream(
-            new ByteArrayInputStream(bout.toByteArray()));
-        assertEquals(w, oin.readObject());
+        assertEquals(w, unflatten(flatten(w)));
     }
 
     @Test
@@ -340,10 +335,7 @@ public class StreamableTest
         Widget w = new Widget();
 
         // make sure that we serialize to the expected stream of bytes
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectOutputStream oout = new ObjectOutputStream(bout);
-        oout.writeObject(w);
-        byte[] data = bout.toByteArray();
+        byte[] data = flatten(w);
 
         // uncomment this and rerun the tests to generate an updated WIRE_DATA blob
         // printWireData(w);
@@ -353,17 +345,13 @@ public class StreamableTest
         assertEquals(StringUtil.hexlate(data), StringUtil.hexlate(WIRE_DATA));
 
         // make sure that we unserialize a known stream of bytes to the expected object
-        ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(WIRE_DATA));
-        assertEquals(w, oin.readObject());
+        assertEquals(w, unflatten(WIRE_DATA));
     }
 
     protected void printWireData (Object o)
         throws IOException
     {
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ObjectOutputStream oout = new ObjectOutputStream(bout);
-        oout.writeObject(o);
-        String dstr = StringUtil.wordWrap(StringUtil.hexlate(bout.toByteArray()), 80);
+        String dstr = StringUtil.wordWrap(StringUtil.hexlate(flatten(o)), 80);
         dstr = StringUtil.join(dstr.split("\n"), "\" +\n        \"");
         System.out.println("    protected static final byte[] WIRE_DATA = "
             + "StringUtil.unhexlate(\n        \"" + dstr + "\");");
@@ -403,6 +391,89 @@ public class StreamableTest
         assertEquals(w2, ow2);
         assertEquals(w3, ow3);
         assertEquals(tup, otup);
+    }
+
+    @Test(expected=RuntimeException.class)
+    public void testUnlabledClosureFail ()
+        throws IOException, ClassNotFoundException
+    {
+        abstract class Action implements Streamable {
+            public int count;
+            public String arg;
+            public abstract String act ();
+        }
+        Action act = new Action() {
+            public String act () {
+                return count + ":" + arg;
+            }
+        };
+        act.count = 3;
+        act.arg = "hello";
+        Action react = (Action)unflatten(flatten(act));
+        assertEquals(act.act(), react.act());
+    }
+
+    @Test
+    public void testClosure ()
+        throws IOException, ClassNotFoundException
+    {
+        abstract class Action implements Streamable.Closure {
+            public int count;
+            public String arg;
+            public abstract String act ();
+        }
+        Action act = new Action() {
+            public String act () {
+                return count + ":" + arg;
+            }
+        };
+        act.count = 3;
+        act.arg = "hello";
+        Action react = (Action)unflatten(flatten(act));
+        assertEquals(act.act(), react.act());
+    }
+
+    // unfortunately we can't warn you if you do something naughty in your closure, but since we
+    // flatten and unflatten closures even when running on the local peer, the programmer should
+    // find about about funny business early enough
+    @Test(expected=NullPointerException.class)
+    public void testNaughtyClosureFail ()
+        throws IOException, ClassNotFoundException
+    {
+        abstract class Action implements Streamable.Closure {
+            public int count;
+            public String arg;
+            public abstract String act ();
+        }
+        Action act = new Action() {
+            public String act () {
+                return count + ":" + arg + ":" + naughtyOuterCall();
+            }
+        };
+        act.count = 3;
+        act.arg = "hello";
+        Action react = (Action)unflatten(flatten(act));
+        assertEquals(act.act(), react.act());
+    }
+
+    protected int naughtyOuterCall ()
+    {
+        return 42;
+    }
+
+    protected static byte[] flatten (Object object)
+        throws IOException
+    {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ObjectOutputStream oout = new ObjectOutputStream(bout);
+        oout.writeObject(object);
+        return bout.toByteArray();
+    }
+
+    protected static Object unflatten (byte[] data)
+        throws IOException, ClassNotFoundException
+    {
+        return new ObjectInputStream(new ByteArrayInputStream(data)).readObject();
     }
 
     protected static final byte[] WIRE_DATA = StringUtil.unhexlate(

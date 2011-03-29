@@ -25,20 +25,26 @@ package com.threerings.io;
  * Marks an object as streamable, meaning that it can be written to {@link ObjectOutputStream}
  * instances and read from {@link ObjectInputStream} instances.
  *
- * <p> All non-<code>transient</code> fields will be automatically written and restored for a
- * {@link Streamable} instance. Classes that wish to stream transient fields or customize the
- * streaming process should implement methods with the following signatures:
+ * <p> All non-{@code transient} fields will be automatically written and restored for a {@link
+ * Streamable} instance. Classes that wish to stream transient fields or customize the streaming
+ * process should implement methods with the following signatures: </p>
  *
  * <p><code>
  * public void writeObject ({@link ObjectOutputStream} out);
  * public void readObject ({@link ObjectInputStream} in);
- * </code>
+ * </code></p>
  *
  * <p> They can then handle the entirety of the streaming process, or call {@link
  * ObjectOutputStream#defaultWriteObject} and {@link ObjectInputStream#defaultReadObject} from
- * within their <code>writeObject</code> and <code>readObject</code> methods to perform the
- * standard streaming in addition to their customized behavior.
+ * within their {@code writeObject} and {@code readObject} methods to perform the standard
+ * streaming in addition to their customized behavior.</p>
  */
 public interface Streamable
 {
+    /**
+     * A marker interface for streamable classes that expect to be extended anonymously, but for
+     * which the implicit outer class reference can (and should) be ignored. This allows one to
+     * package up units of code and ship them between peers, or even between client and server.
+     */
+    public interface Closure extends Streamable {}
 }

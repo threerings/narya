@@ -22,6 +22,7 @@
 package com.threerings.io;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -251,7 +252,6 @@ public abstract class Streamer
             }
             if (Modifier.isFinal(componentType.getModifiers())) {
                 return new FinalArrayStreamer(componentType, delegate);
-
             } else {
                 return new ArrayStreamer(componentType, delegate);
             }
@@ -309,7 +309,6 @@ public abstract class Streamer
         // if there is no reader and no writer, we can do a simpler thing
         if ((reader == null) && (writer == null)) {
             return new ClassStreamer(target);
-
         } else {
             return new CustomClassStreamer(target, reader, writer);
         }
@@ -365,7 +364,11 @@ public abstract class Streamer
                 if (ObjectInputStream.STREAM_DEBUG) {
                     log.info(in.hashCode() + ": Creating object '" + _target.getName() + "'.");
                 }
-                return _target.newInstance();
+                return _ctor.newInstance(_ctorArgs);
+
+            } catch (InvocationTargetException ite) {
+                String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
+                throw (IOException) new IOException(errmsg).initCause(ite.getCause());
 
             } catch (InstantiationException ie) {
                 String errmsg = "Error instantiating object [type=" + _target.getName() + "]";
@@ -415,8 +418,9 @@ public abstract class Streamer
          */
         protected void initMarshallers ()
         {
-            // reflect on all the object's fields and remove all marked with NotStreamable
+            // reflect on all the object's fields
             List<Field> fields = Lists.newArrayList();
+            // this will read all non-static, non-transient fields into our fields list
             ClassUtil.getFields(_target, fields);
 
             // Checks whether or not we should stream the fields in alphabetical order.
@@ -426,8 +430,13 @@ public abstract class Streamer
                 QuickSort.sort(fields, FIELD_NAME_ORDER);
             }
 
-            _fields = Iterables.toArray(
-                Iterables.filter(fields, _isStreamableFieldPred), Field.class);
+            // note whether this class is a streamable closure
+            final boolean isClosure = Streamable.Closure.class.isAssignableFrom(_target);
+
+            // remove all marked with NotStreamable, and if we're a streamable closure, remove any
+            // anonymous inner class reference
+            Predicate<Field> filter = isClosure ? IS_STREAMCLOSURE : IS_STREAMABLE;
+            _fields = Iterables.toArray(Iterables.filter(fields, filter), Field.class);
             int fcount = _fields.length;
 
             // obtain field marshallers for all of our fields
@@ -445,6 +454,25 @@ public abstract class Streamer
                              _fields[ii].getName() + ".");
                 }
             }
+
+            // obtain the constructor we'll use to create instances
+            _ctorArgs = isClosure ? SINGLE_NULL_ARG : NO_ARGS;
+            for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
+                if (ctor.getParameterTypes().length == _ctorArgs.length) {
+                    if (_ctor != null) {
+                        throw new RuntimeException(
+                            "Streamable has multiple applicable ctors [class=" + _target.getName() +
+                            ", argCount=" + _ctorArgs.length + "]");
+                    }
+                    _ctor = ctor;
+                    // keep going, to be sure we catch conflicting ctors
+                }
+            }
+
+            // if this is a streamable closure, we need to make the constructor accessible
+            if (isClosure) {
+                _ctor.setAccessible(true);
+            }
         }
 
         @Override
@@ -457,6 +485,12 @@ public abstract class Streamer
 
         /** The class for which this streamer instance is configured. */
         protected Class<?> _target;
+
+        /** The constructor we use to create instances. */
+        protected Constructor<?> _ctor;
+
+        /** The arguments we pass to said constructor (empty or a single null). */
+        protected Object[] _ctorArgs;
 
         /** The non-transient, non-static public fields that we will stream when requested. */
         protected Field[] _fields;
@@ -953,13 +987,6 @@ public abstract class Streamer
         }
     }
 
-    /** A simple predicate to filter "NotStreamable" members from a Streamable object's fields. */
-    protected static final Predicate<Field> _isStreamableFieldPred = new Predicate<Field>() {
-        public boolean apply (Field obj) {
-            return (obj.getAnnotation(NotStreamable.class) == null);
-        }
-    };
-
     /** The name of the custom reader method. */
     protected static final String READER_METHOD_NAME = "readObject";
 
@@ -971,4 +998,24 @@ public abstract class Streamer
 
     /** The argument list for the custom writer method. */
     protected static final Class<?>[] WRITER_ARGS = { ObjectOutputStream.class };
+
+    /** Filters "NotStreamable" members from a field list. */
+    protected static final Predicate<Field> IS_STREAMABLE = new Predicate<Field>() {
+        public boolean apply (Field obj) {
+            return (obj.getAnnotation(NotStreamable.class) == null);
+        }
+    };
+
+    /** Filters "NotStreamable" members and enclosing class refs from a field list. */
+    protected static final Predicate<Field> IS_STREAMCLOSURE = new Predicate<Field>() {
+        public boolean apply (Field obj) {
+            return IS_STREAMABLE.apply(obj) && !obj.isSynthetic();
+        }
+    };
+
+    /** Used by {@link ClassStreamer} to create instances. */
+    protected static final Object[] NO_ARGS = new Object[] {};
+
+    /** Used by {@link ClassStreamer} to create instances. */
+    protected static final Object[] SINGLE_NULL_ARG = new Object[] { null };
 }
