@@ -143,13 +143,8 @@ public abstract class PeerManager
 
     /**
      * Encapsulates code that is meant to be executed one or more servers.
-     *
-     * <p><b>Note well</b>: the action you provide is serialized and sent to the server to which
-     * the member is currently connection. This means you MUST NOT instantiate a NodeAction
-     * anonymously because that will maintain an implicit non-transient reference to its containing
-     * class which will then also be serialized (assuming it is even serializable).
      */
-    public static abstract class NodeAction implements Streamable
+    public static abstract class NodeAction implements Streamable.Closure
     {
         /** Returns true if this action should be executed on the specified node. This will be
          * called on the originating server to decide whether or not to deliver the action to the
@@ -170,13 +165,8 @@ public abstract class PeerManager
 
     /**
      * Encapsulates code that is meant to be executed one or more servers and return a result.
-     *
-     * <p><b>Note well</b>: the request you provide is serialized and sent to the server to which
-     * the member is currently connection. This means you MUST NOT instantiate a NodeRequest
-     * anonymously because that will maintain an implicit non-transient reference to its containing
-     * class which will then also be serialized (assuming it is even serializable).
      */
-    public static abstract class NodeRequest implements Streamable
+    public static abstract class NodeRequest implements Streamable.Closure
     {
         /** Returns true if this request should be executed on the specified node. This will be
          * called on the originating server to decide whether or not to deliver the request to the
@@ -1599,8 +1589,6 @@ public abstract class PeerManager
     protected NodeObject _nodeobj;
     protected String _nodeNamespace;
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
-
-    /** Used to resolve dependencies in unserialized {@link NodeAction} instances. */
 
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
