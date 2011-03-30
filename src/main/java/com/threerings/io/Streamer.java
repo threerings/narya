@@ -325,6 +325,9 @@ public abstract class Streamer
         protected ClassStreamer (Class<?> target)
         {
             _target = target;
+            if (_target.isInterface()) {
+                return;// Don't try to find a constructor if we don't have one
+            }
             initConstructor();
             initMarshallers();
         }
