@@ -215,7 +215,9 @@ public abstract class PeerManager
 
         @Override public Stats clone () {
             try {
-                return (Stats)super.clone();
+                Stats cstats = (Stats)super.clone();
+                cstats.peerMessagesIn = new AtomicLong(peerMessagesIn.get());
+                return cstats;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
