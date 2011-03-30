@@ -91,9 +91,19 @@ public abstract class ChatChannelManager
      * participant.
      */
     @AnyThread
-    public void bodyAddedToChannel (ChatChannel channel, int bodyId)
+    public void bodyAddedToChannel (ChatChannel channel, final int bodyId)
     {
-        _peerMan.invokeNodeAction(new ParticipantChanged(channel, bodyId, true));
+        _peerMan.invokeNodeAction(new ChannelAction(channel) {
+            @Override protected void execute () {
+                ChannelInfo info = _channelMan._channels.get(_channel);
+                if (info != null) {
+                    info.participants.add(bodyId);
+                } else if (_channelMan._resolving.containsKey(_channel)) {
+                    log.warning("Oh for fuck's sake, distributed systems are complicated",
+                                "channel", _channel);
+                }
+            }
+        });
     }
 
     /**
@@ -102,32 +112,50 @@ public abstract class ChatChannelManager
      * participant.
      */
     @AnyThread
-    public void bodyRemovedFromChannel (ChatChannel channel, int bodyId)
+    public void bodyRemovedFromChannel (ChatChannel channel, final int bodyId)
     {
-        _peerMan.invokeNodeAction(new ParticipantChanged(channel, bodyId, false));
+        _peerMan.invokeNodeAction(new ChannelAction(channel) {
+            @Override protected void execute () {
+                ChannelInfo info = _channelMan._channels.get(_channel);
+                if (info != null) {
+                    info.participants.remove(bodyId);
+                } else if (_channelMan._resolving.containsKey(_channel)) {
+                    log.warning("Oh for fuck's sake, distributed systems are complicated",
+                                "channel", _channel);
+                }
+            }
+        });
     }
 
     /**
      * Collects all chat messages heard by the given user on all peers.
      */
     @AnyThread
-    public void collectChatHistory (Name user, final ResultListener<ChatHistoryResult> lner)
+    public void collectChatHistory (final Name user, final ResultListener<ChatHistoryResult> lner)
     {
-        NodeRequestsListener<List<ChatHistory.Entry>> listener =
-            new NodeRequestsListener<List<ChatHistory.Entry>>() {
-                public void requestsProcessed (NodeRequestsResult<List<ChatHistory.Entry>> rRes) {
-                    ChatHistoryResult chRes = new ChatHistoryResult();
-                    chRes.failedNodes = rRes.getNodeErrors().keySet();
-                    chRes.history = Lists.newArrayList(
-                        Iterables.concat(rRes.getNodeResults().values()));
-                    Collections.sort(chRes.history, SORT_BY_TIMESTAMP);
-                    lner.requestCompleted(chRes);
-                }
-                public void requestFailed (String cause) {
-                    lner.requestFailed(new InvocationException(cause));
-                }
-            };
-        _peerMan.invokeNodeRequest(new ChatCollectionRequest(user), listener);
+        _peerMan.invokeNodeRequest(new NodeRequest() {
+            @Override public boolean isApplicable (NodeObject nodeobj) {
+                return true; // poll all nodes
+            }
+            @Override protected void execute (InvocationService.ResultListener listener) {
+                // find all the UserMessages for the given user and send them back
+                listener.requestProcessed(Lists.newArrayList(Iterables.filter(
+                    _chatHistory.get(user), IS_USER_MESSAGE)));
+            }
+            protected @Inject ChatHistory _chatHistory;
+        }, new NodeRequestsListener<List<ChatHistory.Entry>>() {
+            public void requestsProcessed (NodeRequestsResult<List<ChatHistory.Entry>> rRes) {
+                ChatHistoryResult chRes = new ChatHistoryResult();
+                chRes.failedNodes = rRes.getNodeErrors().keySet();
+                chRes.history = Lists.newArrayList(
+                    Iterables.concat(rRes.getNodeResults().values()));
+                Collections.sort(chRes.history, SORT_BY_TIMESTAMP);
+                lner.requestCompleted(chRes);
+            }
+            public void requestFailed (String cause) {
+                lner.requestFailed(new InvocationException(cause));
+            }
+        });
     }
 
     // from interface ChannelSpeakProvider
@@ -150,7 +178,11 @@ public abstract class ChatChannelManager
         }
 
         // forward the speak request to the server that hosts the channel in question
-        _peerMan.invokeNodeAction(new ForwardChannelSpeak(channel, umsg), new Runnable() {
+        _peerMan.invokeNodeAction(new ChannelAction(channel) {
+            @Override protected void execute () {
+                _channelMan.dispatchSpeak(_channel, umsg);
+            }
+        }, new Runnable() {
             public void run () {
                 _resolving.put(channel, Lists.newArrayList(umsg));
                 resolveAndDispatch(channel);
@@ -185,16 +217,20 @@ public abstract class ChatChannelManager
                 finishResolveAndDispatch(channel);
             }
             public void fail (String peerName) {
-                List<UserMessage> msgs = _resolving.remove(channel);
+                final List<UserMessage> msgs = _resolving.remove(channel);
                 if (peerName == null) {
                     log.warning("Failed to resolve chat channel due to lock failure",
                                 "channel", channel);
                 } else {
                     // some other peer resolved this channel first, so forward any queued messages
                     // directly to that node
-                    for (UserMessage msg : msgs) {
-                        _peerMan.invokeNodeAction(peerName, new ForwardChannelSpeak(channel, msg));
-                    }
+                    _peerMan.invokeNodeAction(peerName, new ChannelAction(channel) {
+                        @Override protected void execute () {
+                            for (final UserMessage msg : msgs) {
+                                _channelMan.dispatchSpeak(_channel, msg);
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -245,7 +281,7 @@ public abstract class ChatChannelManager
      * server does not have the information it needs to validate the speaker and must leave that to
      * us, the channel hosting server.
      */
-    protected void dispatchSpeak (ChatChannel channel, UserMessage message)
+    protected void dispatchSpeak (ChatChannel channel, final UserMessage message)
     {
         final ChannelInfo info = _channels.get(channel);
         if (info == null) {
@@ -280,8 +316,12 @@ public abstract class ChatChannelManager
         }
 
         for (Map.Entry<String,int[]> entry : partMap.entrySet()) {
-            _peerMan.invokeNodeAction(
-                entry.getKey(), new DispatchChannelSpeak(channel, message, entry.getValue()));
+            final int[] bodyIds = entry.getValue();
+            _peerMan.invokeNodeAction(entry.getKey(), new ChannelAction(channel) {
+                @Override protected void execute () {
+                    _channelMan.deliverSpeak(_channel, message, bodyIds);
+                }
+            });
         }
     }
 
@@ -361,69 +401,11 @@ public abstract class ChatChannelManager
         public ChannelAction (ChatChannel channel) {
             _channel = channel;
         }
-        public ChannelAction () {
-        }
         @Override public boolean isApplicable (NodeObject nodeobj) {
             return ((CrowdNodeObject)nodeobj).hostedChannels.contains(_channel);
         }
         protected ChatChannel _channel;
         @Inject protected transient ChatChannelManager _channelMan;
-    }
-
-    /** Informs the server hosting a channel that a body has been added to or removed from the
-     * channel's participants set. */
-    protected static class ParticipantChanged extends ChannelAction
-    {
-        public ParticipantChanged (ChatChannel channel, int bodyId, boolean added) {
-            super(channel);
-            _bodyId = bodyId;
-            _added = added;
-        }
-        public ParticipantChanged () {
-        }
-        @Override protected void execute () {
-            ChannelInfo info = _channelMan._channels.get(_channel);
-            if (info != null) {
-                if (_added) {
-                    info.participants.add(_bodyId);
-                } else {
-                    info.participants.remove(_bodyId);
-                }
-            } else if (_channelMan._resolving.containsKey(_channel)) {
-                log.warning("Oh for fuck's sake, distributed systems are complicated",
-                            "channel", _channel);
-            }
-        }
-        protected int _bodyId;
-        protected boolean _added;
-    }
-
-    protected static class ChatCollectionRequest extends NodeRequest
-    {
-        public ChatCollectionRequest (Name user)
-        {
-            _user = user;
-        }
-
-        public ChatCollectionRequest ()
-        {
-        }
-
-        @Override public boolean isApplicable (NodeObject nodeobj)
-        {
-            // poll all nodes
-            return true;
-        }
-
-        @Override protected void execute (InvocationService.ResultListener listener)
-        {
-            // find all the UserMessages for the given user and send them back
-            listener.requestProcessed(Lists.newArrayList(Iterables.filter(
-                _chatHistory.get(_user), IS_USER_MESSAGE)));
-        }
-
-        protected Name _user;
-        @Inject ChatHistory _chatHistory;
     }
 
     protected static final Predicate<ChatHistory.Entry> IS_USER_MESSAGE =
@@ -439,41 +421,6 @@ public abstract class ChatChannelManager
             return Longs.compare(e1.message.timestamp, e2.message.timestamp);
         }
     };
-
-    /** Forwards a channel speak request from the server hosting the message originator to the
-     * server that is hosting the channel. */
-    protected static class ForwardChannelSpeak extends ChannelAction
-    {
-        public ForwardChannelSpeak (ChatChannel channel, UserMessage message) {
-            super(channel);
-            _message = message;
-        }
-        public ForwardChannelSpeak () {
-        }
-        @Override protected void execute () {
-            _channelMan.dispatchSpeak(_channel, _message);
-        }
-        protected UserMessage _message;
-    }
-
-    /** Forwards a chat channel message to the server to which some subset of the channel
-     * participants are connected so that it can dispatch the message on their body objects. */
-    protected static class DispatchChannelSpeak extends ForwardChannelSpeak
-    {
-        public DispatchChannelSpeak (ChatChannel channel, UserMessage message, int[] bodyIds) {
-            super(channel, message);
-            _bodyIds = bodyIds;
-        }
-        public DispatchChannelSpeak () {
-        }
-        @Override public boolean isApplicable (NodeObject nodeobj) {
-            return true; // not used
-        }
-        @Override protected void execute () {
-            _channelMan.deliverSpeak(_channel, _message, _bodyIds);
-        }
-        protected int[] _bodyIds;
-    }
 
     /** Contains metadata for a particular channel. */
     protected static class ChannelInfo
