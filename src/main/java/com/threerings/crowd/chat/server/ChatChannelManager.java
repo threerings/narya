@@ -142,7 +142,7 @@ public abstract class ChatChannelManager
                 listener.requestProcessed(Lists.newArrayList(Iterables.filter(
                     _chatHistory.get(user), IS_USER_MESSAGE)));
             }
-            protected @Inject ChatHistory _chatHistory;
+            @Inject protected transient ChatHistory _chatHistory;
         }, new NodeRequestsListener<List<ChatHistory.Entry>>() {
             public void requestsProcessed (NodeRequestsResult<List<ChatHistory.Entry>> rRes) {
                 ChatHistoryResult chRes = new ChatHistoryResult();
