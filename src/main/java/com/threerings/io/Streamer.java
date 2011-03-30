@@ -37,10 +37,10 @@ import java.util.Map;
 
 import java.io.IOException;
 
+import com.google.common.base.Defaults;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -484,7 +484,7 @@ public abstract class Streamer
                 _ctorArgs = new Object[ptypes.length];
                 for (int ii = 0; ii < ptypes.length; ii++) {
                     // this will be the appropriately typed zero, or null
-                    _ctorArgs[ii] = ZEROS.get(ptypes[ii]);
+                    _ctorArgs[ii] = Defaults.defaultValue(ptypes[ii]);
                 }
             }
 
@@ -1033,16 +1033,4 @@ public abstract class Streamer
                 !(obj.isSynthetic() && obj.getName().startsWith("this$"));
         }
     };
-
-    /** Zero values for the primitive types. */
-    protected static final Map<Class<?>,Object> ZEROS = ImmutableMap.<Class<?>,Object>builder().
-        put(Boolean.TYPE, false).
-        put(Byte.TYPE, Byte.valueOf((byte)0)).
-        put(Short.TYPE, Short.valueOf((short)0)).
-        put(Character.TYPE, Character.valueOf((char)0)).
-        put(Integer.TYPE, Integer.valueOf(0)).
-        put(Long.TYPE, Long.valueOf(0)).
-        put(Float.TYPE, Float.valueOf(0)).
-        put(Double.TYPE, Double.valueOf(0)).
-        build();
 }
