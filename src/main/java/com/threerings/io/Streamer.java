@@ -537,6 +537,17 @@ public abstract class Streamer
         }
 
         @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            // we need to initialize in order to access the constructor
+            if (_marshallers == null) {
+                initMarshallers();
+            }
+            return super.createObject(in);
+        }
+
+        @Override
         public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
             throws IOException
         {
