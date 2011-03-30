@@ -325,6 +325,7 @@ public abstract class Streamer
         protected ClassStreamer (Class<?> target)
         {
             _target = target;
+            initConstructor();
             initMarshallers();
         }
 
@@ -408,47 +409,10 @@ public abstract class Streamer
         }
 
         /**
-         * Initialize the marshallers.
+         * Locates the appropriate constructor for creating instances.
          */
-        protected void initMarshallers ()
+        protected void initConstructor ()
         {
-            // reflect on all the object's fields
-            List<Field> fields = Lists.newArrayList();
-            // this will read all non-static, non-transient fields into our fields list
-            ClassUtil.getFields(_target, fields);
-
-            // Checks whether or not we should stream the fields in alphabetical order.
-            // This ensures cross-JVM compatibility since Class.getDeclaredFields() does not
-            // define an order. Due to legacy issues, this is not used by default.
-            if (SORT_FIELDS) {
-                QuickSort.sort(fields, FIELD_NAME_ORDER);
-            }
-
-            // note whether this class is a streamable closure
-            final boolean isClosure = Streamable.Closure.class.isAssignableFrom(_target);
-
-            // remove all marked with NotStreamable, and if we're a streamable closure, remove any
-            // anonymous inner class reference
-            Predicate<Field> filter = isClosure ? IS_STREAMCLOSURE : IS_STREAMABLE;
-            _fields = Iterables.toArray(Iterables.filter(fields, filter), Field.class);
-            int fcount = _fields.length;
-
-            // obtain field marshallers for all of our fields
-            _marshallers = new FieldMarshaller[fcount];
-            for (int ii = 0; ii < fcount; ii++) {
-                _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
-                if (_marshallers[ii] == null) {
-                    String errmsg = "Unable to marshall field [class=" + _target.getName() +
-                        ", field=" + _fields[ii].getName() +
-                        ", type=" + _fields[ii].getType().getName() + "]";
-                    throw new RuntimeException(errmsg);
-                }
-                if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
-                             _fields[ii].getName() + ".");
-                }
-            }
-
             // if we have a zero argument constructor, we have to use that one
             for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
                 if (ctor.getParameterTypes().length == 0) {
@@ -460,7 +424,7 @@ public abstract class Streamer
 
             // if we're an anonymous closure, we also support having a single constructor to which
             // we'll pass zero-valued arguments, which will then be overwritten by unstreaming
-            if (isClosure && _ctor == null) {
+            if (Streamable.Closure.class.isAssignableFrom(_target) && _ctor == null) {
                 Constructor<?>[] ctors = _target.getDeclaredConstructors();
                 if (ctors.length > 1) {
                     throw new RuntimeException(
@@ -485,6 +449,47 @@ public abstract class Streamer
             if (_ctor == null) {
                 throw new RuntimeException("Unable to find applicable ctor " +
                                            "[class=" + _target.getName() + "]");
+            }
+        }
+
+        /**
+         * Initialize the reading and writing marshallers.
+         */
+        protected void initMarshallers ()
+        {
+            // reflect on all the object's fields
+            List<Field> fields = Lists.newArrayList();
+            // this will read all non-static, non-transient fields into our fields list
+            ClassUtil.getFields(_target, fields);
+
+            // Checks whether or not we should stream the fields in alphabetical order.
+            // This ensures cross-JVM compatibility since Class.getDeclaredFields() does not
+            // define an order. Due to legacy issues, this is not used by default.
+            if (SORT_FIELDS) {
+                QuickSort.sort(fields, FIELD_NAME_ORDER);
+            }
+
+            // remove all marked with NotStreamable, and if we're a streamable closure, remove any
+            // anonymous inner class reference
+            Predicate<Field> filter = Streamable.Closure.class.isAssignableFrom(_target) ?
+                IS_STREAMCLOSURE : IS_STREAMABLE;
+            _fields = Iterables.toArray(Iterables.filter(fields, filter), Field.class);
+            int fcount = _fields.length;
+
+            // obtain field marshallers for all of our fields
+            _marshallers = new FieldMarshaller[fcount];
+            for (int ii = 0; ii < fcount; ii++) {
+                _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
+                if (_marshallers[ii] == null) {
+                    String errmsg = "Unable to marshall field [class=" + _target.getName() +
+                        ", field=" + _fields[ii].getName() +
+                        ", type=" + _fields[ii].getType().getName() + "]";
+                    throw new RuntimeException(errmsg);
+                }
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
+                             _fields[ii].getName() + ".");
+                }
             }
         }
 
@@ -523,17 +528,6 @@ public abstract class Streamer
             super(target);
             _reader = reader;
             _writer = writer;
-        }
-
-        @Override
-        public Object createObject (ObjectInputStream in)
-            throws IOException, ClassNotFoundException
-        {
-            // we need to initialize in order to access the constructor
-            if (_marshallers == null) {
-                super.initMarshallers();
-            }
-            return super.createObject(in);
         }
 
         @Override
