@@ -135,18 +135,19 @@ public abstract class Streamer
 
         Streamer stream = _streamers.get(target);
         if (stream == null) {
-            // see if it's a collection type
+            // Get or create a streamer for the class, and cache it.
+            // First, see if it's a collection type...
             Class<?> collClass = getCollectionClass(target);
             if (collClass != null) {
                 stream = getStreamer(collClass);
 
+            // otherwise make sure it's a streamable class
+            } else if (!isStreamable(target)) {
+                throw new IOException(
+                    "Requested to stream invalid class '" + target.getName() + "'");
+
             } else {
-                // otherwise make sure this is a streamable class
-                if (!isStreamable(target)) {
-                    throw new IOException(
-                        "Requested to stream invalid class '" + target.getName() + "'");
-                }
-                // create a streamer for this class and cache it
+                // create a new streamer for the class
                 if (ObjectInputStream.STREAM_DEBUG) {
                     log.info("Creating a streamer for '" + target.getName() + "'.");
                 }
@@ -245,18 +246,18 @@ public abstract class Streamer
         // create streamers for array types
         if (target.isArray()) {
             Class<?> componentType = target.getComponentType();
-            Streamer delegate = Streamer.getStreamer(componentType);
-            // sanity check
-            if (delegate == null) {
-                String errmsg = "Aiya! Streamer created for array type but we have no registered " +
-                    "streamer for the element type [type=" + target.getName() + "]";
-                throw new RuntimeException(errmsg);
-            }
             if (Modifier.isFinal(componentType.getModifiers())) {
-                return new FinalArrayStreamer(componentType, delegate);
-            } else {
-                return new ArrayStreamer(componentType, delegate);
+                Streamer delegate = Streamer.getStreamer(componentType);
+                if (delegate != null) {
+                    return new FinalArrayStreamer(componentType, delegate);
+                } // else: error, below
+
+            } else if (isStreamable(componentType)) {
+                return new ArrayStreamer(componentType);
             }
+            String errmsg = "Aiya! Streamer created for array type but we have no registered " +
+                "streamer for the element type [type=" + target.getName() + "]";
+            throw new RuntimeException(errmsg);
         }
 
         // create streamers for enum types
@@ -325,9 +326,6 @@ public abstract class Streamer
         protected ClassStreamer (Class<?> target)
         {
             _target = target;
-            if (_target.isInterface()) {
-                return;// Don't try to find a constructor if we don't have one
-            }
             initConstructor();
             initMarshallers();
         }
@@ -633,10 +631,9 @@ public abstract class Streamer
     protected static class ArrayStreamer extends Streamer
     {
         /** Constructor. */
-        protected ArrayStreamer (Class<?> componentType, Streamer delegate)
+        protected ArrayStreamer (Class<?> componentType)
         {
             _componentType = componentType;
-            _delegate = delegate;
         }
 
         @Override
@@ -681,15 +678,11 @@ public abstract class Streamer
         protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
         {
             return super.toStringHelper(otsh)
-                .add("componentType", _componentType.getName())
-                .add("delegate", _delegate);
+                .add("componentType", _componentType.getName());
         }
 
         /** The class of our component type. */
         protected Class<?> _componentType;
-
-        /** Our delegate streamer. */
-        protected Streamer _delegate;
     } // end: static class ArrayStreamer
 
     /**
@@ -700,7 +693,8 @@ public abstract class Streamer
         /** Constructor. */
         protected FinalArrayStreamer (Class<?> componentType, Streamer delegate)
         {
-            super(componentType, delegate);
+            super(componentType);
+            _delegate = delegate;
         }
 
         @Override
@@ -754,6 +748,16 @@ public abstract class Streamer
                 }
             }
         }
+
+        @Override
+        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        {
+            return super.toStringHelper(otsh)
+                .add("delegate", _delegate);
+        }
+
+        /** Our delegate streamer. */
+        protected Streamer _delegate;
     } // end: static class FinalArrayStreamer
 
     /**
