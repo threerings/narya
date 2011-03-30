@@ -469,7 +469,7 @@ public abstract class Streamer
             }
 
             // remove all marked with NotStreamable, and if we're a streamable closure, remove any
-            // anonymous inner class reference
+            // anonymous enclosing class reference
             Predicate<Field> filter = Streamable.Closure.class.isAssignableFrom(_target) ?
                 IS_STREAMCLOSURE : IS_STREAMABLE;
             _fields = Iterables.toArray(Iterables.filter(fields, filter), Field.class);
@@ -506,7 +506,7 @@ public abstract class Streamer
         /** The constructor we use to create instances. */
         protected Constructor<?> _ctor;
 
-        /** The arguments we pass to said constructor (empty or a single null). */
+        /** The arguments we pass to said constructor (empty or all null/zero). */
         protected Object[] _ctorArgs;
 
         /** The non-transient, non-static public fields that we will stream when requested. */
