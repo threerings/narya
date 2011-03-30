@@ -199,8 +199,6 @@ public abstract class Streamer
      */
     public abstract void readObject (Object object, ObjectInputStream in, boolean useReader)
         throws IOException, ClassNotFoundException;
-    {
-    }
 
     @Override
     public String toString ()
