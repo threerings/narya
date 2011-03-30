@@ -123,6 +123,8 @@ public class StreamableTest
         public Wocket[] nullWockets;
         public Wicket[] nullWickets;
 
+        public Wackable[] wackables = new Wackable[] { new Wacket("for"), new Wacket("sure") };
+
         // it's legal for an Object field to contain a Streamable reference
         public Object object1 = new Wocket();
         public Object nullObject1 = new Wocket();
@@ -223,6 +225,8 @@ public class StreamableTest
                 Arrays.equals(nullWockets, ow.nullWockets) &&
                 Arrays.equals(nullWickets, ow.nullWickets) &&
 
+                Arrays.equals(wackables, ow.wackables) &&
+
                 Objects.equal(object1, ow.object1) &&
                 Objects.equal(nullObject1, ow.nullObject1) &&
                 Arrays.equals(objects, ow.objects) &&
@@ -318,6 +322,58 @@ public class StreamableTest
         }
 
         protected int _fizzle = 19;
+    }
+
+    /**
+     * An interface that extends Streamable.
+     */
+    public static interface Wackable extends Streamable
+    {
+        /**
+         * You shall never taste my ambrosia.
+         */
+        void wack ();
+    }
+
+    public static class Wacket
+        implements Wackable
+    {
+        public String strizzing;
+
+        public Wacket (String s)
+        {
+            this.strizzing = (s == null) ? null : (s + "-izzle");
+        }
+
+        /** Unserialize like the Dickens. */
+        public Wacket () {}
+
+        // from Wackable
+        public void wack ()
+        {
+            // *burp*
+        }
+
+        @Override
+        public boolean equals (Object other)
+        {
+            if (!(other instanceof Wacket)) {
+                return false;
+            }
+            Wacket that = (Wacket)other;
+            return Objects.equal(this.strizzing, that.strizzing);
+        }
+
+        @Override
+        public int hashCode ()
+        {
+            return (strizzing == null) ? 0 : strizzing.hashCode();
+        }
+
+        public String toString ()
+        {
+            return "Wacket[" + strizzing + "]";
+        }
     }
 
     @Test
@@ -500,13 +556,16 @@ public class StreamableTest
         "020f7fff400921fb54442d1800020f7fff400921fb54442d18fffc002a5b4c636f6d2e7468726565" +
         "72696e67732e696f2e53747265616d61626c6554657374245769636b65743b000000030001070f7f" +
         "ff400921fb54442d1800000013000000130f7fff400921fb54442d1800000013000000130f7fff40" +
-        "0921fb54442d18000000130000001300000000000000020f7fff400921fb54442d1800020f7fff40" +
-        "0921fb54442d18010000000200020f7fff400921fb54442d1800020f7fff400921fb54442d180001" +
-        "00000003fffb00116a6176612e6c616e672e496e7465676572000000010005000000020005000000" +
-        "03000100000003000500000003000500000002000500000001000100000003000500000004000500" +
-        "00000500050000000600010000000300050000000600050000000700050000000800010000000300" +
-        "0500000007000500000008000500000009000100000003000500000001fffa00106a6176612e6c61" +
-        "6e672e537472696e6700036f6e650005000000020006000374776f00050000000300060005746872" +
-        "65650001000000030006000374776f000500000002000600036f6e65000500000001000600057468" +
-        "72656500050000000300");
+        "0921fb54442d180000001300000013000000000000fffb002c5b4c636f6d2e746872656572696e67" +
+        "732e696f2e53747265616d61626c6554657374245761636b61626c653b00000002fffa0027636f6d" +
+        "2e746872656572696e67732e696f2e53747265616d61626c6554657374245761636b657401000966" +
+        "6f722d697a7a6c65000601000a737572652d697a7a6c6500020f7fff400921fb54442d1800020f7f" +
+        "ff400921fb54442d18010000000200020f7fff400921fb54442d1800020f7fff400921fb54442d18" +
+        "000100000003fff900116a6176612e6c616e672e496e746567657200000001000700000002000700" +
+        "00000300010000000300070000000300070000000200070000000100010000000300070000000400" +
+        "07000000050007000000060001000000030007000000060007000000070007000000080001000000" +
+        "03000700000007000700000008000700000009000100000003000700000001fff800106a6176612e" +
+        "6c616e672e537472696e6700036f6e650007000000020008000374776f0007000000030008000574" +
+        "687265650001000000030008000374776f000700000002000800036f6e6500070000000100080005" +
+        "746872656500070000000300");
 }
