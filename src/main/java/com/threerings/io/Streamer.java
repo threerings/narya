@@ -267,9 +267,9 @@ public abstract class Streamer
                     return new ByteEnumStreamer(target);
                 }
                 break;
-            case NAME:
-            case ORDINAL:
-                // We explicitly do nothing here...
+
+            default:
+                // we do not care if it is a ByteEnum, we move on...
                 break;
             }
 
