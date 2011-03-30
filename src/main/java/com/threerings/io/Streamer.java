@@ -324,16 +324,8 @@ public abstract class Streamer
         /** Constructor. */
         protected ClassStreamer (Class<?> target)
         {
-            this(target, true); // initialize now, we'll need them and we want to fail fast
-        }
-
-        /** Constructor. */
-        protected ClassStreamer (Class<?> target, boolean initMarshallers)
-        {
             _target = target;
-            if (initMarshallers) {
-                initMarshallers();
-            }
+            initMarshallers();
         }
 
         @Override
@@ -528,10 +520,7 @@ public abstract class Streamer
         /** Constructor. */
         protected CustomClassStreamer (Class<?> target, Method reader, Method writer)
         {
-            super(target, false); // we will lazy-initialize the marshallers only if needed
-            // (It's possible there is only a writer method, but the object is never read
-            // from clients, so don't get cute and set up the marshallers now if one of the
-            // methods is null).
+            super(target);
             _reader = reader;
             _writer = writer;
         }
@@ -542,7 +531,7 @@ public abstract class Streamer
         {
             // we need to initialize in order to access the constructor
             if (_marshallers == null) {
-                initMarshallers();
+                super.initMarshallers();
             }
             return super.createObject(in);
         }
@@ -575,7 +564,7 @@ public abstract class Streamer
 
             // otherwise, ensure the marshallers are initialized and call super
             if (_marshallers == null) {
-                initMarshallers();
+                super.initMarshallers();
             }
             super.writeObject(object, out, useWriter);
         }
@@ -613,9 +602,17 @@ public abstract class Streamer
 
             // otherwise, ensure the marshallers are iniitalized and call super
             if (_marshallers == null) {
-                initMarshallers();
+                super.initMarshallers();
             }
             super.readObject(object, in, useReader);
+        }
+
+        protected void initMarshallers ()
+        {
+            // we will lazy-initialize the marshallers only if needed, so we don't call super
+            // (It's possible there is only a writer method, but the object is never read from
+            // clients, so don't get cute and set up the marshallers at construct time if one of
+            // the methods is null).
         }
 
         @Override
