@@ -457,23 +457,24 @@ public abstract class Streamer
                 }
             }
 
-            // obtain the constructor we'll use to create instances
-            if (!isClosure) {
-                // locate our zero argument constructor
-                for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
-                    if (ctor.getParameterTypes().length == 0) {
-                        _ctor = ctor;
-                        break;
-                    }
+            // if we have a zero argument constructor, we have to use that one
+            for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
+                if (ctor.getParameterTypes().length == 0) {
+                    _ctor = ctor;
+                    _ctorArgs = ArrayUtil.EMPTY_OBJECT;
+                    break;
                 }
-                _ctorArgs = ArrayUtil.EMPTY_OBJECT;
+            }
 
-            } else {
-                // a closure should have only one constructor
+            // if we're an anonymous closure, we also support having a single constructor to which
+            // we'll pass zero-valued arguments, which will then be overwritten by unstreaming
+            if (isClosure && _ctor == null) {
                 Constructor<?>[] ctors = _target.getDeclaredConstructors();
                 if (ctors.length > 1) {
-                    throw new RuntimeException("Streamable closure classes must have only " +
-                                               "one constructor [class=" + _target.getName() + "]");
+                    throw new RuntimeException(
+                        "Streamable closure classes must have either a zero-argument constructor " +
+                        "or a single argument-taking constructor; multiple argument-taking " +
+                        "constructors are not allowed [class=" + _target.getName() + "]");
                 }
                 _ctor = ctors[0];
                 _ctor.setAccessible(true);

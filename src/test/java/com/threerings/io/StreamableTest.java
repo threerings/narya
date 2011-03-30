@@ -447,6 +447,25 @@ public class StreamableTest
         assertEquals(act.act(), react.act());
     }
 
+    protected static class LegacyClosure implements Streamable.Closure
+    {
+        public int arg;
+        public LegacyClosure (int arg) {
+            this.arg = arg;
+        }
+        public LegacyClosure () {
+        }
+    }
+
+    @Test
+    public void testLegacyZeroMultipleCtorHavingClosure ()
+        throws IOException, ClassNotFoundException
+    {
+        LegacyClosure inst = new LegacyClosure(42);
+        LegacyClosure reinst = (LegacyClosure)unflatten(flatten(inst));
+        assertEquals(inst.arg, reinst.arg);
+    }
+
     protected int unsafeOuterCall ()
     {
         return 42;
