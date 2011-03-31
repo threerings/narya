@@ -25,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
 
@@ -36,6 +37,7 @@ import com.samskivert.util.SystemInfo;
 import com.threerings.presents.annotation.AuthInvoker;
 import com.threerings.presents.annotation.EventQueue;
 import com.threerings.presents.annotation.MainInvoker;
+import com.threerings.presents.annotation.PeerInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
@@ -68,6 +70,7 @@ public class PresentsServer
     {
         @Override protected void configure () {
             bindInvokers();
+            bindPeerInvoker();
             bind(ConnectionManager.class).to(PresentsConnectionManager.class);
             bind(RunQueue.class).annotatedWith(EventQueue.class).to(PresentsDObjectMgr.class);
             bind(DObjectManager.class).to(PresentsDObjectMgr.class);
@@ -81,6 +84,14 @@ public class PresentsServer
         protected void bindInvokers () {
             bind(Invoker.class).annotatedWith(MainInvoker.class).to(PresentsInvoker.class);
             bind(Invoker.class).annotatedWith(AuthInvoker.class).to(PresentsAuthInvoker.class);
+        }
+
+        /**
+         * Binds just the peer invoker - we separate this from the others for legacy reasons.
+         */
+        protected void bindPeerInvoker () {
+            bind(Invoker.class).annotatedWith(PeerInvoker.class).to(
+                Key.get(Invoker.class, MainInvoker.class));
         }
     }
 

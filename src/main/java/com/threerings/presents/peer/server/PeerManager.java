@@ -59,7 +59,7 @@ import com.threerings.presents.peer.data.DObjectAddress;
 
 import com.threerings.util.Name;
 
-import com.threerings.presents.annotation.MainInvoker;
+import com.threerings.presents.annotation.PeerInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
@@ -1611,7 +1611,7 @@ public abstract class PeerManager
     protected Stats _stats = new Stats();
 
     // our service dependencies
-    @Inject protected @MainInvoker Invoker _invoker;
+    @Inject protected @PeerInvoker Invoker _invoker;
     @Inject protected ClientManager _clmgr;
     @Inject protected PresentsConnectionManager _conmgr;
     @Inject protected Injector _injector;
