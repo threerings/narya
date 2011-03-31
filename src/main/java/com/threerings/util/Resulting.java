@@ -76,10 +76,10 @@ public class Resulting<T> extends Invoker.Unit
         String name, final ResultListener<Q> chain, final Function<? super T, ? extends Q> xform)
     {
         this(name, new ResultListener<T>() {
-            @Override public void requestCompleted (T result) {
+            public void requestCompleted (T result) {
                 chain.requestCompleted(xform.apply(result));
             }
-            @Override public void requestFailed (Exception cause) {
+            public void requestFailed (Exception cause) {
                 chain.requestFailed(cause);
             }
         });

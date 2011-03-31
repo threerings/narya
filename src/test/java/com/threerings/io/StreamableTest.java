@@ -370,6 +370,7 @@ public class StreamableTest
             return (strizzing == null) ? 0 : strizzing.hashCode();
         }
 
+        @Override
         public String toString ()
         {
             return "Wacket[" + strizzing + "]";
@@ -457,6 +458,7 @@ public class StreamableTest
             public abstract String act ();
         }
         Action act = new Action() {
+            @Override
             public String act () {
                 return "bang!";
             }
@@ -475,6 +477,7 @@ public class StreamableTest
         final int count = unsafeOuterCall();
         final String arg = "hello";
         Action act = new Action() {
+            @Override
             public String act () {
                 return count + ":" + arg;
             }
@@ -495,6 +498,7 @@ public class StreamableTest
         }
         final String arg = "hello";
         Action act = new Action() {
+            @Override
             public String act () {
                 return unsafeOuterCall() + ":" + arg;
             }

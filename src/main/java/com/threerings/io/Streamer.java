@@ -600,6 +600,7 @@ public abstract class Streamer
             super.readObject(object, in, useReader);
         }
 
+        @Override
         protected void initMarshallers ()
         {
             // we will lazy-initialize the marshallers only if needed, so we don't call super
