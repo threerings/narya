@@ -61,7 +61,7 @@ public class PeerSession extends PresentsSession
     public void handleMessage (Message message)
     {
         super.handleMessage(message);
-        _stats.peerMessagesIn.incrementAndGet();
+        _stats.notePeerMessageReceived(message);
     }
 
     @Override // from PresentsSession
@@ -121,7 +121,7 @@ public class PeerSession extends PresentsSession
         if (!super.postMessage(msg, expect)) {
             return false;
         }
-        _stats.peerMessagesOut++;
+        _stats.notePeerMessageSent(msg);
         return true;
     }
 

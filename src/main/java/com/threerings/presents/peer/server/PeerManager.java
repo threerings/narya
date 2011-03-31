@@ -70,6 +70,8 @@ import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
+import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.Message;
 import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -212,6 +214,14 @@ public abstract class PeerManager
 
         /** The total number of messages sent to all of our peers. */
         public long peerMessagesOut;
+
+        public void notePeerMessageReceived (Message msg) {
+            peerMessagesIn.incrementAndGet();
+        }
+
+        public void notePeerMessageSent (DownstreamMessage msg) {
+            peerMessagesOut++;
+        }
 
         @Override public Stats clone () {
             try {
