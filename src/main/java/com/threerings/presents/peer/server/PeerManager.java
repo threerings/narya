@@ -215,6 +215,10 @@ public abstract class PeerManager
         /** The total number of messages sent to all of our peers. */
         public long peerMessagesOut;
 
+        public void noteNodeActionInvoked (NodeAction action) {
+            nodeActionsInvoked++;
+        }
+
         public void notePeerMessageReceived (Message msg) {
             peerMessagesIn.incrementAndGet();
         }
@@ -450,7 +454,7 @@ public abstract class PeerManager
         }
 
         if (invoked) {
-            _stats.nodeActionsInvoked++; // stats!
+            _stats.noteNodeActionInvoked(action); // stats!
         }
     }
 
