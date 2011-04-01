@@ -53,6 +53,12 @@ public class CompoundEvent extends DEvent
         _events = StreamableArrayList.newList();
     }
 
+    /** Used when unserializing. */
+    public CompoundEvent ()
+    {
+        super(0, Transport.DEFAULT);
+    }
+
     /**
      * Posts an event to this transaction. The event will be delivered as part of the entire
      * transaction if it is committed or discarded if the transaction is cancelled.
