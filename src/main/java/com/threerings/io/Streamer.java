@@ -421,33 +421,26 @@ public abstract class Streamer
                 }
             }
 
-            // if we're an anonymous closure, we also support having a single constructor to which
-            // we'll pass zero-valued arguments, which will then be overwritten by unstreaming
-            if (Streamable.Closure.class.isAssignableFrom(_target) && _ctor == null) {
-                Constructor<?>[] ctors = _target.getDeclaredConstructors();
-                if (ctors.length > 1) {
-                    throw new RuntimeException(
-                        "Streamable closure classes must have either a zero-argument constructor " +
-                        "or a single argument-taking constructor; multiple argument-taking " +
-                        "constructors are not allowed [class=" + _target.getName() + "]");
-                }
-                _ctor = ctors[0];
-                _ctor.setAccessible(true);
-
-                // we pass bogus arguments to it (because unstreaming will overwrite our bogus
-                // values with the real values)
-                Class<?>[] ptypes = _ctor.getParameterTypes();
-                _ctorArgs = new Object[ptypes.length];
-                for (int ii = 0; ii < ptypes.length; ii++) {
-                    // this will be the appropriately typed zero, or null
-                    _ctorArgs[ii] = Defaults.defaultValue(ptypes[ii]);
-                }
+            // otherwise there should be a single non-zero-argument constructor, which we'll call
+            // with zero-valued arguments at unstreaming time, which will then be overwritten by
+            // readObject()
+            Constructor<?>[] ctors = _target.getDeclaredConstructors();
+            if (ctors.length > 1) {
+                throw new RuntimeException(
+                    "Streamable closure classes must have either a zero-argument constructor " +
+                    "or a single argument-taking constructor; multiple argument-taking " +
+                    "constructors are not allowed [class=" + _target.getName() + "]");
             }
+            _ctor = ctors[0];
+            _ctor.setAccessible(true);
 
-            // make sure we found a constructor
-            if (_ctor == null) {
-                throw new RuntimeException("Unable to find applicable ctor " +
-                                           "[class=" + _target.getName() + "]");
+            // we pass bogus arguments to it (because unstreaming will overwrite our bogus
+            // values with the real values)
+            Class<?>[] ptypes = _ctor.getParameterTypes();
+            _ctorArgs = new Object[ptypes.length];
+            for (int ii = 0; ii < ptypes.length; ii++) {
+                // this will be the appropriately typed zero, or null
+                _ctorArgs[ii] = Defaults.defaultValue(ptypes[ii]);
             }
         }
 
