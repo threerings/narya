@@ -102,11 +102,14 @@ public class OccupantInfo extends SimpleStreamableObject
      */
     public OccupantInfo (BodyObject body)
     {
-        if (body != null) { // body is null when unserializing
-            bodyOid = Integer.valueOf(body.getOid());
-            username = body.getVisibleName();
-            status = body.status;
-        }
+        bodyOid = Integer.valueOf(body.getOid());
+        username = body.getVisibleName();
+        status = body.status;
+    }
+
+    /** Used for unserialization. */
+    public OccupantInfo ()
+    {
     }
 
     /** Access to the body object id as an int. */
