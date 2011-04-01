@@ -417,7 +417,7 @@ public abstract class Streamer
                 if (ctor.getParameterTypes().length == 0) {
                     _ctor = ctor;
                     _ctorArgs = ArrayUtil.EMPTY_OBJECT;
-                    break;
+                    return;
                 }
             }
 
