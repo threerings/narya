@@ -35,6 +35,9 @@ import com.threerings.presents.net.Transport;
  */
 public class CompoundEvent extends DEvent
 {
+    /** Unserialize. */
+    public CompoundEvent () {}
+
     /**
      * Constructs a compound event and prepares it for operation.
      */
