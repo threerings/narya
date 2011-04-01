@@ -35,32 +35,12 @@ public abstract class NamedEvent extends DEvent
      *
      * @param targetOid the object id of the object in question.
      * @param name the name associated with this event.
-     */
-    public NamedEvent (int targetOid, String name)
-    {
-        this(targetOid, name, Transport.DEFAULT);
-    }
-
-    /**
-     * Constructs a new named event for the specified target object with
-     * the supplied attribute name.
-     *
-     * @param targetOid the object id of the object in question.
-     * @param name the name associated with this event.
      * @param transport a hint as to the type of transport desired for the event.
      */
     public NamedEvent (int targetOid, String name, Transport transport)
     {
         super(targetOid, transport);
         _name = name;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public NamedEvent ()
-    {
     }
 
     /**

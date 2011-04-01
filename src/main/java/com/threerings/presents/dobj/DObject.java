@@ -903,7 +903,7 @@ public class DObject
         if (applyImmediately) {
             list.add(oid);
         }
-        postEvent(new ObjectAddedEvent(_oid, name, oid, applyImmediately));
+        postEvent(new ObjectAddedEvent(_oid, name, oid).setAlreadyApplied(applyImmediately));
     }
 
     /**
@@ -917,19 +917,19 @@ public class DObject
             list.remove(oid);
         }
         // dispatch an object removed event
-        postEvent(new ObjectRemovedEvent(_oid, name, oid, applyImmediately));
+        postEvent(new ObjectRemovedEvent(_oid, name, oid).setAlreadyApplied(applyImmediately));
     }
 
     /** @deprecated Regenerate your DObject to remove this warning. */
     @Deprecated protected void requestOidAdd (String name, int oid)
     {
-        postEvent(new ObjectAddedEvent(_oid, name, oid, false));
+        postEvent(new ObjectAddedEvent(_oid, name, oid));
     }
 
     /** @deprecated Regenerate your DObject to remove this warning. */
     @Deprecated protected void requestOidRemove (String name, int oid)
     {
-        postEvent(new ObjectRemovedEvent(_oid, name, oid, false));
+        postEvent(new ObjectRemovedEvent(_oid, name, oid));
     }
 
     /**
@@ -943,7 +943,7 @@ public class DObject
             set.add(entry);
         }
         // dispatch an entry added event
-        postEvent(new EntryAddedEvent<T>(_oid, name, entry, applyImmediately));
+        postEvent(new EntryAddedEvent<T>(_oid, name, entry).setAlreadyApplied(applyImmediately));
     }
 
     /**

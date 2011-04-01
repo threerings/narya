@@ -33,32 +33,14 @@ import com.threerings.presents.net.Transport;
 public class InvocationResponseEvent extends DEvent
 {
     /**
-     * Constructs a new invocation response event on the specified target
-     * object with the supplied code, method and arguments.
+     * Constructs a new invocation response event on the specified target object with the supplied
+     * code, method and arguments.
      *
-     * @param targetOid the object id of the object on which the event is
-     * to be dispatched.
+     * @param targetOid the object id of the object on which the event is to be dispatched.
      * @param requestId the id of the request to which we are responding.
      * @param methodId the method to be invoked.
-     * @param args the arguments for the method. This array should contain
-     * only values of valid distributed object types.
-     */
-    public InvocationResponseEvent (
-        int targetOid, int requestId, int methodId, Object[] args)
-    {
-        this(targetOid, requestId, methodId, args, Transport.DEFAULT);
-    }
-
-    /**
-     * Constructs a new invocation response event on the specified target
-     * object with the supplied code, method and arguments.
-     *
-     * @param targetOid the object id of the object on which the event is
-     * to be dispatched.
-     * @param requestId the id of the request to which we are responding.
-     * @param methodId the method to be invoked.
-     * @param args the arguments for the method. This array should contain
-     * only values of valid distributed object types.
+     * @param args the arguments for the method. This array should contain only values of valid
+     * distributed object types.
      * @param transport a hint as to the type of transport desired for the event.
      */
     public InvocationResponseEvent (
@@ -68,14 +50,6 @@ public class InvocationResponseEvent extends DEvent
         _requestId = (short)requestId;
         _methodId = (byte)methodId;
         _args = args;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public InvocationResponseEvent ()
-    {
     }
 
     /**

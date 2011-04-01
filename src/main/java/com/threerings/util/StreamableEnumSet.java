@@ -142,13 +142,6 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         initContents();
     }
 
-    /**
-     * No-arg constructor for deserialization.
-     */
-    public StreamableEnumSet ()
-    {
-    }
-
     @Override
     public Iterator<E> iterator ()
     {

@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * A message event that only goes to the server. If generated on the server then it never leaves
  * the server.
@@ -28,25 +30,17 @@ package com.threerings.presents.dobj;
 public class ServerMessageEvent extends MessageEvent
 {
     /**
-     * Constructs a new message event on the specified target object with
-     * the supplied name and arguments.
+     * Constructs a new message event on the specified target object with the supplied name and
+     * arguments.
      *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
+     * @param targetOid the object id of the object whose attribute has changed.
      * @param name the name of the message event.
-     * @param args the arguments for this message. This array should
-     * contain only values of valid distributed object types.
+     * @param args the arguments for this message. This array should contain only values of valid
+     * distributed object types.
      */
     public ServerMessageEvent (int targetOid, String name, Object[] args)
     {
-        super(targetOid, name, args);
-    }
-
-    /**
-     * Suitable for unserialization.
-     */
-    public ServerMessageEvent ()
-    {
+        super(targetOid, name, args, Transport.DEFAULT);
     }
 
     @Override

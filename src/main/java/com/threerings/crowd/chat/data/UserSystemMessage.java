@@ -32,17 +32,12 @@ public class UserSystemMessage extends SystemMessage
     /** The "speaker" of this message, the user that triggered that this message be sent to us. */
     public Name speaker;
 
-    /** Suitable for unserialization. */
-    public UserSystemMessage ()
-    {
-    }
-
     /**
      * Construct a INFO-level UserSystemMessage.
      */
-    public UserSystemMessage (Name sender, String message, String bundle)
+    public static UserSystemMessage create (Name sender, String message, String bundle)
     {
-        this(sender, message, bundle, INFO);
+        return new UserSystemMessage(sender, message, bundle, INFO);
     }
 
     /**

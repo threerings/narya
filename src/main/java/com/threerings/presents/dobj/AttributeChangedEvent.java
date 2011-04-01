@@ -37,14 +37,6 @@ import com.threerings.presents.net.Transport;
 public class AttributeChangedEvent extends NamedEvent
 {
     /**
-     * Constructs a blank instance of this event in preparation for unserialization from the
-     * network.
-     */
-    public AttributeChangedEvent ()
-    {
-    }
-
-    /**
      * Returns the new value of the attribute.
      */
     public Object getValue ()
@@ -148,21 +140,6 @@ public class AttributeChangedEvent extends NamedEvent
             target.setAttribute(_name, value);
         }
         return true;
-    }
-
-    /**
-     * Constructs a new attribute changed event on the specified target object with the supplied
-     * attribute name and value. <em>Do not construct these objects by hand.</em> Use {@link
-     * DObject#changeAttribute} instead.
-     *
-     * @param targetOid the object id of the object whose attribute has changed.
-     * @param name the name of the attribute (data member) that has changed.
-     * @param value the new value of the attribute (in the case of primitive types, the
-     * reflection-defined object-alternative is used).
-     */
-    protected AttributeChangedEvent (int targetOid, String name, Object value, Object oldValue)
-    {
-        this(targetOid, name, value, oldValue, Transport.DEFAULT);
     }
 
     /**

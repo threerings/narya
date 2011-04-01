@@ -21,6 +21,8 @@
 
 package com.threerings.presents.dobj;
 
+import com.threerings.presents.net.Transport;
+
 import static com.threerings.presents.Log.log;
 
 /**
@@ -46,17 +48,9 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
      */
     public EntryRemovedEvent (int targetOid, String name, Comparable<?> key, T oldEntry)
     {
-        super(targetOid, name);
+        super(targetOid, name, Transport.DEFAULT);
         _key = key;
         _oldEntry = oldEntry;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for unserialization from the
-     * network.
-     */
-    public EntryRemovedEvent ()
-    {
     }
 
     @Override

@@ -54,26 +54,16 @@ public class ChatHistory
      * {@link #record(ChatChannel, UserMessage, Name...)},
      * {@link #get(Name)}, and {@link #clear(Name)}.
      */
-    public static class Entry
-        implements Streamable
+    public static class Entry implements Streamable
     {
         /** The channel on which the message was sent, of null if the channel manager was not
          * used. */
-        public ChatChannel channel;
+        public final ChatChannel channel;
 
         /** The message sent. */
-        public ChatMessage message;
+        public final ChatMessage message;
 
-        /** For deserialization. */
-        public Entry ()
-        {
-        }
-
-        /**
-         * Creates a new history entry.
-         */
-        public Entry (ChatChannel channel, ChatMessage message)
-        {
+        public Entry (ChatChannel channel, ChatMessage message) {
             this.channel = channel;
             this.message = message;
         }

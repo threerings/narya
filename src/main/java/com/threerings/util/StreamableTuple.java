@@ -51,12 +51,4 @@ public class StreamableTuple<L, R> extends Tuple<L, R>
     {
         super(left, right);
     }
-
-    /**
-     * Don't use this constructor! It's only for unstreaming.
-     */
-    public StreamableTuple ()
-    {
-        super(null, null);
-    }
 }

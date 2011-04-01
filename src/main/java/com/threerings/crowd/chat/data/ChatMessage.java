@@ -48,13 +48,6 @@ public abstract class ChatMessage
     public transient long timestamp;
 
     /**
-     * For all your unserialization needs.
-     */
-    public ChatMessage ()
-    {
-    }
-
-    /**
      * Construct a ChatMessage.
      */
     public ChatMessage (String message, String bundle)

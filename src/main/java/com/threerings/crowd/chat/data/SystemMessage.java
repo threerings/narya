@@ -40,11 +40,6 @@ public class SystemMessage extends ChatMessage
     /** The attention level of this message. */
     public byte attentionLevel;
 
-    // documentation inherited
-    public SystemMessage ()
-    {
-    }
-
     /**
      * Construct a SystemMessage.
      */

@@ -36,18 +36,11 @@ import com.threerings.presents.net.Transport;
 public class CompoundEvent extends DEvent
 {
     /**
-     * Constructs a blank compound event in preparation for unserialization.
-     */
-    public CompoundEvent ()
-    {
-    }
-
-    /**
      * Constructs a compound event and prepares it for operation.
      */
     public CompoundEvent (DObject target, DObjectManager omgr)
     {
-        super(target.getOid());
+        super(target.getOid(), Transport.DEFAULT);
 
         // sanity check
         if (omgr == null) {

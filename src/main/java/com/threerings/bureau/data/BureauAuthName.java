@@ -32,9 +32,4 @@ public class BureauAuthName extends Name
     {
         super(bureauId);
     }
-
-    // used when unserializing
-    public BureauAuthName ()
-    {
-    }
 }

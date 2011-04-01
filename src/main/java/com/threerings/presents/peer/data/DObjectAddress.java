@@ -29,17 +29,17 @@ import com.threerings.io.SimpleStreamableObject;
  */
 public class DObjectAddress extends SimpleStreamableObject
 {
-    public DObjectAddress () {}  // Deserialization
+    /** The node on which this object lives.*/
+    public final String nodeName;
+
+    /** This object's oid in its node's oid space. */
+    public final int oid;
 
     public DObjectAddress (String nodeName, int oid)
     {
         this.nodeName = nodeName;
         this.oid = oid;
     }
-
-    public String nodeName;
-
-    public int oid;
 
     @Override
     public int hashCode ()

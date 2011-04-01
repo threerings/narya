@@ -23,6 +23,8 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
+import com.threerings.presents.net.Transport;
+
 /**
  * An entry added event is dispatched when an entry is added to a {@link DSet} attribute of a
  * distributed entry. It can also be constructed to request the addition of an entry to a set and
@@ -45,25 +47,8 @@ public class EntryAddedEvent<T extends DSet.Entry> extends EntryEvent<T>
      */
     public EntryAddedEvent (int targetOid, String name, T entry)
     {
-        this(targetOid, name, entry, false);
-    }
-
-    /**
-     * Used when the distributed object already added the entry before generating the event.
-     */
-    public EntryAddedEvent (int targetOid, String name, T entry, boolean alreadyApplied)
-    {
-        super(targetOid, name);
+        super(targetOid, name, Transport.DEFAULT);
         _entry = entry;
-        _alreadyApplied = alreadyApplied;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for unserialization from the
-     * network.
-     */
-    public EntryAddedEvent ()
-    {
     }
 
     @Override
@@ -126,6 +111,13 @@ public class EntryAddedEvent<T extends DSet.Entry> extends EntryEvent<T>
         super.toString(buf);
         buf.append(", entry=");
         StringUtil.toString(buf, _entry);
+    }
+
+    /** Used by {@link DObject} to note if this event has already been applied locally. */
+    protected EntryAddedEvent setAlreadyApplied (boolean alreadyApplied)
+    {
+        _alreadyApplied = alreadyApplied;
+        return this;
     }
 
     protected T _entry;

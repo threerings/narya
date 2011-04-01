@@ -47,11 +47,6 @@ public class Name extends SimpleStreamableObject
         return (name == null || name.toString().equals(BLANK.toString()));
     }
 
-    /** Creates a blank instance for unserialization. */
-    public Name ()
-    {
-    }
-
     /**
      * Creates a name instance with the supplied name.
      */

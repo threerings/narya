@@ -37,21 +37,6 @@ public abstract class DEvent implements Streamable
     public transient long eventId;
 
     /**
-     * A zero argument constructor for unserialization from yon network.
-     */
-    public DEvent ()
-    {
-    }
-
-    /**
-     * Constructs a new distributed object event that pertains to the specified distributed object.
-     */
-    public DEvent (int targetOid)
-    {
-        this(targetOid, Transport.DEFAULT);
-    }
-
-    /**
      * Constructs a new distributed object event that pertains to the specified distributed object.
      *
      * @param transport a hint as to the type of transport desired for the event.

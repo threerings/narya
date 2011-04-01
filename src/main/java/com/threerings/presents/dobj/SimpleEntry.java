@@ -31,9 +31,6 @@ import com.threerings.io.Streamable;
 public class SimpleEntry<T extends Comparable<?>>
     implements DSet.Entry
 {
-    // Zero arg constructor for unserialization
-    public SimpleEntry () { }
-
     public SimpleEntry (T key) {
         _key = key;
     }

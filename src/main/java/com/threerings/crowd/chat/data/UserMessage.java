@@ -35,10 +35,12 @@ public class UserMessage extends ChatMessage
     public byte mode;
 
     /**
-     * For unserialization.
+     * Constructs a user message for a player originated tell (which has no bundle and is in the
+     * default mode).
      */
-    public UserMessage ()
+    public static UserMessage create (Name speaker, String message)
     {
+        return new UserMessage(speaker, null, message, ChatCodes.DEFAULT_MODE);
     }
 
     /**
@@ -49,17 +51,6 @@ public class UserMessage extends ChatMessage
         super(message, bundle);
         this.speaker = speaker;
         this.mode = mode;
-    }
-
-    /**
-     * Constructs a user message for a player originated tell (which has no bundle and is in the
-     * default mode).
-     */
-    public UserMessage (Name speaker, String message)
-    {
-        super(message, null);
-        this.speaker = speaker;
-        this.mode = ChatCodes.DEFAULT_MODE;
     }
 
     /**

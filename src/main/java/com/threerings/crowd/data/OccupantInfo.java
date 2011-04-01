@@ -89,7 +89,7 @@ public class OccupantInfo extends SimpleStreamableObject
     }
 
     /** The body object id of this occupant (and our entry key). */
-    public Integer bodyOid;
+    public final Integer bodyOid;
 
     /** The username of this occupant. */
     public Name username;
@@ -105,11 +105,6 @@ public class OccupantInfo extends SimpleStreamableObject
         bodyOid = Integer.valueOf(body.getOid());
         username = body.getVisibleName();
         status = body.status;
-    }
-
-    /** A blank constructor used for unserialization. */
-    public OccupantInfo ()
-    {
     }
 
     /** Access to the body object id as an int. */

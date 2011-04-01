@@ -75,14 +75,10 @@ public class NodeObject extends DObject
         implements Comparable<Lock>, DSet.Entry
     {
         /** The resource type.  Only resources of the same type will have their ids compared. */
-        public String type;
+        public final String type;
 
         /** The resource identifier, which can be <code>null</code> for singleton resources. */
-        public Comparable<?> id;
-
-        public Lock ()
-        {
-        }
+        public final Comparable<?> id;
 
         public Lock (String type, Comparable<?> id)
         {
@@ -124,14 +120,10 @@ public class NodeObject extends DObject
     public static class CacheData extends SimpleStreamableObject
     {
         /** The cache that should be purged. */
-        public String cache;
+        public final String cache;
 
         /** The stale data in the cache. */
-        public Streamable data;
-
-        public CacheData ()
-        {
-        }
+        public final Streamable data;
 
         public CacheData (String cache, Streamable data)
         {

@@ -26,44 +26,21 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.net.Transport;
 
 /**
- * Used to dispatch an invocation notification from the server to a
- * client.
+ * Used to dispatch an invocation notification from the server to a client.
  *
  * @see DObjectManager#postEvent
  */
 public class InvocationNotificationEvent extends DEvent
 {
     /**
-     * Constructs a new invocation notification event on the specified
-     * target object with the supplied receiver id, method id and
-     * arguments.
+     * Constructs a new invocation notification event on the specified target object with the
+     * supplied receiver id, method id and arguments.
      *
-     * @param targetOid the object id of the object on which the event is
-     * to be dispatched.
-     * @param receiverId identifies the receiver to which this notification
-     * is being dispatched.
+     * @param targetOid the object id of the object on which the event is to be dispatched.
+     * @param receiverId identifies the receiver to which this notification is being dispatched.
      * @param methodId the id of the method to be invoked.
-     * @param args the arguments for the method. This array should contain
-     * only values of valid distributed object types.
-     */
-    public InvocationNotificationEvent (
-        int targetOid, short receiverId, int methodId, Object[] args)
-    {
-        this(targetOid, receiverId, methodId, args, Transport.DEFAULT);
-    }
-
-    /**
-     * Constructs a new invocation notification event on the specified
-     * target object with the supplied receiver id, method id and
-     * arguments.
-     *
-     * @param targetOid the object id of the object on which the event is
-     * to be dispatched.
-     * @param receiverId identifies the receiver to which this notification
-     * is being dispatched.
-     * @param methodId the id of the method to be invoked.
-     * @param args the arguments for the method. This array should contain
-     * only values of valid distributed object types.
+     * @param args the arguments for the method. This array should contain only values of valid
+     * distributed object types.
      * @param transport a hint as to the type of transport desired for the event.
      */
     public InvocationNotificationEvent (
@@ -73,14 +50,6 @@ public class InvocationNotificationEvent extends DEvent
         _receiverId = receiverId;
         _methodId = (byte)methodId;
         _args = args;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public InvocationNotificationEvent ()
-    {
     }
 
     /**

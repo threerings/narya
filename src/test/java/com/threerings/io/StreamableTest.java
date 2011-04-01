@@ -345,9 +345,6 @@ public class StreamableTest
             this.strizzing = (s == null) ? null : (s + "-izzle");
         }
 
-        /** Unserialize like the Dickens. */
-        public Wacket () {}
-
         // from Wackable
         public void wack ()
         {

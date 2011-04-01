@@ -29,12 +29,7 @@ import com.threerings.io.SimpleStreamableObject;
 public class Place extends SimpleStreamableObject
 {
     /** The oid of this place's {@link PlaceObject}. */
-    public int placeOid;
-
-    /** Used when unserializing. */
-    public Place ()
-    {
-    }
+    public final int placeOid;
 
     /**
      * Creates a place with the supplied oid.

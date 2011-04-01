@@ -26,10 +26,9 @@ import com.samskivert.util.StringUtil;
 import com.threerings.presents.net.Transport;
 
 /**
- * A message event is used to dispatch a message to all subscribers of a
- * distributed object without actually changing any of the fields of the
- * object. A message has a name, by which different subscribers of the
- * same object can distinguish their different messages, and an array of
+ * A message event is used to dispatch a message to all subscribers of a distributed object without
+ * actually changing any of the fields of the object. A message has a name, by which different
+ * subscribers of the same object can distinguish their different messages, and an array of
  * arguments by which any contents of the message can be delivered.
  *
  * @see DObjectManager#postEvent
@@ -37,43 +36,19 @@ import com.threerings.presents.net.Transport;
 public class MessageEvent extends NamedEvent
 {
     /**
-     * Constructs a new message event on the specified target object with
-     * the supplied name and arguments.
+     * Constructs a new message event on the specified target object with the supplied name and
+     * arguments.
      *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
+     * @param targetOid the object id of the object whose attribute has changed.
      * @param name the name of the message event.
-     * @param args the arguments for this message. This array should
-     * contain only values of valid distributed object types.
-     */
-    public MessageEvent (int targetOid, String name, Object[] args)
-    {
-        this(targetOid, name, args, Transport.DEFAULT);
-    }
-
-    /**
-     * Constructs a new message event on the specified target object with
-     * the supplied name and arguments.
-     *
-     * @param targetOid the object id of the object whose attribute has
-     * changed.
-     * @param name the name of the message event.
-     * @param args the arguments for this message. This array should
-     * contain only values of valid distributed object types.
+     * @param args the arguments for this message. This array should contain only values of valid
+     * distributed object types.
      * @param transport a hint as to the type of transport desired for the event.
      */
     public MessageEvent (int targetOid, String name, Object[] args, Transport transport)
     {
         super(targetOid, name, transport);
         _args = args;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for
-     * unserialization from the network.
-     */
-    public MessageEvent ()
-    {
     }
 
     /**
@@ -85,9 +60,8 @@ public class MessageEvent extends NamedEvent
     }
 
     /**
-     * Replaces the arguments associated with this message event.
-     * <em>Note:</em> this should only be called on events that have not
-     * yet been dispatched into the distributed object system.
+     * Replaces the arguments associated with this message event. <em>Note:</em> this should only
+     * be called on events that have not yet been dispatched into the distributed object system.
      */
     public void setArgs (Object[] args)
     {

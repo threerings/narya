@@ -34,13 +34,6 @@ public class TokenRing extends SimpleStreamableObject
     public static final int ADMIN = (1 << 0);
 
     /**
-     * A default constructor, used when unserializing token rings.
-     */
-    public TokenRing ()
-    {
-    }
-
-    /**
      * Constructs a token ring with the supplied set of tokens.
      */
     public TokenRing (int tokens)

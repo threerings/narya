@@ -48,23 +48,6 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param ovalue the previous value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
-     */
-    public ElementUpdatedEvent (int targetOid, String name, Object value, Object ovalue, int index)
-    {
-        this(targetOid, name, value, ovalue, index, Transport.DEFAULT);
-    }
-
-    /**
-     * Constructs a new element updated event on the specified target object with the supplied
-     * attribute name, element and index.
-     *
-     * @param targetOid the object id of the object whose attribute has changed.
-     * @param name the name of the attribute (data member) for which an element has changed.
-     * @param value the new value of the element (in the case of primitive types, the
-     * reflection-defined object-alternative is used).
-     * @param ovalue the previous value of the element (in the case of primitive types, the
-     * reflection-defined object-alternative is used).
-     * @param index the index in the array of the updated element.
      * @param transport a hint as to the type of transport desired for the event.
      */
     public ElementUpdatedEvent (
@@ -74,14 +57,6 @@ public class ElementUpdatedEvent extends NamedEvent
         _value = value;
         _oldValue = ovalue;
         _index = index;
-    }
-
-    /**
-     * Constructs a blank instance of this event in preparation for unserialization from the
-     * network.
-     */
-    public ElementUpdatedEvent ()
-    {
     }
 
     /**

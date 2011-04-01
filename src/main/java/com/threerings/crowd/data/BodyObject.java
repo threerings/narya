@@ -245,5 +245,5 @@ public class BodyObject extends ClientObject
     }
 
     /** The default (no tokens) access control. */
-    protected static final TokenRing EMPTY_TOKENS = new TokenRing();
+    protected static final TokenRing EMPTY_TOKENS = new TokenRing(0);
 }

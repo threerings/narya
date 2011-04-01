@@ -32,9 +32,4 @@ public class PeerAuthName extends Name
     {
         super(nodeName);
     }
-
-    // used when unserializing
-    public PeerAuthName ()
-    {
-    }
 }
