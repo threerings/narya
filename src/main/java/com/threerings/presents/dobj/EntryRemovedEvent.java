@@ -48,6 +48,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
     {
         super(targetOid, name);
         _key = key;
+        _oldEntry = oldEntry;
     }
 
     /** For unserialization. */
