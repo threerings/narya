@@ -43,21 +43,11 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
      * @param targetOid the object id of the object to whose set we will add an entry.
      * @param name the name of the attribute in which to update the specified entry.
      * @param entry the entry to update.
-     * @param oldEntry the previous value of the entry.
      */
-    public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry)
+    public EntryUpdatedEvent (int targetOid, String name, T entry)
     {
         super(targetOid, name);
         _entry = entry;
-        _oldEntry = oldEntry;
-    }
-
-    /** For unserialization. */
-    public EntryUpdatedEvent ()
-    {
-        super(0, null);
-        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
-        // the hackery we do with _oldEntry
     }
 
     @Override
@@ -126,6 +116,12 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
         super.toString(buf);
         buf.append(", entry=");
         StringUtil.toString(buf, _entry);
+    }
+
+    protected EntryUpdatedEvent setOldEntry (T oldEntry)
+    {
+        _oldEntry = oldEntry;
+        return this;
     }
 
     protected T _entry;

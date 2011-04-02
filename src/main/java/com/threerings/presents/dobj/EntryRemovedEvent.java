@@ -42,21 +42,11 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
      * @param targetOid the object id of the object from whose set we will remove an entry.
      * @param name the name of the attribute from which to remove the specified entry.
      * @param key the entry key that identifies the entry to remove.
-     * @param oldEntry the previous value of the entry.
      */
-    public EntryRemovedEvent (int targetOid, String name, Comparable<?> key, T oldEntry)
+    public EntryRemovedEvent (int targetOid, String name, Comparable<?> key)
     {
         super(targetOid, name);
         _key = key;
-        _oldEntry = oldEntry;
-    }
-
-    /** For unserialization. */
-    public EntryRemovedEvent ()
-    {
-        super(0, null);
-        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
-        // the hackery we do with _oldEntry
     }
 
     @Override
@@ -123,6 +113,12 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
         buf.append("ELREM:");
         super.toString(buf);
         buf.append(", key=").append(_key);
+    }
+
+    protected EntryRemovedEvent setOldEntry (T oldEntry)
+    {
+        _oldEntry = oldEntry;
+        return this;
     }
 
     protected Comparable<?> _key;

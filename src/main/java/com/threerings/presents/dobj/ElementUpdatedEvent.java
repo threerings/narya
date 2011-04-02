@@ -43,16 +43,21 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param name the name of the attribute (data member) for which an element has changed.
      * @param value the new value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
-     * @param ovalue the previous value of the element (in the case of primitive types, the
-     * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
      */
-    public ElementUpdatedEvent (int targetOid, String name, Object value, Object ovalue, int index)
+    public ElementUpdatedEvent (int targetOid, String name, Object value, int index)
     {
         super(targetOid, name);
         _value = value;
-        _oldValue = ovalue;
         _index = index;
+    }
+
+    /** For unserialization. */
+    public ElementUpdatedEvent ()
+    {
+        super(0, null);
+        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
+        // the hackery we do with _oldValue
     }
 
     /**
@@ -178,6 +183,12 @@ public class ElementUpdatedEvent extends NamedEvent
         buf.append(", value=");
         StringUtil.toString(buf, _value);
         buf.append(", index=").append(_index);
+    }
+
+    protected ElementUpdatedEvent setOldValue (Object oldValue)
+    {
+        _oldValue = oldValue;
+        return this;
     }
 
     protected Object _value;

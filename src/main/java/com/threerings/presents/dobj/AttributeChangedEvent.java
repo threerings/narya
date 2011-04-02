@@ -44,19 +44,10 @@ public class AttributeChangedEvent extends NamedEvent
      * @param value the new value of the attribute (in the case of primitive types, the
      * reflection-defined object-alternative is used).
      */
-    public AttributeChangedEvent (int targetOid, String name, Object value, Object oldValue)
+    public AttributeChangedEvent (int targetOid, String name, Object value)
     {
         super(targetOid, name);
         _value = value;
-        _oldValue = oldValue;
-    }
-
-    /** For unserialization. */
-    public AttributeChangedEvent ()
-    {
-        super(0, null);
-        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
-        // the hackery we do with _oldValue
     }
 
     /**
@@ -180,6 +171,12 @@ public class AttributeChangedEvent extends NamedEvent
         super.toString(buf);
         buf.append(", value=");
         StringUtil.toString(buf, _value);
+    }
+
+    protected AttributeChangedEvent setOldValue (Object oldValue)
+    {
+        _oldValue = oldValue;
+        return this;
     }
 
     protected Object _value;
