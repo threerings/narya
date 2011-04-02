@@ -49,14 +49,6 @@ public class InvocationResponseEvent extends DEvent
         _args = args;
     }
 
-    /** @deprecated Regenerate your services. */
-    @Deprecated
-    public InvocationResponseEvent (int targetOid, int requestId, int methodId, Object[] args,
-                                    Transport transport)
-    {
-        this(targetOid, requestId, methodId, args);
-    }
-
     /**
      * Returns the invocation request id associated with this response.
      */
