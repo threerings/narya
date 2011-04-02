@@ -558,7 +558,7 @@ public class DObject
      */
     public void postMessage (Transport transport, String name, Object... args)
     {
-        postEvent(new MessageEvent(_oid, name, args, transport));
+        postEvent(new MessageEvent(_oid, name, args).setTransport(transport));
     }
 
     /**
@@ -871,7 +871,7 @@ public class DObject
         String name, Object value, Object oldValue, Transport transport)
     {
         // dispatch an attribute changed event
-        postEvent(new AttributeChangedEvent(_oid, name, value, oldValue, transport));
+        postEvent(new AttributeChangedEvent(_oid, name, value, oldValue).setTransport(transport));
     }
 
     /**
@@ -889,8 +889,8 @@ public class DObject
         String name, int index, Object value, Object oldValue, Transport transport)
     {
         // dispatch an attribute changed event
-        postEvent(new ElementUpdatedEvent(
-                      _oid, name, value, oldValue, index, transport));
+        postEvent(new ElementUpdatedEvent(_oid, name, value, oldValue, index).
+                  setTransport(transport));
     }
 
     /**
@@ -989,7 +989,7 @@ public class DObject
             }
         }
         // dispatch an entry updated event
-        postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry, transport));
+        postEvent(new EntryUpdatedEvent<T>(_oid, name, entry, oldEntry).setTransport(transport));
     }
 
     protected boolean isAuthoritative ()

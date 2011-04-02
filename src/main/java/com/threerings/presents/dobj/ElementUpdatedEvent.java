@@ -26,8 +26,6 @@ import java.lang.reflect.Field;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An element updated event is dispatched when an element of an array field in a distributed object
  * is updated. It can also be constructed to request the update of an entry and posted to the
@@ -48,12 +46,10 @@ public class ElementUpdatedEvent extends NamedEvent
      * @param ovalue the previous value of the element (in the case of primitive types, the
      * reflection-defined object-alternative is used).
      * @param index the index in the array of the updated element.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public ElementUpdatedEvent (
-        int targetOid, String name, Object value, Object ovalue, int index, Transport transport)
+    public ElementUpdatedEvent (int targetOid, String name, Object value, Object ovalue, int index)
     {
-        super(targetOid, name, transport);
+        super(targetOid, name);
         _value = value;
         _oldValue = ovalue;
         _index = index;

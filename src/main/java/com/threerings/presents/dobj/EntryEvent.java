@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * A common parent class for DSet entry events.
  */
@@ -33,11 +31,10 @@ public abstract class EntryEvent<T extends DSet.Entry> extends NamedEvent
      *
      * @param targetOid the object id of the object in question.
      * @param name the name associated with this event.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public EntryEvent (int targetOid, String name, Transport transport)
+    public EntryEvent (int targetOid, String name)
     {
-        super(targetOid, name, transport);
+        super(targetOid, name);
     }
 
     /**

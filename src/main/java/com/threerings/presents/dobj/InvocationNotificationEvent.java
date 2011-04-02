@@ -23,8 +23,6 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * Used to dispatch an invocation notification from the server to a client.
  *
@@ -41,12 +39,10 @@ public class InvocationNotificationEvent extends DEvent
      * @param methodId the id of the method to be invoked.
      * @param args the arguments for the method. This array should contain only values of valid
      * distributed object types.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public InvocationNotificationEvent (
-        int targetOid, short receiverId, int methodId, Object[] args, Transport transport)
+    public InvocationNotificationEvent (int targetOid, short receiverId, int methodId, Object[] args)
     {
-        super(targetOid, transport);
+        super(targetOid);
         _receiverId = receiverId;
         _methodId = (byte)methodId;
         _args = args;

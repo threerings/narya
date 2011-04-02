@@ -51,10 +51,7 @@ public class TimeBaseMarshaller extends InvocationMarshaller
         // from interface GotTimeBaseMarshaller
         public void gotTimeOid (int arg1)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, GOT_TIME_OID,
-                               new Object[] { Integer.valueOf(arg1) }, transport));
+            sendResponse(GOT_TIME_OID, new Object[] { Integer.valueOf(arg1) });
         }
 
         @Override // from InvocationMarshaller

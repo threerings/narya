@@ -23,8 +23,6 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An entry added event is dispatched when an entry is added to a {@link DSet} attribute of a
  * distributed entry. It can also be constructed to request the addition of an entry to a set and
@@ -47,7 +45,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends EntryEvent<T>
      */
     public EntryAddedEvent (int targetOid, String name, T entry)
     {
-        super(targetOid, name, Transport.DEFAULT);
+        super(targetOid, name);
         _entry = entry;
     }
 

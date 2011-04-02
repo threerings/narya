@@ -63,9 +63,9 @@ public abstract class InvocationSender
 //                      "methodId", methodId, "args", args);
 
             // create and dispatch an invocation notification event
-            target.postEvent(
-                new InvocationNotificationEvent(
-                    target.getOid(), rreg.receiverId, methodId, args, transport));
+            target.postEvent(new InvocationNotificationEvent(
+                                 target.getOid(), rreg.receiverId, methodId, args).
+                             setTransport(transport));
         }
     }
 }

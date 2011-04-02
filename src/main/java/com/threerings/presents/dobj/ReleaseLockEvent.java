@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * A release lock event is dispatched at the end of a chain of events to release a lock that is
  * intended to prevent some application defined activity from happening until those events have
@@ -44,7 +42,7 @@ public class ReleaseLockEvent extends NamedEvent
      */
     public ReleaseLockEvent (int targetOid, String name)
     {
-        super(targetOid, name, Transport.DEFAULT);
+        super(targetOid, name);
     }
 
     @Override

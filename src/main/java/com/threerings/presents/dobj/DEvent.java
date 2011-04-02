@@ -41,10 +41,9 @@ public abstract class DEvent implements Streamable
      *
      * @param transport a hint as to the type of transport desired for the event.
      */
-    public DEvent (int targetOid, Transport transport)
+    public DEvent (int targetOid)
     {
         _toid = targetOid;
-        _transport = transport;
     }
 
     /**
@@ -124,9 +123,10 @@ public abstract class DEvent implements Streamable
      * mode of transport over which the event was received.  When an event is sent over the
      * network, these act as a hint as to the type of transport desired.
      */
-    public void setTransport (Transport transport)
+    public DEvent setTransport (Transport transport)
     {
         _transport = transport;
+        return this;
     }
 
     /**

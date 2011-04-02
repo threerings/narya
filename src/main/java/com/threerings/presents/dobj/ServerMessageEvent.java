@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * A message event that only goes to the server. If generated on the server then it never leaves
  * the server.
@@ -40,7 +38,7 @@ public class ServerMessageEvent extends MessageEvent
      */
     public ServerMessageEvent (int targetOid, String name, Object[] args)
     {
-        super(targetOid, name, args, Transport.DEFAULT);
+        super(targetOid, name, args);
     }
 
     @Override

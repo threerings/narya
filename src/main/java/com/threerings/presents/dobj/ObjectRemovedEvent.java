@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An object removed event is dispatched when an object is removed from an <code>OidList</code>
  * attribute of a distributed object. It can also be constructed to request the removal of an oid
@@ -42,7 +40,7 @@ public class ObjectRemovedEvent extends NamedEvent
      */
     public ObjectRemovedEvent (int targetOid, String name, int oid)
     {
-        super(targetOid, name, Transport.DEFAULT);
+        super(targetOid, name);
         _oid = oid;
     }
 

@@ -23,8 +23,6 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 import static com.threerings.presents.Log.log;
 
 /**
@@ -46,11 +44,10 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
      * @param name the name of the attribute in which to update the specified entry.
      * @param entry the entry to update.
      * @param oldEntry the previous value of the entry.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry, Transport transport)
+    public EntryUpdatedEvent (int targetOid, String name, T entry, T oldEntry)
     {
-        super(targetOid, name, transport);
+        super(targetOid, name);
         _entry = entry;
         _oldEntry = oldEntry;
     }

@@ -52,10 +52,7 @@ public class LocationMarshaller extends InvocationMarshaller
         // from interface MoveMarshaller
         public void moveSucceeded (PlaceConfig arg1)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, MOVE_SUCCEEDED,
-                               new Object[] { arg1 }, transport));
+            sendResponse(MOVE_SUCCEEDED, new Object[] { arg1 });
         }
 
         @Override // from InvocationMarshaller

@@ -23,8 +23,6 @@ package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * Used to dispatch an invocation request from the client to the server.
  *
@@ -41,12 +39,10 @@ public class InvocationRequestEvent extends DEvent
      * @param methodId the id of the method to be invoked.
      * @param args the arguments for the method. This array should contain only values of valid
      * distributed object types.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public InvocationRequestEvent (
-        int targetOid, int invCode, int methodId, Object[] args, Transport transport)
+    public InvocationRequestEvent (int targetOid, int invCode, int methodId, Object[] args)
     {
-        super(targetOid, transport);
+        super(targetOid);
         _invCode = invCode;
         _methodId = (byte)methodId;
         _args = args;

@@ -40,7 +40,7 @@ public class CompoundEvent extends DEvent
      */
     public CompoundEvent (DObject target, DObjectManager omgr)
     {
-        super(target.getOid(), Transport.DEFAULT);
+        super(target.getOid());
 
         // sanity check
         if (omgr == null) {
@@ -56,7 +56,7 @@ public class CompoundEvent extends DEvent
     /** Used when unserializing. */
     public CompoundEvent ()
     {
-        super(0, Transport.DEFAULT);
+        super(0);
     }
 
     /**
@@ -143,12 +143,13 @@ public class CompoundEvent extends DEvent
     }
 
     @Override
-    public void setTransport (Transport transport)
+    public DEvent setTransport (Transport transport)
     {
         super.setTransport(transport);
         for (int ii = 0, nn = _events.size(); ii < nn; ii++) {
             _events.get(ii).setTransport(transport);
         }
+        return this;
     }
 
     @Override

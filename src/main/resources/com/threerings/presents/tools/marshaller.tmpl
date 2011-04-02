@@ -32,10 +32,7 @@ public class {{name}}Marshaller extends InvocationMarshaller
         // from interface {{listenerName}}Marshaller
         public void {{method.name}} ({{getArgList}})
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, {{code}},
-                               new Object[] { {{getWrappedArgList}} }, transport));
+            sendResponse({{code}}, new Object[] { {{getWrappedArgList}} });
         }
 
 {{/methods}}

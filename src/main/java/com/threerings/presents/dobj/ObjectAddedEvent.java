@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An object added event is dispatched when an object is added to an <code>OidList</code> attribute
  * of a distributed object. It can also be constructed to request the addition of an oid to an
@@ -42,7 +40,7 @@ public class ObjectAddedEvent extends NamedEvent
      */
     public ObjectAddedEvent (int targetOid, String name, int oid)
     {
-        super(targetOid, name, Transport.DEFAULT);
+        super(targetOid, name);
         _oid = oid;
     }
 

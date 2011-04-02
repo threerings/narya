@@ -95,9 +95,7 @@ public class InvocationMarshaller
         // documentation inherited from interface
         public void requestFailed (String cause)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                callerOid, requestId, REQUEST_FAILED_RSPID, new Object[] { cause }, transport));
+            sendResponse(REQUEST_FAILED_RSPID, cause);
         }
 
         /**
@@ -135,6 +133,16 @@ public class InvocationMarshaller
         }
 
         /**
+         * Handles sending a response to our requester.
+         */
+        protected void sendResponse (int methodId, Object... args)
+        {
+            _invId = null;
+            omgr.postEvent(new InvocationResponseEvent(callerOid, requestId, methodId, args).
+                           setTransport(transport));
+        }
+
+        /**
          * Performs type casts in a way that works for parameterized types as well as simple types.
          */
         @SuppressWarnings("unchecked")
@@ -161,7 +169,8 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                callerOid, requestId, REQUEST_PROCESSED, null, transport));
+                               callerOid, requestId, REQUEST_PROCESSED, null).
+                           setTransport(transport));
         }
 
         @Override
@@ -192,7 +201,8 @@ public class InvocationMarshaller
         {
             _invId = null;
             omgr.postEvent(new InvocationResponseEvent(
-                callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }, transport));
+                               callerOid, requestId, REQUEST_PROCESSED, new Object[] { result }).
+                           setTransport(transport));
         }
 
         @Override

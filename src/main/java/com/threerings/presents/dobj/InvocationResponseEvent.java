@@ -22,7 +22,6 @@
 package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
-
 import com.threerings.presents.net.Transport;
 
 /**
@@ -41,15 +40,21 @@ public class InvocationResponseEvent extends DEvent
      * @param methodId the method to be invoked.
      * @param args the arguments for the method. This array should contain only values of valid
      * distributed object types.
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    public InvocationResponseEvent (
-        int targetOid, int requestId, int methodId, Object[] args, Transport transport)
+    public InvocationResponseEvent (int targetOid, int requestId, int methodId, Object[] args)
     {
-        super(targetOid, transport);
+        super(targetOid);
         _requestId = (short)requestId;
         _methodId = (byte)methodId;
         _args = args;
+    }
+
+    /** @deprecated Regenerate your services. */
+    @Deprecated
+    public InvocationResponseEvent (int targetOid, int requestId, int methodId, Object[] args,
+                                    Transport transport)
+    {
+        this(targetOid, requestId, methodId, args);
     }
 
     /**

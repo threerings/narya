@@ -227,8 +227,8 @@ public class InvocationDirector
         }
 
         // create an invocation request event
-        InvocationRequestEvent event =
-            new InvocationRequestEvent(invOid, invCode, methodId, args, transport);
+        InvocationRequestEvent event = new InvocationRequestEvent(invOid, invCode, methodId, args);
+        event.setTransport(transport);
 
         // because invocation directors are used on the server, we set the source oid here so that
         // invocation requests are properly attributed to the right client object when created by

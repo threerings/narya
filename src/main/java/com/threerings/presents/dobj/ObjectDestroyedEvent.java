@@ -21,8 +21,6 @@
 
 package com.threerings.presents.dobj;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An object destroyed event is dispatched when an object has been removed
  * from the distributed object system. It can also be constructed to
@@ -39,7 +37,7 @@ public class ObjectDestroyedEvent extends DEvent
      */
     public ObjectDestroyedEvent (int targetOid)
     {
-        super(targetOid, Transport.DEFAULT);
+        super(targetOid);
     }
 
     @Override

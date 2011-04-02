@@ -53,7 +53,6 @@ import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.Subscriber;
-import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;
 
@@ -927,7 +926,7 @@ public class PresentsDObjectMgr
 
         public AccessObjectEvent (int oid, Subscriber<T> target, int action)
         {
-            super(DUMMY_OID, Transport.DEFAULT); // target the bogus object
+            super(DUMMY_OID); // target the bogus object
             _oid = oid;
             _target = target;
             _action = action;

@@ -53,10 +53,7 @@ public class TestMarshaller extends InvocationMarshaller
         // from interface TestFuncMarshaller
         public void testSucceeded (String arg1, int arg2)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, TEST_SUCCEEDED,
-                               new Object[] { arg1, Integer.valueOf(arg2) }, transport));
+            sendResponse(TEST_SUCCEEDED, new Object[] { arg1, Integer.valueOf(arg2) });
         }
 
         @Override // from InvocationMarshaller
@@ -88,10 +85,7 @@ public class TestMarshaller extends InvocationMarshaller
         // from interface TestOidMarshaller
         public void gotTestOid (int arg1)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, GOT_TEST_OID,
-                               new Object[] { Integer.valueOf(arg1) }, transport));
+            sendResponse(GOT_TEST_OID, new Object[] { Integer.valueOf(arg1) });
         }
 
         @Override // from InvocationMarshaller

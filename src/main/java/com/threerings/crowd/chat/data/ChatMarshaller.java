@@ -54,10 +54,7 @@ public class ChatMarshaller extends InvocationMarshaller
         // from interface TellMarshaller
         public void tellSucceeded (long arg1, String arg2)
         {
-            _invId = null;
-            omgr.postEvent(new InvocationResponseEvent(
-                               callerOid, requestId, TELL_SUCCEEDED,
-                               new Object[] { Long.valueOf(arg1), arg2 }, transport));
+            sendResponse(TELL_SUCCEEDED, new Object[] { Long.valueOf(arg1), arg2 });
         }
 
         @Override // from InvocationMarshaller

@@ -25,8 +25,6 @@ import java.lang.reflect.Array;
 
 import com.samskivert.util.StringUtil;
 
-import com.threerings.presents.net.Transport;
-
 /**
  * An attribute changed event is dispatched when a single attribute of a distributed object has
  * changed. It can also be constructed to request an attribute change on an object and posted to
@@ -151,12 +149,10 @@ public class AttributeChangedEvent extends NamedEvent
      * @param name the name of the attribute (data member) that has changed.
      * @param value the new value of the attribute (in the case of primitive types, the
      * reflection-defined object-alternative is used).
-     * @param transport a hint as to the type of transport desired for the event.
      */
-    protected AttributeChangedEvent (
-        int targetOid, String name, Object value, Object oldValue, Transport transport)
+    protected AttributeChangedEvent (int targetOid, String name, Object value, Object oldValue)
     {
-        super(targetOid, name, transport);
+        super(targetOid, name);
         _value = value;
         _oldValue = oldValue;
     }
