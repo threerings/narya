@@ -25,6 +25,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
 import java.io.File;
@@ -136,6 +137,15 @@ public abstract class InvocationTask extends GenTask
             } else {
                 return mname;
             }
+        }
+
+        public String typeParams () {
+            List<String> params = Lists.newArrayList();
+            for (Type type : method.getGenericParameterTypes()) {
+                collectTypeParams(type, params);
+            }
+            // the trailing space in '> ' is needed
+            return params.isEmpty() ? "" : StringUtil.toString(params, "<", "> ");
         }
 
         public String getArgList () {
@@ -319,11 +329,31 @@ public abstract class InvocationTask extends GenTask
                 }
             } else if (type instanceof GenericArrayType) {
                 addImportsForType(((GenericArrayType)type).getGenericComponentType(), imports);
+            } else if (type instanceof TypeVariable) {
+                // nothing needed
             } else {
                 System.err.println(Logger.format(
                     "Unhandled Type in adding imports for a service", "type", type, "typeClass",
                     type.getClass()));
             }
+        }
+
+        protected void collectTypeParams (Type type, List<String> params) {
+            if (type instanceof TypeVariable) {
+                String tvar = ((TypeVariable)type).getName();
+                if (!params.contains(tvar)) params.add(tvar);
+            } else if (type instanceof ParameterizedType) {
+                for (Type pt : ((ParameterizedType)type).getActualTypeArguments()) {
+                    collectTypeParams(pt, params);
+                }
+            } else if (type instanceof WildcardType) {
+                for (Type lb : ((WildcardType)type).getLowerBounds()) {
+                    collectTypeParams(lb, params);
+                }
+                for (Type ub : ((WildcardType)type).getUpperBounds()) {
+                    collectTypeParams(ub, params);
+                }
+            } // else nada
         }
 
         protected String boxArgument (Class<?> clazz, int index) {

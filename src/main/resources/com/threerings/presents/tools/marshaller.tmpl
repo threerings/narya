@@ -63,7 +63,7 @@ public class {{name}}Marshaller extends InvocationMarshaller
     public static final int {{code}} = {{-index}};
 
     // from interface {{name}}Service
-    public void {{method.name}} ({{getArgList}})
+    public {{typeParams}}void {{method.name}} ({{getArgList}})
     {
 {{#listenerArgs}}
         {{marshaller}} listener{{index}} = new {{marshaller}}();
