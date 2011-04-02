@@ -55,6 +55,18 @@ public class InvocationException extends Exception
     }
 
     /**
+     * Requires that the supplied condition be true, otherwise an invocation exception with the
+     * supplied error message is thrown.
+     */
+    public static void require (boolean condition, String errmsg)
+        throws InvocationException
+    {
+        if (!condition) {
+            throw new InvocationException(errmsg);
+        }
+    }
+
+    /**
      * Constructs an invocation exception with the supplied cause code string.
      */
     public InvocationException (String cause)
