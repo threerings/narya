@@ -157,6 +157,14 @@ public class AttributeChangedEvent extends NamedEvent
         _oldValue = oldValue;
     }
 
+    /** For unserialization. */
+    protected AttributeChangedEvent ()
+    {
+        super(0, null);
+        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
+        // the hackery we do with _oldValue
+    }
+
     @Override
     protected void notifyListener (Object listener)
     {
