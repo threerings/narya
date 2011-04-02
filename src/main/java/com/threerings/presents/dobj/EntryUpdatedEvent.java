@@ -52,6 +52,14 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
         _oldEntry = oldEntry;
     }
 
+    /** For unserialization. */
+    public EntryUpdatedEvent ()
+    {
+        super(0, null);
+        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
+        // the hackery we do with _oldEntry
+    }
+
     @Override
     public Comparable<?> getKey ()
     {

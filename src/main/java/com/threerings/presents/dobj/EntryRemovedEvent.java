@@ -48,7 +48,14 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
     {
         super(targetOid, name);
         _key = key;
-        _oldEntry = oldEntry;
+    }
+
+    /** For unserialization. */
+    public EntryRemovedEvent ()
+    {
+        super(0, null);
+        // we can't allow our primary ctor to be called during unserialization, or it will wipe out
+        // the hackery we do with _oldEntry
     }
 
     @Override
