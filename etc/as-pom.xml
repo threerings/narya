@@ -4,7 +4,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>naryalib</artifactId>
   <packaging>swc</packaging>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.8</version>
   <name>narya</name>
   <description>Facilities for making networked multiplayer games.</description>
   <url>http://code.google.com/p/narya/</url>

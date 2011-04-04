@@ -4,7 +4,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya-tools</artifactId>
   <packaging>jar</packaging>
-  <version>1.8-SNAPSHOT</version>
+  <version>1.8</version>
   <name>narya-tools</name>
   <description>Narya with dependencies configured for its tools.</description>
 
