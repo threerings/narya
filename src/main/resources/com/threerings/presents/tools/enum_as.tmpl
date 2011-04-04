@@ -1,0 +1,47 @@
+// GENERATED PREAMBLE START
+{{header}}
+package {{package}} {
+
+{{#imports}}
+import {{this}};
+{{/imports}}
+// GENERATED PREAMBLE END
+
+// GENERATED CLASSDECL START
+public final class {{classname}} extends Enum
+{
+// GENERATED CLASSDECL END
+
+// GENERATED ENUM START
+{{#enumFields}}
+    public static const {{name}} :{{classname}} = new {{classname}}("{{name}}");
+{{/enumFields}}
+    finishedEnumerating({{classname}});
+
+    /**
+     * Gets the values of the {{classname}} enum.
+     */
+    public static function values () :Array
+    {
+        return Enum.values({{classname}});
+    }
+
+    /**
+     * Gets the {{classname}} instance that corresponds to the specified string.
+     * If no such value exists, an ArgumentError will be thrown.
+     */
+    public static function valueOf (name :String) :{{classname}}
+    {
+        return Enum.valueOf({{classname}}, name) as {{classname}};
+    }
+
+    /** @private */
+    public function {{classname}} (name :String)
+    {
+        super(name);
+    }
+// GENERATED ENUM END
+// GENERATED CLASSFINISH START
+}
+}
+// GENERATED CLASSFINISH END

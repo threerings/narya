@@ -62,7 +62,8 @@ public class GenActionScriptStreamableTask extends GenTask
     protected void processClass (File javaSource, Class<?> sclass)
         throws Exception
     {
-        if (!Streamable.class.isAssignableFrom(sclass)
+        boolean streamable = Streamable.class.isAssignableFrom(sclass) || sclass.isEnum();
+        if (!streamable
             || InvocationMarshaller.class.isAssignableFrom(sclass)
             || Modifier.isInterface(sclass.getModifiers())
             || ActionScriptUtils.hasOmitAnnotation(sclass)) {
@@ -81,10 +82,15 @@ public class GenActionScriptStreamableTask extends GenTask
         // Generate the current version of the streamable
         StreamableClassRequirements reqs = new StreamableClassRequirements(sclass);
 
-        Set<String> imports = Sets.newLinkedHashSet();
-        imports.add(ObjectInputStream.class.getName());
-        imports.add(ObjectOutputStream.class.getName());
+        ImportSet imports = new ImportSet();
         String extendsName = "";
+        if (sclass.isEnum()) {
+            imports.add("com.threerings.util.Enum");
+            extendsName = "Enum";
+        } else {
+            imports.add(ObjectInputStream.class.getName());
+            imports.add(ObjectOutputStream.class.getName());
+        }
         if (!sclass.getSuperclass().equals(Object.class)) {
             extendsName =
                 ActionScriptUtils.addImportAndGetShortType(sclass.getSuperclass(), false, imports);
@@ -119,16 +125,27 @@ public class GenActionScriptStreamableTask extends GenTask
                 continue;
             }
         }
+        List<ASEnum> enumFields = Lists.newArrayList();
+        if (sclass.isEnum()) {
+            Object[] enums = sclass.getEnumConstants();
+            for (Object e : enums) {
+                enumFields.add(new ASEnum((Enum<?>)e));
+            }
+        }
 
-        String output = mergeTemplate("com/threerings/presents/tools/streamable_as.tmpl",
+        imports.removeGlobals();
+
+        String template = sclass.isEnum() ? "enum_as.tmpl" : "streamable_as.tmpl";
+        String output = mergeTemplate("com/threerings/presents/tools/" + template,
             "header", _header,
             "package", sclass.getPackage().getName(),
-            "classname", sclass.getSimpleName(),
-            "imports", imports,
+            "classname", ActionScriptUtils.toSimpleName(sclass),
+            "imports", imports.toList(),
             "extends", extendsName,
             "implements", Joiner.on(", ").join(implemented),
             "superclassStreamable", reqs.superclassStreamable,
             "pubFields", pubFields,
+            "enumFields", enumFields,
             "protFields", protFields,
             "dobject", isDObject);
 
@@ -137,9 +154,16 @@ public class GenActionScriptStreamableTask extends GenTask
             output = new GeneratedSourceMerger().merge(output, existing);
         }
         writeFile(outputLocation.getAbsolutePath(), output);
+
+        // generate inner enums
+        for (Class<?> inner : sclass.getDeclaredClasses()) {
+            if (inner.isEnum()) {
+                processClass(javaSource, inner);
+            }
+        }
     }
 
-    protected static void addExistingImports (String asFile, Set<String> imports)
+    protected static void addExistingImports (String asFile, ImportSet imports)
         throws Exception
     {
         // Discover the location of the 'public class' declaration.
@@ -168,7 +192,7 @@ public class GenActionScriptStreamableTask extends GenTask
         public boolean array;
         public boolean oidList;
 
-        public ASField (Field f, Set<String> imports)
+        public ASField (Field f, ImportSet imports)
         {
             name = f.getName();
             capitalName = StringUtil.capitalize(name);
@@ -191,6 +215,16 @@ public class GenActionScriptStreamableTask extends GenTask
             array = f.getType().isArray();
             reader = ActionScriptUtils.toReadObject(f.getType());
             writer = ActionScriptUtils.toWriteObject(f.getType(), name);
+        }
+    }
+
+    protected static class ASEnum
+    {
+        public final String name;
+
+        public ASEnum (Enum<?> e)
+        {
+            name = e.name();
         }
     }
 

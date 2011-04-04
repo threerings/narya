@@ -46,7 +46,7 @@ public class ActionScriptUtils
     }
 
     protected static String addImportAndGetShortType (Class<?> type, boolean isField,
-        Set<String> imports)
+        ImportSet imports)
     {
         String full = toActionScriptType(type, isField);
         if (needsActionScriptImport(type, isField)) {
