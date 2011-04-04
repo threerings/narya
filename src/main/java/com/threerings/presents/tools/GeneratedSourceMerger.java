@@ -125,5 +125,5 @@ public class GeneratedSourceMerger
     }
 
     protected final Pattern _sectionDelimiter =
-        Pattern.compile(" *// GENERATED (\\w+) (START|END|DISABLED)\n");
+        Pattern.compile(" *// GENERATED (\\w+) (START|END|DISABLED)\r?\n");
 }
