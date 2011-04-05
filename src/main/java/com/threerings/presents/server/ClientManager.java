@@ -231,7 +231,7 @@ public class ClientManager
     {
         _clobservers.remove(observer);
         if (observer instanceof DetailedClientObserver) {
-            _dclobservers.remove(observer);
+            _dclobservers.remove((DetailedClientObserver)observer);
         }
     }
 
@@ -265,15 +265,15 @@ public class ClientManager
             public void clientResolved (Name username, ClientObject clobj) {
                 try {
                     clop.apply(clobj);
-    
+
                 } catch (Exception e) {
                     log.warning("Client op failed", "username", username, "clop", clop, e);
-    
+
                 } finally {
                     releaseClientObject(username);
                 }
             }
-    
+
             public void resolutionFailed (Name username, Exception reason) {
                 clop.resolutionFailed(reason);
             }

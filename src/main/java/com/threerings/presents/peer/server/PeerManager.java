@@ -875,7 +875,7 @@ public abstract class PeerManager
     {
         ObserverList<StaleCacheObserver> list = _cacheobs.get(cache);
         if (list == null) {
-            list = new ObserverList<StaleCacheObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+            list = ObserverList.newFastUnsafe();
             _cacheobs.put(cache, list);
         }
         list.add(observer);

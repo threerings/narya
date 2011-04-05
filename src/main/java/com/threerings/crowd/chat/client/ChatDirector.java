@@ -1463,12 +1463,10 @@ public class ChatDirector extends BasicDirector
     protected boolean _mogrifyChat= true;
 
     /** A list of registered chat displays. */
-    protected ObserverList<ChatDisplay> _displays =
-        new ObserverList<ChatDisplay>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<ChatDisplay> _displays = ObserverList.newSafeInOrder();
 
     /** A list of registered chat filters. */
-    protected ObserverList<ChatFilter> _filters =
-        new ObserverList<ChatFilter>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<ChatFilter> _filters = ObserverList.newSafeInOrder();
 
     /** A mapping from auxiliary chat objects to the types under which
      * they are registered. */
@@ -1481,8 +1479,7 @@ public class ChatDirector extends BasicDirector
     protected LinkedList<Name> _chatters = new LinkedList<Name>();
 
     /** Observers that are watching our chatters list. */
-    protected ObserverList<ChatterObserver> _chatterObservers =
-        new ObserverList<ChatterObserver>(ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<ChatterObserver> _chatterObservers = ObserverList.newSafeInOrder();
 
     /** Operation used to filter chat messages. */
     protected FilterMessageOp _filterMessageOp = new FilterMessageOp();

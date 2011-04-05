@@ -189,6 +189,5 @@ public class MuteDirector extends BasicDirector
     protected HashSet<Name> _mutelist = Sets.newHashSet();
 
     /** List of mutelist observers. */
-    protected ObserverList<MuteObserver> _observers =
-        new ObserverList<MuteObserver>(ObserverList.FAST_UNSAFE_NOTIFY);
+    protected ObserverList<MuteObserver> _observers = ObserverList.newFastUnsafe();
 }

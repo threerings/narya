@@ -44,7 +44,7 @@ public class BasicDirector extends EventDispatcher
     {
         // save context
         _ctx = ctx;
-        
+
         // listen for session start and end
         var client :Client = ctx.getClient();
         client.addClientObserver(this);

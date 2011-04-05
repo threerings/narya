@@ -580,8 +580,7 @@ public class LocationDirector extends BasicDirector
     protected LocationService _lservice;
 
     /** Our location observer list. */
-    protected ObserverList<LocationObserver> _observers = new ObserverList<LocationObserver>(
-        ObserverList.SAFE_IN_ORDER_NOTIFY);
+    protected ObserverList<LocationObserver> _observers = ObserverList.newSafeInOrder();
 
     /** Used to subscribe to our place object. */
     protected SafeSubscriber<PlaceObject> _subber;
