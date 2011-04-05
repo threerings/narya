@@ -45,6 +45,7 @@ public class TestPeerManager extends PeerManager
         _onConnected = onConnected;
     }
 
+    @Override
     protected void connectedToPeer (PeerNode peer) {
         super.connectedToPeer(peer);
         if (_onConnected != null) {

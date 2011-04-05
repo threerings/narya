@@ -35,7 +35,6 @@ import com.google.inject.Injector;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.jdbc.StaticConnectionProvider;
 
-import com.threerings.NaryaLog;
 import com.threerings.presents.server.PresentsServer;
 
 /**
@@ -91,6 +90,7 @@ public class PeerTestGroup
         Preconditions.checkState(_threads.isEmpty(), "Group already started.");
         for (final PresentsServer server : this.servers) {
             Thread thread = new Thread() {
+                @Override
                 public void run () {
                     server.run();
                 }
