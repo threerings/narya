@@ -154,8 +154,8 @@ public class GenDObjectTask extends GenTask
 
             // append the merged templates as appropriate to the string buffers
             if (ii > 0) {
-                fsection.append("\n");
-                msection.append("\n");
+                fsection.append(EOL);
+                msection.append(EOL);
             }
             fsection.append(mergeTemplate(NAME_TMPL, data));
             msection.append(mergeTemplate(BASE_TMPL + tname, data));

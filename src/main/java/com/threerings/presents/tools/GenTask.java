@@ -134,7 +134,7 @@ public abstract class GenTask extends Task
     {
         String output = mergeTemplate(templatePath, data);
         if (_header != null) {
-            output = _header + output;
+            output = convertEols(_header) + output;
         }
         writeFile(outputPath, output);
     }
@@ -166,7 +166,7 @@ public abstract class GenTask extends Task
     protected boolean wouldProduceSameFile (String generated, File existing)
         throws IOException
     {
-        Iterator<String> generatedLines = Splitter.on('\n').split(generated).iterator();
+        Iterator<String> generatedLines = Splitter.on(EOL).split(generated).iterator();
         for (String prev : Files.readLines(existing, UTF_8)) {
             if (!generatedLines.hasNext()) {
                 return false;
@@ -207,7 +207,7 @@ public abstract class GenTask extends Task
     {
         Reader reader =
             new InputStreamReader(getClass().getClassLoader().getResourceAsStream(template), UTF_8);
-        return Mustache.compiler().escapeHTML(false).compile(reader).execute(data);
+        return convertEols(Mustache.compiler().escapeHTML(false).compile(reader).execute(data));
     }
 
     protected Map<String, Object> createMap (Object... data)
@@ -252,6 +252,13 @@ public abstract class GenTask extends Task
                 "classpath that contains your project's presents classes.", cnfe);
         }
     }
+
+    protected static String convertEols (String str)
+    {
+        return str.replace("\n", EOL);
+    }
+
+    protected static String EOL = System.getProperty("line.separator");
 
     /** A list of filesets that contain java source to be processed. */
     protected List<FileSet> _filesets = Lists.newArrayList();
