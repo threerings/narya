@@ -118,7 +118,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
         StringUtil.toString(buf, _entry);
     }
 
-    protected EntryUpdatedEvent setOldEntry (T oldEntry)
+    protected EntryUpdatedEvent<T> setOldEntry (T oldEntry)
     {
         _oldEntry = oldEntry;
         return this;

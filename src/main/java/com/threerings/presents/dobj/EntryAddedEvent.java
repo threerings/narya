@@ -112,7 +112,7 @@ public class EntryAddedEvent<T extends DSet.Entry> extends EntryEvent<T>
     }
 
     /** Used by {@link DObject} to note if this event has already been applied locally. */
-    protected EntryAddedEvent setAlreadyApplied (boolean alreadyApplied)
+    protected EntryAddedEvent<T> setAlreadyApplied (boolean alreadyApplied)
     {
         _alreadyApplied = alreadyApplied;
         return this;

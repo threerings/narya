@@ -340,7 +340,7 @@ public abstract class InvocationTask extends GenTask
 
         protected void collectTypeParams (Type type, List<String> params) {
             if (type instanceof TypeVariable) {
-                String tvar = ((TypeVariable)type).getName();
+                String tvar = ((TypeVariable<?>)type).getName();
                 if (!params.contains(tvar)) params.add(tvar);
             } else if (type instanceof ParameterizedType) {
                 for (Type pt : ((ParameterizedType)type).getActualTypeArguments()) {

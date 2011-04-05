@@ -115,7 +115,7 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
         buf.append(", key=").append(_key);
     }
 
-    protected EntryRemovedEvent setOldEntry (T oldEntry)
+    protected EntryRemovedEvent<T> setOldEntry (T oldEntry)
     {
         _oldEntry = oldEntry;
         return this;
