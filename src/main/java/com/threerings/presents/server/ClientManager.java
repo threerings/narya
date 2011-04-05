@@ -99,6 +99,20 @@ public class ClientManager
     }
 
     /**
+     * Methods for observing additional events in the session lifecycle.
+     */
+    public static interface DetailedClientObserver extends ClientObserver
+    {
+        /**
+         * Called prior to the sessions ending. Subclasses and this class tend to nuke a lot of
+         * information in the process of ending. This will allow callers to act on session events
+         * without creating a subclass of a session. For example lightweight management of dobj
+         * fields such as flushing stats or notifying party members of a logout.
+         */
+        void clientSessionWillEnd (PresentsSession session);
+    }
+
+    /**
      * Constructs a client manager that will interact with the supplied connection manager.
      */
     @Inject public ClientManager (ReportManager repmgr, Lifecycle cycle)
@@ -205,6 +219,9 @@ public class ClientManager
     public void addClientObserver (ClientObserver observer)
     {
         _clobservers.add(observer);
+        if (observer instanceof DetailedClientObserver) {
+            _dclobservers.add((DetailedClientObserver)observer);
+        }
     }
 
     /**
@@ -213,6 +230,9 @@ public class ClientManager
     public void removeClientObserver (ClientObserver observer)
     {
         _clobservers.remove(observer);
+        if (observer instanceof DetailedClientObserver) {
+            _dclobservers.remove(observer);
+        }
     }
 
     /**
@@ -239,9 +259,25 @@ public class ClientManager
      * Resolves the specified client, applies the supplied client operation to them and releases
      * the client.
      */
-    public void applyToClient (Name username, ClientOp clop)
+    public void applyToClient (Name username, final ClientOp clop)
     {
-        resolveClientObject(username, new ClientOpResolver(clop));
+        resolveClientObject(username, new ClientResolutionListener() {
+            public void clientResolved (Name username, ClientObject clobj) {
+                try {
+                    clop.apply(clobj);
+    
+                } catch (Exception e) {
+                    log.warning("Client op failed", "username", username, "clop", clop, e);
+    
+                } finally {
+                    releaseClientObject(username);
+                }
+            }
+    
+            public void resolutionFailed (Name username, Exception reason) {
+                clop.resolutionFailed(reason);
+            }
+        });
     }
 
     /**
@@ -510,6 +546,21 @@ public class ClientManager
     }
 
     /**
+     * Called by PresentsSession when it is about to end its session.
+     */
+    @EventThread
+    protected void clientSessionWillEnd (final PresentsSession session)
+    {
+        // notify the observers that the session is ended
+        _dclobservers.apply(new ObserverList.ObserverOp<DetailedClientObserver>() {
+            public boolean apply (DetailedClientObserver observer) {
+                observer.clientSessionWillEnd(session);
+                return true;
+            }
+        });
+    }
+
+    /**
      * Called by PresentsSession when it has ended its session.
      */
     @EventThread
@@ -575,33 +626,6 @@ public class ClientManager
         }
     }
 
-    /** Used by {@link ClientManager#applyToClient}. */
-    protected class ClientOpResolver
-        implements ClientResolutionListener
-    {
-        public ClientOpResolver (ClientOp clop) {
-            _clop = clop;
-        }
-
-        public void clientResolved (Name username, ClientObject clobj) {
-            try {
-                _clop.apply(clobj);
-
-            } catch (Exception e) {
-                log.warning("Client op failed", "username", username, "clop", _clop, e);
-
-            } finally {
-                releaseClientObject(username);
-            }
-        }
-
-        public void resolutionFailed (Name username, Exception reason) {
-            _clop.resolutionFailed(reason);
-        }
-
-        protected ClientOp _clop;
-    }
-
     /** Used to resolve dependencies in {@link PresentsSession} instances that we create. */
     protected Injector _injector;
 
@@ -622,6 +646,9 @@ public class ClientManager
 
     /** Tracks registered {@link ClientObserver}s. */
     protected ObserverList<ClientObserver> _clobservers = ObserverList.newSafeInOrder();
+
+    /** Tracks registered {@link DetailedClientObserver}s. */
+    protected ObserverList<DetailedClientObserver> _dclobservers = ObserverList.newSafeInOrder();
 
     // our injected dependencies
     @Inject protected PresentsDObjectMgr _omgr;

@@ -338,6 +338,8 @@ public class PresentsSession
     @EventThread
     public void endSession ()
     {
+        _clmgr.clientSessionWillEnd(this);
+
         // queue up a request for our connection to be closed (if we have a connection, that is)
         Connection conn = getConnection();
         if (conn != null) {
