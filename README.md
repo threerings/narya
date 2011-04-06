@@ -48,9 +48,22 @@ location of the Flex SDK on the command line:
 Artifacts
 ---------
 
-A Maven repository containing released versions of the Narya Java and
-ActionScript artifacts are maintained here. To add a Narya dependency to a
-Maven project, add the following to your `pom.xml`:
+Narya provides four different build artifacts, for differing purposes:
+
+* narya: contains the main Java library; exports dependencies only for
+  libraries which are required by a running client or server.
+* naryalib: contains the main ActionScript library; exports dependencies for
+  libraries needed when building a SWF using naryalib.
+* narya-tools: contains the code generation portions of Narya which one need
+  integrate into their build; exports dependencies for various libraries needed
+  when running code generation.
+* narya-gwt: contains `.java` source code for applications using the
+  [GWT](http://code.google.com/webtoolkit/)-based admin interface provided by
+  Narya's admin package
+
+A Maven repository containing released versions of the Narya artifacts are
+maintained here. To add a Narya dependency to a Maven project, add the
+following to your `pom.xml`:
 
     <repositories>
       <repository>
@@ -72,7 +85,9 @@ remove the vast majority of the boilerplate above.
 If you prefer to download pre-built binaries, those can be had here:
 
 * [narya-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya/1.8/narya-1.8.jar)
-* [naryalib-1.8.swc](http://threerings.github.com/narya/maven/com/threerings/naryalib/1.8/naryalib-1.8.swc)
+* [naryalib-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/naryalib/1.8/naryalib-1.8.swc)
+* [narya-tools-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya-tools/1.8/narya-tools-1.8.jar)
+* [narya-gwt-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya-gwt/1.8/narya-gwt-1.8.jar)
 
 Related Libraries
 -----------------
