@@ -16,6 +16,9 @@ packages include:
   can be used to host ActionScript server-side code in addition to the Java
   server normally used by presents.
 
+[Javadoc documentation](http://threerings.github.com/narya/apidocs/) is
+provided.
+
 Tutorials, etc.
 ---------------
 
