@@ -617,7 +617,7 @@ public abstract class PeerManager
      */
     public void unproxyRemoteObject (String nodeName, int remoteOid)
     {
-        Tuple<String,Integer> key = Tuple.newTuple(nodeName, remoteOid);
+        DObjectAddress key = new DObjectAddress(nodeName, remoteOid);
         Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
         if (bits == null) {
             log.warning("Requested to clear unknown proxy", "key", key);
