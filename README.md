@@ -94,5 +94,5 @@ Rings Libraries](http://groups.google.com/group/ooo-libs) Google Group.
 Narya is actively developed by the scurvy dogs at
 [Three Rings](http://www.threerings.net) Contributions are welcome.
 
-[presents](http://threerings.github.com/narya/apidocs/com/threerings/presents/package-summary.html]
-[crowd](http://threerings.github.com/narya/apidocs/com/threerings/crowd/package-summary.html]
+[presents]: http://threerings.github.com/narya/apidocs/com/threerings/presents/package-summary.html
+[crowd]: http://threerings.github.com/narya/apidocs/com/threerings/crowd/package-summary.html
