@@ -57,10 +57,4 @@ public class DObjectAddress extends SimpleStreamableObject
         return oid == o.oid
             && (nodeName == o.nodeName || (nodeName != null && nodeName.equals(o.nodeName)));
     }
-
-    @Override
-    public String toString ()
-    {
-        return "[nodeName=" + nodeName + ", oid=" + oid + "]";
-    }
 }
