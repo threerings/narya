@@ -22,7 +22,6 @@
 package com.threerings.presents.dobj;
 
 import com.samskivert.util.StringUtil;
-import com.threerings.presents.net.Transport;
 
 /**
  * Used to dispatch an invocation response from the server to the client.

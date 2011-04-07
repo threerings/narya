@@ -45,7 +45,6 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
@@ -248,11 +247,6 @@ public class GenServiceTask extends InvocationTask
         // import things marshaller will always need
         imports.add(sdesc.service);
         imports.add(InvocationMarshaller.class);
-
-        // if any listeners are to be present, they need the response event
-        if (sdesc.listeners.size() > 0) {
-            imports.add(InvocationResponseEvent.class);
-        }
 
         // import classes contained in arrays
         imports.translateClassArrays();

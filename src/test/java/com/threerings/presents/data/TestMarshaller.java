@@ -25,7 +25,6 @@ import javax.annotation.Generated;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 import java.util.List;
 
 /**

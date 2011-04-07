@@ -25,7 +25,6 @@ import javax.annotation.Generated;
 
 import com.threerings.admin.client.AdminService;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link AdminService} interface

@@ -24,7 +24,6 @@ package com.threerings.presents.data;
 import javax.annotation.Generated;
 
 import com.threerings.presents.client.TimeBaseService;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 
 /**
  * Provides the implementation of the {@link TimeBaseService} interface

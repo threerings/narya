@@ -26,7 +26,6 @@ import javax.annotation.Generated;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.dobj.InvocationResponseEvent;
 import com.threerings.util.Name;
 
 /**
