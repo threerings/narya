@@ -47,7 +47,7 @@ public class GenUtil extends com.samskivert.util.GenUtil
 
     /** A regular expression for matching the class or interface declaration. */
     public static final Pattern NAME_PATTERN =
-        Pattern.compile("^\\s*public\\s+(?:abstract\\s+)?(@?interface|class|enum)\\s+([\\w$]+)");
+        Pattern.compile("^\\s*public\\s+(?:(?:abstract|final)\\s+)*(@?interface|class|enum)\\s+([\\w$]+)");
 
     /**
      * Returns the name of the supplied class as it would appear in ActionScript code using the
