@@ -24,6 +24,10 @@ package com.threerings.presents.peer.server;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.server.TestPeerManager.Callback;
+import com.threerings.presents.server.ServerTestUtil;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -38,20 +42,18 @@ public class PeerTest
     {
         PeerTestGroup group = new PeerTestGroup(2, true);
 
+        TestPeerManager p1 = group.injectors.get(0).getInstance(TestPeerManager.class);
+        TestPeerManager p2 = group.injectors.get(1).getInstance(TestPeerManager.class);
+
         // wire up callbacks for when we're connected to a peer
         final CountDownLatch done = new CountDownLatch(group.servers.size());
-        TestPeerManager p1 = group.injectors.get(0).getInstance(TestPeerManager.class);
-        p1.setOnConnected(new TestPeerManager.Callback<String>() {
-            public void apply (String nodeName) {
+        Callback<NodeObject> onConnected = new Callback<NodeObject>() {
+            public void apply (NodeObject nobj) {
                 done.countDown();
             }
-        });
-        TestPeerManager p2 = group.injectors.get(1).getInstance(TestPeerManager.class);
-        p2.setOnConnected(new TestPeerManager.Callback<String>() {
-            public void apply (String nodeName) {
-                done.countDown();
-            }
-        });
+        };
+        p1.setOnConnected(onConnected);
+        p2.setOnConnected(onConnected);
 
         // start up all of our servers
         group.start();
@@ -60,11 +62,8 @@ public class PeerTest
         // seconds to allow slack for differing peer startup times)
         p1.refreshPeers();
 
-        try {
-            if (!done.await(5, TimeUnit.SECONDS)) fail("Timed out");
-        } catch (InterruptedException e) {
-            fail("Interrupte?");
-        }
+        // wait for the peers to connect to one another
+        ServerTestUtil.await(done, 5);
 
         group.shutdown();
     }
