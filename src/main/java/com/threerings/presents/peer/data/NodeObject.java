@@ -49,6 +49,10 @@ public class NodeObject extends DObject
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String PEER_SERVICE = "peerService";
 
+    /** The field name of the <code>mappingService</code> field. */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
+    public static final String MAPPING_SERVICE = "mappingService";
+
     /** The field name of the <code>clients</code> field. */
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String CLIENTS = "clients";
@@ -141,6 +145,9 @@ public class NodeObject extends DObject
     /** The service used to make requests of the node. */
     public PeerMarshaller peerService;
 
+    /** A service used to coordinate between mapping managers. */
+    public MappingMarshaller mappingService;
+
     /** Contains information on all clients connected to this node. */
     public DSet<ClientInfo> clients = new DSet<ClientInfo>();
 
@@ -206,6 +213,23 @@ public class NodeObject extends DObject
         requestAttributeChange(
             PEER_SERVICE, value, ovalue);
         this.peerService = value;
+    }
+
+    /**
+     * Requests that the <code>mappingService</code> field be set to the
+     * specified value. The local value will be updated immediately and an
+     * event will be propagated through the system to notify all listeners
+     * that the attribute did change. Proxied copies of this object (on
+     * clients) will apply the value change when they received the
+     * attribute changed notification.
+     */
+    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
+    public void setMappingService (MappingMarshaller value)
+    {
+        MappingMarshaller ovalue = this.mappingService;
+        requestAttributeChange(
+            MAPPING_SERVICE, value, ovalue);
+        this.mappingService = value;
     }
 
     /**
