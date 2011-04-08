@@ -550,6 +550,9 @@ public class PresentsSession
             return;
         }
 
+        // make extra sure we have no lingering subscriptions
+        clearSubscrips(false);
+
         // Update our client secret with the new auth request
         _clobj.getLocal(ClientLocal.class).secret = getSecret();
 
