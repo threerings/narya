@@ -874,11 +874,21 @@ public class PresentsSession
      * Callable from non-dobjmgr thread, this queues up a runnable on the dobjmgr thread to post
      * the supplied message to this client.
      */
-    protected final void safePostMessage (final DownstreamMessage msg)
+    protected final void safePostMessage (DownstreamMessage msg)
+    {
+        safePostMessage(msg, null);
+    }
+
+    /**
+     * Callable from non-dobjmgr thread, this queues up a runnable on the dobjmgr thread to post
+     * the supplied message to this client.
+     */
+    protected final void safePostMessage (
+        final DownstreamMessage msg, final PresentsConnection expect)
     {
         _omgr.postRunnable(new Runnable() {
             public void run () {
-                postMessage(msg, null);
+                postMessage(msg, expect);
             }
         });
     }
@@ -1165,7 +1175,8 @@ public class PresentsSession
             if (PING_DEBUG) {
                 log.info("Got ping, ponging", "client", client.getAuthName());
             }
-            client.safePostMessage(new PongResponse(req.getUnpackStamp(), req.getTransport()));
+            client.safePostMessage(new PongResponse(req.getUnpackStamp(), req.getTransport()),
+                client.getConnection());
         }
     }
 
