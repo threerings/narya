@@ -46,6 +46,8 @@ public class PeerTestGroup
 
     public final List<Injector> injectors = Lists.newArrayList();
 
+    public static final int BASE_PORT = 1234;
+
     public PeerTestGroup (int count, boolean suppressInfoLogging)
         throws Exception
     {
@@ -127,6 +129,4 @@ public class PeerTestGroup
     }
 
     protected final List<Thread> _threads = Lists.newArrayList();
-
-    protected static final int BASE_PORT = 1234;
 }
