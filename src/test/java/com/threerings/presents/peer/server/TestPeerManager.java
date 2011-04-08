@@ -26,32 +26,68 @@ import com.google.inject.Singleton;
 
 import com.samskivert.util.Lifecycle;
 
+import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.NodeObject;
+
 /**
  * A peer manager with hooks for testing.
  */
 @Singleton
 public class TestPeerManager extends PeerManager
 {
-    public interface Callback<T> {
+    public interface Callback<T>
+    {
         void apply (T value);
     }
 
     @Inject
-    public TestPeerManager (Lifecycle cycle) {
+    public TestPeerManager (Lifecycle cycle)
+    {
         super(cycle);
     }
 
-    public void setOnConnected (Callback<String> onConnected) {
+    public void setOnConnected (Callback<NodeObject> onConnected)
+    {
         _onConnected = onConnected;
     }
 
+    public void setOnClientLoggedOn (Callback<ClientInfo> onClientLoggedOn)
+    {
+        _onClientLoggedOn = onClientLoggedOn;
+    }
+
+    public void setOnClientLoggedOff (Callback<ClientInfo> onClientLoggedOff)
+    {
+        _onClientLoggedOff = onClientLoggedOff;
+    }
+
     @Override
-    protected void connectedToPeer (PeerNode peer) {
+    protected void connectedToPeer (PeerNode peer)
+    {
         super.connectedToPeer(peer);
         if (_onConnected != null) {
-            _onConnected.apply(peer.nodeobj.nodeName);
+            _onConnected.apply(peer.nodeobj);
         }
     }
 
-    protected Callback<String> _onConnected;
+    @Override
+    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
+    {
+        super.clientLoggedOn(nodeName, clinfo);
+        if (_onClientLoggedOn != null) {
+            _onClientLoggedOn.apply(clinfo);
+        }
+    }
+
+    @Override
+    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
+    {
+        super.clientLoggedOff(nodeName, clinfo);
+        if (_onClientLoggedOff != null) {
+            _onClientLoggedOff.apply(clinfo);
+        }
+    }
+
+    protected Callback<NodeObject> _onConnected;
+    protected Callback<ClientInfo> _onClientLoggedOn, _onClientLoggedOff;
 }
