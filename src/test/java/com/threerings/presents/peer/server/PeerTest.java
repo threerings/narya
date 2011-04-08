@@ -61,7 +61,7 @@ public class PeerTest
         p1.refreshPeers();
 
         try {
-            done.await(1, TimeUnit.SECONDS);
+            if (!done.await(5, TimeUnit.SECONDS)) fail("Timed out");
         } catch (InterruptedException e) {
             fail("Interrupte?");
         }
