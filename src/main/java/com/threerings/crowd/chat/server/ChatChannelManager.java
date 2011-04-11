@@ -21,6 +21,7 @@
 
 package com.threerings.crowd.chat.server;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,9 +30,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.primitives.Longs;
 import com.google.inject.Inject;
 
@@ -49,6 +52,7 @@ import com.threerings.presents.server.PresentsDObjectMgr;
 
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.server.MappingManager;
 import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerManager.NodeRequest;
 import com.threerings.presents.peer.server.NodeRequestsListener;
@@ -303,20 +307,20 @@ public abstract class ChatChannelManager
 
         // generate a mapping from node name to an array of body ids for the participants that are
         // currently on the node in question
-        final Map<String,int[]> partMap = Maps.newHashMap();
-        for (NodeObject nodeobj : _peerMan.getNodeObjects()) {
-            ArrayIntSet nodeBodyIds = new ArrayIntSet();
-            for (ClientInfo clinfo : nodeobj.clients) {
-                int bodyId = getBodyId(((CrowdClientInfo)clinfo).visibleName);
-                if (info.participants.contains(bodyId)) {
-                    nodeBodyIds.add(bodyId);
-                }
+        final Multimap<String,Integer> partMap = ArrayListMultimap.create();
+        // TODO: this is super expensive; if a game actually uses this (other than MSOY), it needs
+        // to be revamped
+        for (Map.Entry<Name,ClientInfo> entry :
+                 _mapMan.getMapping(PeerManager.CLIENTS_MAPPING).entrySet()) {
+            CrowdClientInfo ccinfo = (CrowdClientInfo)entry.getValue();
+            int bodyId = getBodyId(ccinfo.visibleName);
+            if (info.participants.contains(bodyId)) {
+                partMap.put(ccinfo.nodeName, bodyId);
             }
-            partMap.put(nodeobj.nodeName, nodeBodyIds.toIntArray());
         }
 
-        for (Map.Entry<String,int[]> entry : partMap.entrySet()) {
-            final int[] bodyIds = entry.getValue();
+        for (Map.Entry<String,Collection<Integer>> entry : partMap.asMap().entrySet()) {
+            final Collection<Integer> bodyIds = entry.getValue();
             _peerMan.invokeNodeAction(entry.getKey(), new ChannelAction(channel) {
                 @Override protected void execute () {
                     _channelMan.deliverSpeak(_channel, message, bodyIds);
@@ -328,7 +332,8 @@ public abstract class ChatChannelManager
     /**
      * Delivers the supplied chat channel message to the specified bodies.
      */
-    protected void deliverSpeak (ChatChannel channel, UserMessage message, int[] bodyIds)
+    protected void deliverSpeak (ChatChannel channel, UserMessage message,
+                                 Collection<Integer> bodyIds)
     {
         channel = intern(channel);
         for (int bodyId : bodyIds) {
@@ -441,14 +446,11 @@ public abstract class ChatChannelManager
     /** A map of resolved channels to metadata records. */
     protected Map<ChatChannel,ChannelInfo> _channels = Maps.newHashMap();
 
-    /** Provides peer services. */
-    @Inject protected CrowdPeerManager _peerMan;
-
-    /** Used for acquiring BodyObject references from Names and ClientObjects. */
+    // dependencies
     @Inject protected BodyLocator _locator;
-
-    /** Used for recording chat history. */
     @Inject protected ChatHistory _chatHistory;
+    @Inject protected CrowdPeerManager _peerMan;
+    @Inject protected MappingManager _mapMan;
 
     /** The period on which we check for idle channels. */
     protected static final long IDLE_CHANNEL_CHECK_PERIOD = 5 * 1000L;
