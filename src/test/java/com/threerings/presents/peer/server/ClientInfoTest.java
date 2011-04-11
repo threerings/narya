@@ -24,6 +24,8 @@ package com.threerings.presents.peer.server;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import com.samskivert.util.RandomUtil;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientAdapter;
 import com.threerings.presents.peer.data.ClientInfo;
@@ -43,10 +45,7 @@ public class ClientInfoTest
     public void testPeerConnect ()
         throws Exception
     {
-        PeerTestGroup group = new PeerTestGroup(2, true);
-
-        TestPeerManager p1 = group.injectors.get(0).getInstance(TestPeerManager.class);
-        TestPeerManager p2 = group.injectors.get(1).getInstance(TestPeerManager.class);
+        PeerTestGroup group = new PeerTestGroup(3, true);
 
         // wire up callbacks for when we're connected to a peer
         final CountDownLatch init = new CountDownLatch(group.servers.size());
@@ -55,44 +54,49 @@ public class ClientInfoTest
                 init.countDown();
             }
         };
-        p1.setOnConnected(onConnected);
-        p2.setOnConnected(onConnected);
+        for (TestPeerManager pmgr : group.peermgrs) {
+            pmgr.setOnConnected(onConnected);
+        }
 
-        // wire up a callback for when we see that a client logged onto the network (from p2, since
-        // the client will talk directly to p1); we do (servers-1) to count the servers that will
-        // get a logged on notification and +1 to note that the client needs also to report when it
-        // is finished logging on
+        // wire up a callback for when we see that a client logged onto the network; we do
+        // (servers-1) to count the servers that will get a logged on notification and +1 to note
+        // that the client needs also to report when it is finished logging on
         final CountDownLatch logonSeen = new CountDownLatch(group.servers.size()-1+1);
         Callback<ClientInfo> onClientLoggedOn = new Callback<ClientInfo>() {
             public void apply (ClientInfo info) {
                 logonSeen.countDown();
             }
         };
-        p2.setOnClientLoggedOn(onClientLoggedOn);
+        for (TestPeerManager pmgr : group.peermgrs) {
+            pmgr.setOnClientLoggedOn(onClientLoggedOn);
+        }
 
-        // wire up a callback for when we see that a client logged off of the network (from p2,
-        // since the client will talk directly to p1)
+        // wire up a callback for when we see that a client logged off of the network
         final CountDownLatch logoffSeen = new CountDownLatch(group.servers.size()-1);
         Callback<ClientInfo> onClientLoggedOff = new Callback<ClientInfo>() {
             public void apply (ClientInfo info) {
                 logoffSeen.countDown();
             }
         };
-        p2.setOnClientLoggedOff(onClientLoggedOff);
+        for (TestPeerManager pmgr : group.peermgrs) {
+            pmgr.setOnClientLoggedOff(onClientLoggedOff);
+        }
 
         // start up all of our servers
         group.start();
 
         // trigger the immediate establishment of the peer network (normally this is delayed for 5
         // seconds to allow slack for differing peer startup times)
-        p1.refreshPeers();
+        group.peermgrs.get(0).refreshPeers();
 
         // wait for the peers to connect to one another
         ServerTestUtil.await(init, 2);
 
         // connect to a peer with a client
         Client client = ServerTestUtil.createClient("test");
-        client.setServer("localhost", new int[] { PeerTestGroup.BASE_PORT });
+        client.setServer("localhost", new int[] {
+                // randomly connect to one of the peers
+                PeerTestGroup.BASE_PORT + RandomUtil.getInt(group.servers.size()) });
         client.addClientObserver(new ClientAdapter() {
             public void clientDidLogon (Client client) {
                 logonSeen.countDown();
@@ -100,14 +104,15 @@ public class ClientInfoTest
         });
         client.logon();
 
-        // wait for the client to log onto p1 and for p1 to notify p2 of the logon; and wait for
-        // the client to finish its own logon fiddling around
+        // wait for the client to log onto a peer and for that peer to notify the other peers of
+        // the logon; and wait for the client to finish its own logon fiddling around
         ServerTestUtil.await(logonSeen, 4);
 
         // now logoff
         client.logoff(false);
 
-        // now wait for the client to log off of p1 and for p1 to notify p2 of the logoff
+        // now wait for the client to log off of the peer and for that peer to notify the other
+        // peers of the logoff
         ServerTestUtil.await(logoffSeen, 4);
 
         group.shutdown();

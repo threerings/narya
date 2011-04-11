@@ -214,10 +214,11 @@ public class PeerNode
     public void clientDidLogoff (Client client)
     {
         if (nodeobj != null) {
-            String nodeName = getNodeName();
-            for (ClientInfo clinfo : nodeobj.clients) {
-                _peermgr.clientLoggedOff(nodeName, clinfo);
-            }
+// TODO: the MappingManager will take care of this
+//             String nodeName = getNodeName();
+//             for (ClientInfo clinfo : nodeobj.clients) {
+//                 _peermgr.clientLoggedOff(nodeName, clinfo);
+//             }
 
             nodeobj.removeListener(_listener);
         }
@@ -242,10 +243,11 @@ public class PeerNode
 
         _peermgr.connectedToPeer(this);
 
-        String nodeName = getNodeName();
-        for (ClientInfo clinfo : nodeobj.clients) {
-            _peermgr.clientLoggedOn(nodeName, clinfo);
-        }
+// TODO: the MappingManager will take care of this
+//         String nodeName = getNodeName();
+//         for (ClientInfo clinfo : nodeobj.clients) {
+//             _peermgr.clientLoggedOn(nodeName, clinfo);
+//         }
     }
 
     // documentation inherited from interface Subscriber
@@ -280,7 +282,7 @@ public class PeerNode
      * Listens to node object changes.
      */
     protected class NodeObjectListener
-        implements AttributeChangeListener, SetListener<DSet.Entry>
+        implements AttributeChangeListener //, SetListener<DSet.Entry>
     {
         // documentation inherited from interface AttributeChangeListener
         public void attributeChanged (AttributeChangedEvent event) {
@@ -325,26 +327,27 @@ public class PeerNode
             }
         }
 
-        // documentation inherited from interface SetListener
-        public void entryAdded (EntryAddedEvent<DSet.Entry> event) {
-            String name = event.getName();
-            if (NodeObject.CLIENTS.equals(name)) {
-                _peermgr.clientLoggedOn(getNodeName(), (ClientInfo)event.getEntry());
-            }
-        }
+// TODO: remove all this when MappingManager bits are finalized
+//         // documentation inherited from interface SetListener
+//         public void entryAdded (EntryAddedEvent<DSet.Entry> event) {
+//             String name = event.getName();
+//             if (NodeObject.CLIENTS.equals(name)) {
+//                 _peermgr.clientLoggedOn(getNodeName(), (ClientInfo)event.getEntry());
+//             }
+//         }
 
-        // documentation inherited from interface SetListener
-        public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event) {
-            // nada
-        }
+//         // documentation inherited from interface SetListener
+//         public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event) {
+//             // nada
+//         }
 
-        // documentation inherited from interface SetListener
-        public void entryRemoved (EntryRemovedEvent<DSet.Entry> event) {
-            String name = event.getName();
-            if (NodeObject.CLIENTS.equals(name)) {
-                _peermgr.clientLoggedOff(getNodeName(), (ClientInfo)event.getOldEntry());
-            }
-        }
+//         // documentation inherited from interface SetListener
+//         public void entryRemoved (EntryRemovedEvent<DSet.Entry> event) {
+//             String name = event.getName();
+//             if (NodeObject.CLIENTS.equals(name)) {
+//                 _peermgr.clientLoggedOff(getNodeName(), (ClientInfo)event.getOldEntry());
+//             }
+//         }
     } // END: class NodeObjectListener
 
     protected NodeRecord _record;

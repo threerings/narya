@@ -72,6 +72,7 @@ import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.Message;
+import com.threerings.presents.peer.client.Mapping;
 import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
@@ -238,12 +239,30 @@ public abstract class PeerManager
         }
     }
 
+    /** The key for our a mapping that contains info on all clients in the network. */
+    public static Mapping.Id<Name,ClientInfo> CLIENTS_MAPPING =
+        new Mapping.Id<Name,ClientInfo>("presents.peer.clients");
+
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public PeerManager (Lifecycle cycle)
+    @Inject public PeerManager (Lifecycle cycle, MappingManager mapmgr)
     {
         cycle.addComponent(this);
+        mapmgr.configure(CLIENTS_MAPPING, MappingManager.ReplicationPolicy.immediateRebroadcast());
+        _infoMap = mapmgr.getMapping(CLIENTS_MAPPING);
+        _infoMap.addListener(new Mapping.Listener<Name,ClientInfo>() {
+            public void entryPut (Name key, ClientInfo info, ClientInfo oinfo) {
+                if (!_nodeName.equals(info.nodeName)) {
+                    clientLoggedOn(info);
+                }
+            }
+            public void entryRemoved (Name key, ClientInfo oinfo) {
+                if (!_nodeName.equals(oinfo.nodeName)) {
+                    clientLoggedOff(oinfo);
+                }
+            }
+        });
     }
 
     /**
@@ -252,6 +271,16 @@ public abstract class PeerManager
     public NodeObject getNodeObject ()
     {
         return _nodeobj;
+    }
+
+    /**
+     * Returns the node object for the specified peer.
+     */
+    public NodeObject getNodeObject (String nodeName)
+    {
+        if (_nodeName.equals(nodeName)) return _nodeobj;
+        PeerNode node = _peers.get(nodeName);
+        return (node == null) ? null : node.nodeobj;
     }
 
     /**
@@ -333,6 +362,9 @@ public abstract class PeerManager
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
 
+        // initialize the mapping manager
+        _mapmgr.init(this);
+
         // and start our peer refresh interval (this lives for the lifetime of the server)
         _omgr.newInterval(new Runnable() {
             public void run () {
@@ -358,11 +390,7 @@ public abstract class PeerManager
      */
     public ClientInfo locateClient (final Name key)
     {
-        return lookupNodeDatum(new Function<NodeObject,ClientInfo>() {
-            public ClientInfo apply (NodeObject nodeobj) {
-                return nodeobj.clients.get(key);
-            }
-        });
+        return _infoMap.get(key);
     }
 
     /**
@@ -1009,14 +1037,10 @@ public abstract class PeerManager
         ClientInfo clinfo = createClientInfo();
         initClientInfo(client, clinfo);
 
-        // sanity check
-        if (_nodeobj.clients.contains(clinfo)) {
+        ClientInfo oinfo = _infoMap.put(clinfo.username, clinfo);
+        if (oinfo != null) { // sanity check
             log.warning("Received clientSessionDidStart() for already registered client!?",
-                        "old", _nodeobj.clients.get(clinfo.getKey()), "new", clinfo);
-            // go ahead and update the record
-            _nodeobj.updateClients(clinfo);
-        } else {
-            _nodeobj.addToClients(clinfo);
+                        "old", oinfo, "new", clinfo);
         }
     }
 
@@ -1027,25 +1051,7 @@ public abstract class PeerManager
             return;
         }
 
-        // we scan through the list instead of relying on ClientInfo.getKey() because we want
-        // derived classes to be able to override that for lookups that happen way more frequently
-        // than logging off
-        Name username = client.getAuthName();
-        for (ClientInfo clinfo : _nodeobj.clients) {
-            if (clinfo.username.equals(username)) {
-                _nodeobj.startTransaction();
-                try {
-                    // we clear our client info in a transaction so that derived classes can remove
-                    // other things from the NodeObject and we'll send that out to all of our peers
-                    // in a single compound event
-                    clearClientInfo(client, clinfo);
-                } finally {
-                    _nodeobj.commitTransaction();
-                }
-                return;
-            }
-        }
-        log.warning("Session ended for unregistered client", "who", username);
+        clearClientInfo(client, client.getAuthName());
     }
 
     /**
@@ -1191,14 +1197,25 @@ public abstract class PeerManager
     protected void initClientInfo (PresentsSession client, ClientInfo info)
     {
         info.username = client.getAuthName();
+        info.nodeName = _nodeName;
     }
 
     /**
      * Called when a client ends their session to clear their information from our node object.
      */
-    protected void clearClientInfo (PresentsSession client, ClientInfo info)
+    protected void clearClientInfo (PresentsSession client, Name authName)
     {
-        _nodeobj.removeFromClients(info.getKey());
+        // TODO: add auxiliary key support for mappings
+
+        // remove this session's client info
+        ClientInfo info = _infoMap.get(client.getAuthName());
+        if (info == null) {
+            log.warning("Session ended for unregistered client", "who", authName);
+            return;
+        }
+        if (info.nodeName.equals(_nodeName)) {
+            _infoMap.remove(client.getAuthName());
+        } // otherwise some other server is now hosting this player
     }
 
     /**
@@ -1220,12 +1237,11 @@ public abstract class PeerManager
     /**
      * Called when we hear about a client logging on to another node.
      */
-    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
+    protected void clientLoggedOn (ClientInfo clinfo)
     {
         PresentsSession session = _clmgr.getClient(clinfo.username);
         if (session != null) {
-            log.info("Booting user that has connected on another node",
-                "username", clinfo.username, "otherNode", nodeName);
+            log.info("Booting user that has connected on another node", "info", clinfo);
             session.endSession();
         }
     }
@@ -1233,7 +1249,7 @@ public abstract class PeerManager
     /**
      * Called when we hear about a client logging off of another node.
      */
-    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
+    protected void clientLoggedOff (ClientInfo clinfo)
     {
         // nothing to do by default
     }
@@ -1278,6 +1294,8 @@ public abstract class PeerManager
                 droppedLock(lock);
             }
         }
+        // let the mapping manager know about this new peer
+        _mapmgr.connectedToPeer(peer.nodeobj);
     }
 
     /**
@@ -1292,6 +1310,8 @@ public abstract class PeerManager
                 handler.clientDidLogoff();
             }
         }
+        // let the mapping manager know about this disappeared peer
+        _mapmgr.disconnectedFromPeer(peer.nodeobj);
     }
 
     /**
@@ -1606,6 +1626,9 @@ public abstract class PeerManager
     protected String _nodeNamespace;
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
 
+    /** A distributed mapping of all clients on all peers. */
+    protected Mapping<Name,ClientInfo> _infoMap;
+
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
 
@@ -1627,10 +1650,11 @@ public abstract class PeerManager
     // our service dependencies
     @Inject protected @PeerInvoker Invoker _invoker;
     @Inject protected ClientManager _clmgr;
-    @Inject protected PresentsConnectionManager _conmgr;
     @Inject protected Injector _injector;
     @Inject protected InvocationManager _invmgr;
+    @Inject protected MappingManager _mapmgr;
     @Inject protected NodeRepository _noderepo;
+    @Inject protected PresentsConnectionManager _conmgr;
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected ReportManager _repmgr;
 
