@@ -41,9 +41,9 @@ public class TestPeerManager extends PeerManager
     }
 
     @Inject
-    public TestPeerManager (Lifecycle cycle)
+    public TestPeerManager (Lifecycle cycle, MappingManager mapmgr)
     {
-        super(cycle);
+        super(cycle, mapmgr);
     }
 
     public void setOnConnected (Callback<NodeObject> onConnected)
@@ -71,18 +71,18 @@ public class TestPeerManager extends PeerManager
     }
 
     @Override
-    protected void clientLoggedOn (String nodeName, ClientInfo clinfo)
+    protected void clientLoggedOn (ClientInfo clinfo)
     {
-        super.clientLoggedOn(nodeName, clinfo);
+        super.clientLoggedOn(clinfo);
         if (_onClientLoggedOn != null) {
             _onClientLoggedOn.apply(clinfo);
         }
     }
 
     @Override
-    protected void clientLoggedOff (String nodeName, ClientInfo clinfo)
+    protected void clientLoggedOff (ClientInfo clinfo)
     {
-        super.clientLoggedOff(nodeName, clinfo);
+        super.clientLoggedOff(clinfo);
         if (_onClientLoggedOff != null) {
             _onClientLoggedOff.apply(clinfo);
         }

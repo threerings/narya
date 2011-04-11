@@ -53,10 +53,6 @@ public class NodeObject extends DObject
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String MAPPING_SERVICE = "mappingService";
 
-    /** The field name of the <code>clients</code> field. */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public static final String CLIENTS = "clients";
-
     /** The field name of the <code>locks</code> field. */
     @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
     public static final String LOCKS = "locks";
@@ -148,9 +144,6 @@ public class NodeObject extends DObject
     /** A service used to coordinate between mapping managers. */
     public MappingMarshaller mappingService;
 
-    /** Contains information on all clients connected to this node. */
-    public DSet<ClientInfo> clients = new DSet<ClientInfo>();
-
     /** The set of locks held by this node. */
     public DSet<Lock> locks = new DSet<Lock>();
 
@@ -230,57 +223,6 @@ public class NodeObject extends DObject
         requestAttributeChange(
             MAPPING_SERVICE, value, ovalue);
         this.mappingService = value;
-    }
-
-    /**
-     * Requests that the specified entry be added to the
-     * <code>clients</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void addToClients (ClientInfo elem)
-    {
-        requestEntryAdd(CLIENTS, clients, elem);
-    }
-
-    /**
-     * Requests that the entry matching the supplied key be removed from
-     * the <code>clients</code> set. The set will not change until the
-     * event is actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void removeFromClients (Comparable<?> key)
-    {
-        requestEntryRemove(CLIENTS, clients, key);
-    }
-
-    /**
-     * Requests that the specified entry be updated in the
-     * <code>clients</code> set. The set will not change until the event is
-     * actually propagated through the system.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void updateClients (ClientInfo elem)
-    {
-        requestEntryUpdate(CLIENTS, clients, elem);
-    }
-
-    /**
-     * Requests that the <code>clients</code> field be set to the
-     * specified value. Generally one only adds, updates and removes
-     * entries of a distributed set, but certain situations call for a
-     * complete replacement of the set value. The local value will be
-     * updated immediately and an event will be propagated through the
-     * system to notify all listeners that the attribute did
-     * change. Proxied copies of this object (on clients) will apply the
-     * value change when they received the attribute changed notification.
-     */
-    @Generated(value={"com.threerings.presents.tools.GenDObjectTask"})
-    public void setClients (DSet<ClientInfo> value)
-    {
-        requestAttributeChange(CLIENTS, value, this.clients);
-        DSet<ClientInfo> clone = (value == null) ? null : value.clone();
-        this.clients = clone;
     }
 
     /**

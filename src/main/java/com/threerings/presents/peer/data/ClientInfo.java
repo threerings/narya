@@ -36,6 +36,9 @@ public class ClientInfo extends SimpleStreamableObject
     /** The username used by this client to authenticate. */
     public Name username;
 
+    /** The node to which this client is connected. */
+    public String nodeName;
+
     // documentation inherited from interface DSet.Entry
     public Comparable<?> getKey ()
     {

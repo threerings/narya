@@ -80,4 +80,14 @@ public interface Mapping<K,V>
      * Returns an unmodifiable view of all mappings as a set.
      */
     Set<Map.Entry<K,V>> entrySet ();
+
+    /**
+     * Adds a listener to this mapping.
+     */
+    void addListener (Listener<K,V> listener);
+
+    /**
+     * Removes a listener from this mapping.
+     */
+    void removeListener (Listener<K,V> listener);
 }
