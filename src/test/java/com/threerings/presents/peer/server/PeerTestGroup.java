@@ -43,8 +43,8 @@ import com.threerings.presents.server.PresentsServer;
 public class PeerTestGroup
 {
     public final List<PresentsServer> servers = Lists.newArrayList();
-
     public final List<Injector> injectors = Lists.newArrayList();
+    public final List<TestPeerManager> peermgrs = Lists.newArrayList();
 
     public static final int BASE_PORT = 1234;
 
@@ -82,8 +82,9 @@ public class PeerTestGroup
             server.init(inj);
             this.servers.add(server);
 
-            PeerManager peermgr = inj.getInstance(PeerManager.class);
+            TestPeerManager peermgr = inj.getInstance(TestPeerManager.class);
             peermgr.init(nodename, "I has a s3cr3t!", "localhost", "localhost", port);
+            peermgrs.add(peermgr);
         }
     }
 
