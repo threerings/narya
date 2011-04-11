@@ -30,6 +30,7 @@ import com.threerings.util.Name;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.NodeObject;
+import com.threerings.presents.peer.server.MappingManager;
 import com.threerings.presents.peer.server.PeerManager;
 import com.threerings.presents.peer.server.PeerNode;
 import com.threerings.presents.server.InvocationException;
@@ -53,9 +54,9 @@ public abstract class CrowdPeerManager extends PeerManager
     /**
      * Creates an uninitialized peer manager.
      */
-    @Inject public CrowdPeerManager (Lifecycle cycle)
+    @Inject public CrowdPeerManager (Lifecycle cycle, MappingManager mapmgr)
     {
-        super(cycle);
+        super(cycle, mapmgr);
     }
 
     // from interface CrowdPeerProvider
@@ -85,20 +86,17 @@ public abstract class CrowdPeerManager extends PeerManager
             return false; // sorry kid, don't know ya
         }
 
-        // look through our peers to see if the target user is online on one of them
-        for (PeerNode peer : _peers.values()) {
-            CrowdNodeObject cnobj = (CrowdNodeObject)peer.nodeobj;
-            if (cnobj == null) {
-                continue;
-            }
-            // we have to use auth username to look up their ClientInfo
-            CrowdClientInfo cinfo = (CrowdClientInfo)cnobj.clients.get(username);
-            if (cinfo != null) {
-                cnobj.crowdPeerService.deliverTell(message, target, listener);
-                return true;
-            }
+        // locate the target user and the target peer
+        CrowdClientInfo ccinfo = (CrowdClientInfo)_infoMap.get(username);
+        if (ccinfo == null) {
+            return false;
         }
-        return false;
+        CrowdNodeObject cnobj = (CrowdNodeObject)getNodeObject(ccinfo.nodeName);
+        if (cnobj == null) {
+            return false;
+        }
+        cnobj.crowdPeerService.deliverTell(message, target, listener);
+        return true;
     }
 
     // from interface ChatProvider.ChatForwarder
