@@ -99,7 +99,7 @@ public class ServerSocketChannelAcceptor
     {
         // create a listening socket
         final ServerSocketChannel ssocket = ServerSocketChannel.open();
-        ssocket.configureBlocking(false);
+        configureSocket(ssocket);
         InetSocketAddress isa = AddressUtil.getAddress(_bindHostname, port);
         ssocket.socket().bind(isa);
 
@@ -123,6 +123,16 @@ public class ServerSocketChannelAcceptor
         });
         _ssockets.add(ssocket);
         log.info("Server listening on " + isa + ".");
+    }
+
+    /**
+     * Override to perform any desired additional socket configuration before binding.  Be sure to
+     * call the superclass implementation.
+     */
+    protected void configureSocket (ServerSocketChannel ssocket)
+        throws IOException
+    {
+        ssocket.configureBlocking(false);
     }
 
     protected final int[] _ports;

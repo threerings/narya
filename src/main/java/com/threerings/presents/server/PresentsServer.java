@@ -191,9 +191,7 @@ public class PresentsServer
         _clmgr.setInjector(injector);
 
         // Create our socket opening objects now that we know what ports we're using.
-        _socketAcceptor =
-            new ServerSocketChannelAcceptor(getBindHostname(), getListenPorts(), _conmgr);
-        _lifecycle.addComponent(_socketAcceptor);
+        _lifecycle.addComponent(_socketAcceptor = createSocketAcceptor());
         _datagramReader =
             new DatagramChannelReader(getDatagramHostname(), getDatagramPorts(), _conmgr);
         _lifecycle.addComponent(_datagramReader);
@@ -218,6 +216,11 @@ public class PresentsServer
         } catch (Throwable t) {
             log.warning("Unable to register Sun signal handlers", "error", t);
         }
+    }
+
+    protected ServerSocketChannelAcceptor createSocketAcceptor ()
+    {
+        return new ServerSocketChannelAcceptor(getBindHostname(), getListenPorts(), _conmgr);
     }
 
     /**

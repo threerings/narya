@@ -153,6 +153,14 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
+     * Returns <tt>true</tt> if this set contains no entries.
+     */
+    public boolean isEmpty ()
+    {
+        return _size == 0;
+    }
+
+    /**
      * Returns the number of entries in this set.
      */
     public int size ()
