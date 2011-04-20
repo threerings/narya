@@ -835,12 +835,17 @@ public class PresentsSession
      */
     protected synchronized void setConnection (PresentsConnection conn)
     {
-        // if our connection is being cleared out, record the amount of time we were connected to
-        // our total connected time
         long now = System.currentTimeMillis();
-        if (_conn != null && conn == null) {
-            _connectTime += ((now - _networkStamp) / 1000);
-            _messagesDropped = 0;
+        if (_conn != null) {
+            // if our connection is being cleared out, record the amount of time we were connected
+            // to our total connected time
+            if (conn == null) {
+                _connectTime += ((now - _networkStamp) / 1000);
+                _messagesDropped = 0;
+            }
+
+            // make damn sure we don't get any more messages from the old connection
+            _conn.setMessageHandler(null);
         }
 
         // keep a handle to the new connection
