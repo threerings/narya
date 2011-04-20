@@ -109,8 +109,16 @@ public class SpeakHandler
 
         } else {
             // issue the speak message on our speak object
-            SpeakUtil.sendSpeak(_speakObj, source.getVisibleName(), null, message, mode);
+            sendSpeak(source, message, mode);
         }
+    }
+
+    /**
+     * Sends the actual speak message.
+     */
+    protected void sendSpeak (BodyObject source, String message, byte mode)
+    {
+        SpeakUtil.sendSpeak(_speakObj, source.getVisibleName(), null, message, mode);
     }
 
     /** Used for acquiring BodyObject references from Names and ClientObjects. */
