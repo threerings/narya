@@ -31,6 +31,8 @@ import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.google.common.base.Preconditions;
+
 import com.threerings.io.FramedInputStream;
 import com.threerings.io.FramingOutputStream;
 import com.threerings.io.ObjectInputStream;
@@ -74,7 +76,20 @@ public class PresentsConnection extends Connection
      */
     public void setMessageHandler (MessageHandler handler)
     {
-        _handler = handler;
+        _handler = Preconditions.checkNotNull(handler);
+    }
+
+    /**
+     * Clears out our message handler, causing any subsequent messages to be dropped on arrival. A
+     * log message is recorded for the dropped messages.
+     */
+    public void clearMessageHandler ()
+    {
+        _handler = new MessageHandler() {
+            public void handleMessage (Message message) {
+                log.info("Dropping message from cleared connection", "conn", this, "msg", message);
+            }
+        };
     }
 
     /**

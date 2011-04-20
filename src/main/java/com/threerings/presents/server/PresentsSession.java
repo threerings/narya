@@ -845,15 +845,15 @@ public class PresentsSession
             }
 
             // make damn sure we don't get any more messages from the old connection
-            _conn.setMessageHandler(null);
+            _conn.clearMessageHandler();
         }
 
         // keep a handle to the new connection
         _conn = conn;
 
-        // tell the connection to pass messages on to us (if we're setting a connection rather than
-        // clearing one out)
+        // if we're setting a connection rather than clearing one out...
         if (_conn != null) {
+            // tell the connection to pass messages on to us
             _conn.setMessageHandler(this);
 
             // configure any active custom class loader
