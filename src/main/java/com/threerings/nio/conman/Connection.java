@@ -165,7 +165,7 @@ public abstract class Connection implements NetEventHandler
     @Override // from Object
     public String toString ()
     {
-        return "[id=" + (hashCode() % 1000) + ", addr=" + getInetAddress() + "]";
+        return "[id=" + _connectionId + ", addr=" + getInetAddress() + "]";
     }
 
     /**
