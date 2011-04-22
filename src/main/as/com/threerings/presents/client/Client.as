@@ -273,9 +273,20 @@ public class Client extends EventDispatcher
         // we need to wait for the CLIENT_WILL_LOGON to have been dispatched before we actually
         // tell the communicator to logon, so we run this through the callLater pipeline
         _comm = new Communicator(this);
-        callLater(_comm.logon);
+        callLater(function () :void {
+            _comm.logon(buildClientProps());
+        });
 
         return true;
+    }
+
+    /**
+     * Create the client property object to pass to {@link ObjectInputStream}. Subclasses may
+     * add references useful during e.g. deserialization.
+     */
+    protected function buildClientProps () :Object
+    {
+        return { invDir: _invdir };
     }
 
     /**

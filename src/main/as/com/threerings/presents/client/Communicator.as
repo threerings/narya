@@ -21,7 +21,6 @@
 
 package com.threerings.presents.client {
 
-import flash.errors.IOError;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.events.SecurityErrorEvent;
@@ -55,13 +54,13 @@ public class Communicator
         _client = client;
     }
 
-    public function logon () :void
+    public function logon (clientProps :Object = null) :void
     {
         // create our input/output business
         _outBuffer = new ByteArray();
         _outBuffer.endian = Endian.BIG_ENDIAN;
         _outStream = new ObjectOutputStream(_outBuffer);
-        _inStream = new ObjectInputStream(null, { invDir: _client.getInvocationDirector() });
+        _inStream = new ObjectInputStream(null, clientProps);
 
         attemptLogon(0);
     }
