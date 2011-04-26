@@ -78,7 +78,9 @@ public abstract class FieldMarshaller
     public static FieldMarshaller getFieldMarshaller (Field field)
     {
         if (_marshallers == null) {
-            createMarshallers();
+            // multiple threads may attempt to create the stock marshallers, but they'll just do
+            // extra work and _marshallers will only ever contain a fully populated table
+            _marshallers = createMarshallers();
         }
 
         // if necessary (we're running in a sandbox), look for custom field accessors
@@ -247,12 +249,10 @@ public abstract class FieldMarshaller
     }
 
     /**
-     * Creates instances of all known field marshaller types and populates the {@link
-     * #_marshallers} table with them. This is called the first time a marshaller is requested.
+     * Creates and returns a mapping for all known field marshaller types.
      */
-    protected static void createMarshallers ()
+    protected static Map<Class<?>, FieldMarshaller> createMarshallers ()
     {
-        // create our table
         Map<Class<?>, FieldMarshaller> marshallers = Maps.newHashMap();
 
         // create a generic marshaller for streamable instances
@@ -404,7 +404,7 @@ public abstract class FieldMarshaller
             }
         };
 
-        _marshallers = marshallers;
+        return marshallers;
     }
 
     /** Contains a mapping from field type to field marshaller instance for that type. */
