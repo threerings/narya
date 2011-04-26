@@ -325,7 +325,7 @@ public abstract class Streamer
         {
             _target = target;
             initConstructor();
-            initMarshallers();
+            _marshallers = createMarshallers();
         }
 
         @Override
@@ -445,9 +445,9 @@ public abstract class Streamer
         }
 
         /**
-         * Initialize the reading and writing marshallers.
+         * Creates and returns the reading and writing marshallers.
          */
-        protected void initMarshallers ()
+        protected FieldMarshaller[] createMarshallers ()
         {
             // reflect on all the object's fields
             List<Field> fields = Lists.newArrayList();
@@ -483,7 +483,7 @@ public abstract class Streamer
                              _fields[ii].getName() + ".");
                 }
             }
-            _marshallers = marshallers;
+            return marshallers;
         }
 
         @Override
@@ -551,7 +551,9 @@ public abstract class Streamer
 
             // otherwise, ensure the marshallers are initialized and call super
             if (_marshallers == null) {
-                super.initMarshallers();
+                // this can race with other threads, but the worst that can happen is that the work
+                // done in createMarshallers() is duplicated
+                _marshallers = super.createMarshallers();
             }
             super.writeObject(object, out, useWriter);
         }
@@ -589,18 +591,21 @@ public abstract class Streamer
 
             // otherwise, ensure the marshallers are iniitalized and call super
             if (_marshallers == null) {
-                super.initMarshallers();
+                // this can race with other threads, but the worst that can happen is that the work
+                // done in createMarshallers() is duplicated
+                _marshallers = super.createMarshallers();
             }
             super.readObject(object, in, useReader);
         }
 
         @Override
-        protected void initMarshallers ()
+        protected FieldMarshaller[] createMarshallers ()
         {
             // we will lazy-initialize the marshallers only if needed, so we don't call super
             // (It's possible there is only a writer method, but the object is never read from
             // clients, so don't get cute and set up the marshallers at construct time if one of
             // the methods is null).
+            return null;
         }
 
         @Override
