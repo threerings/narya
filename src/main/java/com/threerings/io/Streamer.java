@@ -549,8 +549,10 @@ public abstract class Streamer
             }
 
             // otherwise, ensure the marshallers are initialized and call super
-            if (_marshallers == null) {
-                super.initMarshallers();
+            synchronized (this) {
+                if (_marshallers == null) {
+                    super.initMarshallers();
+                }
             }
             super.writeObject(object, out, useWriter);
         }
