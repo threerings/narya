@@ -469,20 +469,21 @@ public abstract class Streamer
             int fcount = _fields.length;
 
             // obtain field marshallers for all of our fields
-            _marshallers = new FieldMarshaller[fcount];
+            FieldMarshaller[] marshallers = new FieldMarshaller[fcount];
             for (int ii = 0; ii < fcount; ii++) {
-                _marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
-                if (_marshallers[ii] == null) {
+                marshallers[ii] = FieldMarshaller.getFieldMarshaller(_fields[ii]);
+                if (marshallers[ii] == null) {
                     String errmsg = "Unable to marshall field [class=" + _target.getName() +
                         ", field=" + _fields[ii].getName() +
                         ", type=" + _fields[ii].getType().getName() + "]";
                     throw new RuntimeException(errmsg);
                 }
                 if (ObjectInputStream.STREAM_DEBUG) {
-                    log.info("Using " + _marshallers[ii] + " for " + _target.getName() + "." +
+                    log.info("Using " + marshallers[ii] + " for " + _target.getName() + "." +
                              _fields[ii].getName() + ".");
                 }
             }
+            _marshallers = marshallers;
         }
 
         @Override
@@ -549,10 +550,8 @@ public abstract class Streamer
             }
 
             // otherwise, ensure the marshallers are initialized and call super
-            synchronized (this) {
-                if (_marshallers == null) {
-                    super.initMarshallers();
-                }
+            if (_marshallers == null) {
+                super.initMarshallers();
             }
             super.writeObject(object, out, useWriter);
         }
