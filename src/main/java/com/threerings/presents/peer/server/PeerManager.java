@@ -22,6 +22,7 @@
 package com.threerings.presents.peer.server;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1067,12 +1068,17 @@ public abstract class PeerManager
             public void invokePersist () throws Exception {
                 // let the world know that we're alive
                 _noderepo.heartbeatNode(_nodeName);
+
                 // then load up all the peer records
-                _nodes = _noderepo.loadNodes(_nodeNamespace);
+                _nodes = Maps.newHashMap();
+                for (NodeRecord record : _noderepo.loadNodes(_nodeNamespace)) {
+                    _nodes.put(record.nodeName, record);
+                }
             }
             @Override
             public void handleSuccess () {
-                for (NodeRecord record : _nodes) {
+                // refresh peers with loaded records
+                for (NodeRecord record : _nodes.values()) {
                     if (record.nodeName.equals(_nodeName)) {
                         continue;
                     }
@@ -1082,12 +1088,23 @@ public abstract class PeerManager
                         log.warning("Failure refreshing peer " + record + ".", e);
                     }
                 }
+
+                // remove peers for which we no longer have up-to-date records
+                long now = System.currentTimeMillis();
+                for (Iterator<PeerNode> it = _peers.values().iterator(); it.hasNext(); ) {
+                    PeerNode peer = it.next();
+                    NodeRecord record = _nodes.get(peer.getNodeName());
+                    if (record == null || (now - record.lastUpdated.getTime()) > PeerNode.STALE_INTERVAL) {
+                        peer.shutdown();
+                        it.remove();
+                    }
+                }
             }
             @Override
             public long getLongThreshold () {
                 return 700L;
             }
-            protected List<NodeRecord> _nodes;
+            protected Map<String, NodeRecord> _nodes;
         });
     }
 
