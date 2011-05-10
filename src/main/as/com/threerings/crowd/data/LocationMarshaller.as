@@ -44,7 +44,6 @@ public class LocationMarshaller extends InvocationMarshaller
     public function leavePlace () :void
     {
         sendRequest(LEAVE_PLACE, [
-            
         ]);
     }
 
