@@ -137,7 +137,7 @@ public class DObject // extends EventDispatcher
     }
 
     /**
-     * Posts a message event on this distrubuted object.
+     * Posts a message event on this distributed object.
      */
     public function postMessage (name :String, args :Array) :void
     {
