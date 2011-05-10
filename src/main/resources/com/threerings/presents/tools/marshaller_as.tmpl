@@ -29,7 +29,9 @@ public class {{name}}Marshaller extends InvocationMarshaller
         listener{{index}}.listener = arg{{index}};
 {{/listenerArgs}}
         sendRequest({{code}}, [
+{{#hasArgs}}
             {{getASWrappedArgList}}
+{{/hasArgs}}
         ]);
     }
 {{/methods}}
