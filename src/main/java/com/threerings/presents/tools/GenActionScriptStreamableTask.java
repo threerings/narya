@@ -27,9 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
@@ -100,7 +97,7 @@ public class GenActionScriptStreamableTask extends GenTask
         // it a pain to keep additional imports out of the GENERATED PREAMBLE section of
         // class, so we just merge all the imports we find.
         if (existing != null) {
-            addExistingImports(existing, imports);
+            ActionScriptUtils.addExistingImports(existing, imports);
         }
 
         boolean isDObject = DObject.class.isAssignableFrom(sclass);
@@ -163,23 +160,6 @@ public class GenActionScriptStreamableTask extends GenTask
         }
     }
 
-    protected static void addExistingImports (String asFile, ImportSet imports)
-        throws Exception
-    {
-        // Discover the location of the 'public class' declaration.
-        // We won't search past there.
-        Matcher m = AS_PUBLIC_CLASS_DECL.matcher(asFile);
-        int searchTo = asFile.length();
-        if (m.find()) {
-            searchTo = m.start();
-        }
-
-        m = AS_IMPORT.matcher(asFile.substring(0, searchTo));
-        while (m.find()) {
-            imports.add(m.group(3));
-        }
-    }
-
     protected static class ASField
     {
         public final String name;
@@ -230,9 +210,4 @@ public class GenActionScriptStreamableTask extends GenTask
 
     /** The path to our ActionScript source files. */
     protected File _asroot;
-
-    protected static final Pattern AS_PUBLIC_CLASS_DECL = Pattern.compile("^public class(.*)$",
-        Pattern.MULTILINE);
-    protected static final Pattern AS_IMPORT = Pattern.compile("^(\\s*)import(\\s+)([^;]*);",
-        Pattern.MULTILINE);
 }

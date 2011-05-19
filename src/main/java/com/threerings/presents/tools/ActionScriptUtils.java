@@ -24,6 +24,8 @@ package com.threerings.presents.tools;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import java.io.File;
 
@@ -37,6 +39,26 @@ import com.threerings.util.StreamableHashSet;
 
 public class ActionScriptUtils
 {
+    /**
+     * Adds an existing ActionScript file's imports to the given ImportSet.
+     * @param asFile a String containing the contents of an ActionScript file
+     */
+    public static void addExistingImports (String asFile, ImportSet imports)
+    {
+        // Discover the location of the 'public class' declaration.
+        // We won't search past there.
+        Matcher m = AS_PUBLIC_CLASS_DECL.matcher(asFile);
+        int searchTo = asFile.length();
+        if (m.find()) {
+            searchTo = m.start();
+        }
+
+        m = AS_IMPORT.matcher(asFile.substring(0, searchTo));
+        while (m.find()) {
+            imports.add(m.group(3));
+        }
+    }
+
     public static String addImportAndGetShortType (Class<?> type, boolean isField,
         ImportSet imports)
     {
@@ -249,4 +271,9 @@ public class ActionScriptUtils
     }
 
     protected static final Splitter DOT_SPLITTER = Splitter.on('.');
+
+    protected static final Pattern AS_PUBLIC_CLASS_DECL = Pattern.compile("^public class(.*)$",
+        Pattern.MULTILINE);
+    protected static final Pattern AS_IMPORT = Pattern.compile("^(\\s*)import(\\s+)([^;]*);",
+        Pattern.MULTILINE);
 }
