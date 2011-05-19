@@ -37,15 +37,7 @@ import com.threerings.util.StreamableHashSet;
 
 public class ActionScriptUtils
 {
-    protected static boolean needsActionScriptImport (Class<?> type, boolean isField)
-    {
-        if (type.isArray()) {
-            return Byte.TYPE.equals(type.getComponentType()) || isField;
-        }
-        return (Long.TYPE.equals(type) || !type.isPrimitive()) && !String.class.equals(type);
-    }
-
-    protected static String addImportAndGetShortType (Class<?> type, boolean isField,
+    public static String addImportAndGetShortType (Class<?> type, boolean isField,
         ImportSet imports)
     {
         String full = toActionScriptType(type, isField);
@@ -55,7 +47,7 @@ public class ActionScriptUtils
         return Iterables.getLast(DOT_SPLITTER.split(full));
     }
 
-    protected static String toSimpleName (Class<?> type)
+    public static String toSimpleName (Class<?> type)
     {
         String name = type.getName().substring(type.getName().lastIndexOf(".") + 1);
         // inner classes are not supported by ActionScript so we _
@@ -173,23 +165,6 @@ public class ActionScriptUtils
         }
     }
 
-    /** Returns if the given class is an implementation of Map that doesn't know about Streaming */
-    protected static boolean isNaiveMap (Class<?> type)
-    {
-        return Map.class.isAssignableFrom(type) && !type.equals(StreamableHashMap.class);
-    }
-
-    protected static boolean isNaiveSet (Class<?> type)
-    {
-        return Set.class.isAssignableFrom(type) && !type.equals(StreamableHashSet.class);
-    }
-
-    /** Returns if the given class is an implementation of List that doesn't know about Streaming */
-    protected static boolean isNaiveList (Class<?> type)
-    {
-        return List.class.isAssignableFrom(type) && !type.equals(StreamableArrayList.class);
-    }
-
     public static String toActionScriptType (Class<?> type, boolean isField)
     {
         if (type.isArray() || isNaiveList(type)) {
@@ -246,6 +221,31 @@ public class ActionScriptUtils
             cclass = cclass.getSuperclass();
         } while (cclass != null);
         return false;
+    }
+
+    /** Returns if the given class is an implementation of Map that doesn't know about Streaming */
+    protected static boolean isNaiveMap (Class<?> type)
+    {
+        return Map.class.isAssignableFrom(type) && !type.equals(StreamableHashMap.class);
+    }
+
+    protected static boolean isNaiveSet (Class<?> type)
+    {
+        return Set.class.isAssignableFrom(type) && !type.equals(StreamableHashSet.class);
+    }
+
+    /** Returns if the given class is an implementation of List that doesn't know about Streaming */
+    protected static boolean isNaiveList (Class<?> type)
+    {
+        return List.class.isAssignableFrom(type) && !type.equals(StreamableArrayList.class);
+    }
+
+    protected static boolean needsActionScriptImport (Class<?> type, boolean isField)
+    {
+        if (type.isArray()) {
+            return Byte.TYPE.equals(type.getComponentType()) || isField;
+        }
+        return (Long.TYPE.equals(type) || !type.isPrimitive()) && !String.class.equals(type);
     }
 
     protected static final Splitter DOT_SPLITTER = Splitter.on('.');
