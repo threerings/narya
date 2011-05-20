@@ -1078,8 +1078,14 @@ public abstract class PeerManager
             @Override
             public void handleSuccess () {
                 // refresh peers with loaded records
-                for (NodeRecord record : _nodes.values()) {
+                long now = System.currentTimeMillis();
+                for (Iterator<NodeRecord> it = _nodes.values().iterator(); it.hasNext(); ) {
+                    NodeRecord record = it.next();
                     if (record.nodeName.equals(_nodeName)) {
+                        continue;
+                    }
+                    if ((now - record.lastUpdated.getTime()) > PeerNode.STALE_INTERVAL) {
+                        it.remove();
                         continue;
                     }
                     try {
@@ -1090,11 +1096,9 @@ public abstract class PeerManager
                 }
 
                 // remove peers for which we no longer have up-to-date records
-                long now = System.currentTimeMillis();
                 for (Iterator<PeerNode> it = _peers.values().iterator(); it.hasNext(); ) {
                     PeerNode peer = it.next();
-                    NodeRecord record = _nodes.get(peer.getNodeName());
-                    if (record == null || (now - record.lastUpdated.getTime()) > PeerNode.STALE_INTERVAL) {
+                    if (!_nodes.containsKey(peer.getNodeName())) {
                         peer.shutdown();
                         it.remove();
                     }
