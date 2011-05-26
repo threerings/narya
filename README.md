@@ -101,7 +101,7 @@ Distribution
 ------------
 
 Narya is released under the LGPL. The most recent version of the library is
-available at http://github.com/threerings/narya.
+available at http://github.com/threerings/narya
 
 Contact
 -------
