@@ -159,7 +159,7 @@
           <quiet>true</quiet>
           <show>public</show>
           <links>
-            <link>http://samskivert.googlecode.com/svn/apidocs/</link>
+            <link>http://samskivert.github.com/samskivert/apidocs/</link>
             <link>http://depot.googlecode.com/svn/apidocs/</link>
             <link>http://guava-libraries.googlecode.com/svn/trunk/javadoc/</link>
             <link>http://google-web-toolkit.googlecode.com/svn/javadoc/2.1/</link>
