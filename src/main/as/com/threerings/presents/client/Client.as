@@ -202,7 +202,7 @@ public class Client extends EventDispatcher
         }
     }
 
-    public function getService (clazz :Class) :InvocationService
+    public function getService (clazz :Class) :*
     {
         if (_bstrap != null) {
             for each (var isvc :InvocationService in _bstrap.services) {
@@ -211,12 +211,12 @@ public class Client extends EventDispatcher
                 }
             }
         }
-
         return null;
     }
 
-    public function requireService (clazz :Class) :InvocationService
+    public function requireService (clazz :Class) :*
     {
+
         var isvc :InvocationService = getService(clazz);
         if (isvc == null) {
             throw new Error(clazz + " isn't available. I can't bear to go on.");
