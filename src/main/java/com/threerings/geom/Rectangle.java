@@ -1,5 +1,7 @@
 package com.threerings.geom;
 
+import com.samskivert.util.Logger;
+
 /**
  * A very simple representation of the geometric shape, because sometimes we can't use awt.
  */
@@ -79,7 +81,6 @@ public class Rectangle
     @Override
     public String toString ()
     {
-        return getClass().getName() +
-            "[x=" + x + ",y=" + y + ",width=" + width + ",height=" + height + "]";
+        return Logger.format(getClass().getName(), "x", x, "y", y, "w", width, "h", height);
     }
 }

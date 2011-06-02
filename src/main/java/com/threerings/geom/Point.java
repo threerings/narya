@@ -1,5 +1,7 @@
 package com.threerings.geom;
 
+import com.samskivert.util.Logger;
+
 /**
  * A very simple representation of the geometric concept, because sometimes we can't use awt.
  */
@@ -25,6 +27,6 @@ public class Point
     @Override
     public String toString ()
     {
-        return getClass().getName() + "[x=" + x + ",y=" + y + "]";
+        return Logger.format(getClass().getName(), "x", x, "y", y);
     }
 }
