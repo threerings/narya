@@ -201,18 +201,18 @@ public abstract class Streamer
         throws IOException, ClassNotFoundException;
 
     @Override
-    public String toString ()
+    public final String toString ()
     {
-        return toStringHelper(Objects.toStringHelper(this)).toString();
+        return toStringHelper().toString();
     }
 
     /**
      * Overrideable to add more information to this class' toString() representation.
      */
-    protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+    protected Objects.ToStringHelper toStringHelper ()
     {
-        // nada in the base class
-        return otsh;
+        // no extra details in the base class
+        return Objects.toStringHelper(this);
     }
 
     /**
@@ -487,9 +487,9 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        protected Objects.ToStringHelper toStringHelper ()
         {
-            return super.toStringHelper(otsh)
+            return super.toStringHelper()
                 .add("target", _target.getName())
                 .add("fcount", (_fields == null) ? 0 : _fields.length);
         }
@@ -609,9 +609,9 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        protected Objects.ToStringHelper toStringHelper ()
         {
-            return super.toStringHelper(otsh)
+            return super.toStringHelper()
                 .add("reader", _reader)
                 .add("writer", _writer);
         }
@@ -673,9 +673,9 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        protected Objects.ToStringHelper toStringHelper ()
         {
-            return super.toStringHelper(otsh)
+            return super.toStringHelper()
                 .add("componentType", _componentType.getName());
         }
 
@@ -748,9 +748,9 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        protected Objects.ToStringHelper toStringHelper ()
         {
-            return super.toStringHelper(otsh)
+            return super.toStringHelper()
                 .add("delegate", _delegate);
         }
 
@@ -779,9 +779,9 @@ public abstract class Streamer
         }
 
         @Override
-        public Objects.ToStringHelper toStringHelper (Objects.ToStringHelper otsh)
+        public Objects.ToStringHelper toStringHelper ()
         {
-            return super.toStringHelper(otsh)
+            return super.toStringHelper()
                 .add("eclass", _eclass.getName());
         }
 
