@@ -137,7 +137,7 @@ public class GenActionScriptStreamableTask extends GenTask
             "header", existing == null ? _header : "",
             "package", sclass.getPackage().getName(),
             "classname", ActionScriptUtils.toSimpleName(sclass),
-            "imports", imports.toList(),
+            "importGroups", imports.toGroups(),
             "extends", extendsName,
             "implements", Joiner.on(", ").join(implemented),
             "superclassStreamable", reqs.superclassStreamable,

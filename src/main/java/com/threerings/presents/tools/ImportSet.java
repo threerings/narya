@@ -21,11 +21,14 @@
 
 package com.threerings.presents.tools;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -320,6 +323,37 @@ public class ImportSet
     }
 
     /**
+     * Converts the set of imports to groups of class names, according to conventional package
+     * ordering and spacing. Within each group, sorting is alphabetical.
+     */
+    public List<List<String>> toGroups ()
+    {
+        List<String> list = Lists.newArrayList(_imports);
+        Collections.sort(list, new Comparator<String>() {
+            public int compare (String class1, String class2) {
+                return ComparisonChain.start()
+                    .compare(findImportGroup(class1), findImportGroup(class2))
+                    .compare(class1, class2)
+                    .result();
+            }
+        });
+        List<List<String>> result = Lists.newArrayList();
+        List<String> current = null;
+        int lastGroup = -1;
+        for (String imp : list) {
+            int group = findImportGroup(imp);
+            if (group != lastGroup) {
+                if (current == null || !current.isEmpty()) {
+                    result.add(current = Lists.<String>newArrayList());
+                }
+                lastGroup = group;
+            }
+            current.add(imp);
+        }
+        return result;
+    }
+
+    /**
      * Convert the set of imports to a sorted list, ready to be output to a generated file.
      * @return the sorted list of imports
      */
@@ -367,8 +401,37 @@ public class ImportSet
         return Pattern.compile(pattern.toString());
     }
 
+    protected static int findImportGroup (String imp)
+    {
+        String longest = null;
+        for (String prefix : IMPORT_GROUPS) {
+            if (!imp.startsWith(prefix)) {
+                continue;
+            }
+            if (longest == null || prefix.length() > longest.length()) {
+                longest = prefix;
+            }
+        }
+        return IMPORT_GROUPS.indexOf(longest);
+    }
+
     protected HashSet<String> _imports = Sets.newHashSet();
     protected List<String> _pushed = Lists.newArrayList();
 
     protected static Pattern _splitter = Pattern.compile("\\*");
+
+    protected static String OOO = "com.threerings.";
+    protected static List<String> DOMAIN_GROUPS = Lists.newArrayList("flash.", "fl.", "", OOO);
+    protected static List<String> OOO_GROUPS = Lists.newArrayList("io.", "util.", "presents.",
+        "orth.", "riposte.", "samsara.", "flashbang.", "downtown.", "biteme.", "who.",
+        "blueharvest.");
+    protected static List<String> IMPORT_GROUPS = Lists.newArrayList();
+
+    static
+    {
+        IMPORT_GROUPS.addAll(DOMAIN_GROUPS);
+        for (String prefix : OOO_GROUPS) {
+            IMPORT_GROUPS.add(OOO + prefix);
+        }
+    }
 }
