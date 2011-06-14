@@ -134,7 +134,7 @@ public class GenActionScriptStreamableTask extends GenTask
 
         String template = sclass.isEnum() ? "enum_as.tmpl" : "streamable_as.tmpl";
         String output = mergeTemplate("com/threerings/presents/tools/" + template,
-            "header", _header,
+            "header", existing == null ? _header : "",
             "package", sclass.getPackage().getName(),
             "classname", ActionScriptUtils.toSimpleName(sclass),
             "imports", imports.toList(),
