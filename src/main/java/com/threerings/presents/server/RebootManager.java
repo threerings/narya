@@ -60,6 +60,9 @@ public abstract class RebootManager
         void shutdownPlanned (int warningsLeft, long msLeft);
     }
 
+    /** The default warning times. */
+    public static final int[] DEFAULT_WARNINGS = { 30, 20, 15, 10, 5, 2 };
+
     /**
      * Finishes initialization of the manager.
      */
@@ -180,6 +183,16 @@ public abstract class RebootManager
         if (null == _rebootLocks.remove(lockId)) {
             throw new IllegalArgumentException("no such lockId (" + lockId + ")");
         }
+    }
+
+    /**
+     * Returns the minutes at which we give warnings. The last value is also the minimum time at
+     * which we can possibly reboot after the value of the nextReboot field is changed, to prevent
+     * accidentally causing instant server reboots.
+     */
+    public int[] getWarnings ()
+    {
+        return DEFAULT_WARNINGS;
     }
 
     /**
@@ -313,16 +326,6 @@ public abstract class RebootManager
         });
     }
 
-    /**
-     * Returns the minutes at which we give warnings. The last value is also the minimum time at
-     * which we can possibly reboot after the value of the nextReboot field is changed, to prevent
-     * accidentally causing instant server reboots.
-     */
-    protected int[] getWarnings ()
-    {
-        return DEFAULT_WARNINGS;
-    }
-
     /** The server that we're going to reboot. */
     protected PresentsServer _server;
 
@@ -349,9 +352,6 @@ public abstract class RebootManager
 
     /** Things that can delay the reboot. */
     protected HashIntMap<String> _rebootLocks = new HashIntMap<String>();
-
-    /** The default warning times. */
-    public static final int[] DEFAULT_WARNINGS = { 30, 20, 15, 10, 5, 2 };
 
     protected static final String AUTOMATIC_INITIATOR = "automatic";
 }
