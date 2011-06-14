@@ -421,17 +421,20 @@ public class ImportSet
     protected static Pattern _splitter = Pattern.compile("\\*");
 
     protected static String OOO = "com.threerings.";
-    protected static List<String> DOMAIN_GROUPS = Lists.newArrayList("flash.", "fl.", "", OOO);
-    protected static List<String> OOO_GROUPS = Lists.newArrayList("io.", "util.", "presents.",
-        "orth.", "riposte.", "samsara.", "flashbang.", "downtown.", "biteme.", "who.",
-        "blueharvest.");
-    protected static List<String> IMPORT_GROUPS = Lists.newArrayList();
-
-    static
-    {
-        IMPORT_GROUPS.addAll(DOMAIN_GROUPS);
-        for (String prefix : OOO_GROUPS) {
-            IMPORT_GROUPS.add(OOO + prefix);
-        }
-    }
+    protected static List<String> IMPORT_GROUPS = Lists.newArrayList(
+        "flash.",
+        "fl.",
+        "",
+        OOO,
+        OOO + "io.",
+        OOO + "util.",
+        OOO + "presents.",
+        OOO + "orth.",
+        OOO + "riposte.",
+        OOO + "samsara.",
+        OOO + "flashbang.",
+        OOO + "downtown.",
+        OOO + "biteme.",
+        OOO + "who.",
+        OOO + "blueharvest.");
 }
