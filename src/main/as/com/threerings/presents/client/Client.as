@@ -20,7 +20,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.client {
-
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
 
@@ -278,6 +277,21 @@ public class Client extends EventDispatcher
         });
 
         return true;
+    }
+
+    /**
+     * Runs the given function while collecting any generated messages in a CompoundEvent, which
+     * will be sent when the function returns.
+     */
+    public function inCompoundMessage (run :Function) :void
+    {
+        _comm.startCompoundMessage();
+        try {
+            run();
+        } finally {
+            _comm.finishCompoundMessage();
+        }
+
     }
 
     /**

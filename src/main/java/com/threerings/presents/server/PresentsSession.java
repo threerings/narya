@@ -54,6 +54,8 @@ import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.net.AuthRequest;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.CompoundDownstreamMessage;
+import com.threerings.presents.net.CompoundUpstreamMessage;
 import com.threerings.presents.net.Credentials;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.EventNotification;
@@ -70,6 +72,7 @@ import com.threerings.presents.net.TransmitDatagramsRequest;
 import com.threerings.presents.net.UnsubscribeRequest;
 import com.threerings.presents.net.UnsubscribeResponse;
 import com.threerings.presents.net.UpdateThrottleMessage;
+import com.threerings.presents.net.UpstreamMessage;
 import com.threerings.presents.server.net.PresentsConnection;
 
 import com.threerings.nio.conman.Connection;
@@ -433,8 +436,6 @@ public class PresentsSession
     // from interface Connection.MessageHandler
     public void handleMessage (Message message)
     {
-        _messagesIn++; // count 'em up!
-
         // if the client has been getting crazy with the cheeze whiz, stick a fork in them; the
         // first time through we end our session, subsequently _throttle is null and we just drop
         // any messages that come in until we've fully shutdown
@@ -446,6 +447,16 @@ public class PresentsSession
         } else if (_throttle.throttleOp(message.received)) {
             handleThrottleExceeded();
         }
+
+        dispatchMessage(message);
+    }
+
+    /**
+     * Processes a message without throttling.
+     */
+    protected void dispatchMessage (Message message)
+    {
+        _messagesIn++; // count 'em up!
 
         // we dispatch to a message dispatcher that is specialized for the particular class of
         // message that we received
@@ -464,8 +475,7 @@ public class PresentsSession
      * applied to this client. The old client object will not yet have been destroyed, so any final
      * events can be sent along prior to the new object being put into effect.
      */
-    protected void clientObjectWillChange (
-        ClientObject oldClobj, ClientObject newClobj)
+    protected void clientObjectWillChange (ClientObject oldClobj, ClientObject newClobj)
     {
     }
 
@@ -901,6 +911,31 @@ public class PresentsSession
         });
     }
 
+    /**
+     * Collects downstream messages in a compound message until finishCompoundMessage is called.
+     */
+    protected void startCompoundMessage ()
+    {
+        if (_compound == null) {
+            _compound = new CompoundDownstreamMessage();
+        }
+        _compoundDepth++;
+    }
+
+    /**
+     * Sends the compound message created in startCompoundMessage.
+     */
+    protected void finishCompoundMessage ()
+    {
+        if (--_compoundDepth == 0) {
+            CompoundDownstreamMessage downstream = _compound;
+            _compound = null;
+            if (!downstream.msgs.isEmpty()) {
+                postMessage(downstream, null);
+            }
+        }
+    }
+
     /** Queues a message for delivery to the client. */
     protected boolean postMessage (DownstreamMessage msg, PresentsConnection expect)
     {
@@ -912,6 +947,11 @@ public class PresentsSession
         // major confusion
         if (expect != null && conn != expect) {
             return false;
+        }
+
+        if (_compound != null) {
+            _compound.msgs.add(msg);
+            return true;
         }
 
         // make sure we have a connection at all
@@ -1125,6 +1165,29 @@ public class PresentsSession
     }
 
     /**
+     * Processes compound messages.
+     */
+    protected static class CompoundDispatcher implements MessageDispatcher
+    {
+        public void dispatch (final PresentsSession client, Message msg)
+        {
+            // Compound downstream messages sent while dispatching the upstream compound message
+            client._omgr.postRunnable(new Runnable() {
+                public void run () {
+                    client.startCompoundMessage();
+                }});
+            for (UpstreamMessage submsg : ((CompoundUpstreamMessage)msg).msgs) {
+                client.dispatchMessage(submsg);
+            }
+            // Send any messages produced en masse now that we've finished dispatching
+            client._omgr.postRunnable(new Runnable() {
+                public void run () {
+                    client.finishCompoundMessage();
+                }});
+        }
+    }
+
+    /**
      * Processes unsubscribe requests.
      */
     protected static class UnsubscribeDispatcher implements MessageDispatcher
@@ -1236,6 +1299,18 @@ public class PresentsSession
     protected ClientObject _clobj;
     protected IntMap<ClientProxy> _subscrips = IntMaps.newHashIntMap();
 
+    /**
+     * Message in which we're currently compounding messages to send, or null if we're sending them
+     * straight on.
+     */
+    protected CompoundDownstreamMessage _compound;
+
+    /**
+     * The count of startCompoundMessage calls that have occurred without a finishCompoundMessage.
+     * _compound won't be set until this reaches 0 again.
+     */
+    protected int _compoundDepth;
+
     /** The Oids of objects that have been destroyed while we were subscribed. */
     protected HashSet<Integer> _destroyedSubs = Sets.newHashSet();
     protected ClassLoader _loader;
@@ -1282,5 +1357,6 @@ public class PresentsSession
         _disps.put(TransmitDatagramsRequest.class, new TransmitDatagramsDispatcher());
         _disps.put(ThrottleUpdatedMessage.class, new ThrottleUpdatedDispatcher());
         _disps.put(LogoffRequest.class, new LogoffDispatcher());
+        _disps.put(CompoundUpstreamMessage.class, new CompoundDispatcher());
     }
 }

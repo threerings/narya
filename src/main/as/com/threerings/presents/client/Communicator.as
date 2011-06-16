@@ -20,6 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.client {
+import com.threerings.presents.net.CompoundUpstreamMessage;
 
 import flash.events.Event;
 import flash.events.IOErrorEvent;
@@ -75,6 +76,10 @@ public class Communicator
 
     public function postMessage (msg :UpstreamMessage) :void
     {
+        if (_compound != null) {
+            _compound.msgs.push(msg);
+            return;
+        }
         _outq.push(msg);
         if (_writer != null) {
             sendPendingMessages(null);
@@ -107,6 +112,23 @@ public class Communicator
             }
         }
         return false;
+    }
+
+    public function startCompoundMessage () :void
+    {
+        if (_compound == null) {
+            _compound = new CompoundUpstreamMessage();
+        }
+        _compoundDepth++;
+    }
+
+    public function finishCompoundMessage () :void
+    {
+        if (--_compoundDepth == 0) {
+            var toSend :CompoundUpstreamMessage = _compound;
+            _compound = null;
+            postMessage(toSend);
+        }
     }
 
     /**
@@ -382,6 +404,13 @@ public class Communicator
     protected var _outq :Array = new Array();
     protected var _writer :Timer;
     protected var _notedThrottle :Boolean = false;
+
+    protected var _compound :CompoundUpstreamMessage;
+
+    /**
+     * The count of startCompoundMessage calls that have occurred without a finishCompoundMessage
+     */
+    protected var _compoundDepth :int;
 
     protected const log :Log = Log.getLog(this);
 

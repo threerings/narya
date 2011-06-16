@@ -21,44 +21,21 @@
 
 package com.threerings.presents.net {
 
-import flash.utils.getTimer;
-
-import com.threerings.util.Long;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
+import com.threerings.io.TypedArray;
+import com.threerings.io.streamers.ArrayStreamer;
 
-public class PongResponse extends DownstreamMessage
+import com.threerings.presents.net.UpstreamMessage;
+
+public class CompoundUpstreamMessage extends UpstreamMessage
 {
-    public function getPackStamp () :Long
+    public var msgs :TypedArray = TypedArray.create(UpstreamMessage);
+
+    override public function writeObject (out :ObjectOutputStream) :void
     {
-        return _packStamp;
+        super.writeObject(out);
+        out.writeField(msgs, ArrayStreamer.INSTANCE);
     }
-
-    public function getProcessDelay () :int
-    {
-        return _processDelay;
-    }
-
-    public function getUnpackStamp () :uint
-    {
-        return _unpackStamp;
-    }
-
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        _unpackStamp = getTimer();
-        super.readObject(ins);
-
-        _packStamp = ins.readLong();
-        _processDelay = ins.readInt();
-    }
-
-    protected var _packStamp :Long;
-
-    protected var _processDelay :int;
-
-    protected var _unpackStamp :uint;
 }
 }

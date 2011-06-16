@@ -20,45 +20,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.net {
-
-import flash.utils.getTimer;
-
-import com.threerings.util.Long;
-
+import com.threerings.io.streamers.ArrayStreamer;
+import com.threerings.io.TypedArray;
 import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
 
-public class PongResponse extends DownstreamMessage
+public class CompoundDownstreamMessage extends DownstreamMessage
 {
-    public function getPackStamp () :Long
-    {
-        return _packStamp;
-    }
-
-    public function getProcessDelay () :int
-    {
-        return _processDelay;
-    }
-
-    public function getUnpackStamp () :uint
-    {
-        return _unpackStamp;
-    }
+    public var msgs :TypedArray = TypedArray.create(DownstreamMessage);
 
     override public function readObject (ins :ObjectInputStream) :void
     {
-        _unpackStamp = getTimer();
         super.readObject(ins);
 
-        _packStamp = ins.readLong();
-        _processDelay = ins.readInt();
+        msgs = ins.readField(ArrayStreamer.INSTANCE);
     }
-
-    protected var _packStamp :Long;
-
-    protected var _processDelay :int;
-
-    protected var _unpackStamp :uint;
 }
 }

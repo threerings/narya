@@ -20,6 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.client {
+import com.threerings.presents.net.CompoundDownstreamMessage;
 
 import flash.events.Event;
 import flash.events.TimerEvent;
@@ -175,6 +176,10 @@ public class ClientDObjectMgr
 
         } else if (msg is UpdateThrottleMessage) {
             _client.setOutgoingMessageThrottle((msg as UpdateThrottleMessage).messagesPerSec);
+        } else if (msg is CompoundDownstreamMessage) {
+            for each (var submsg :DownstreamMessage in CompoundDownstreamMessage(msg).msgs) {
+                processMessage(submsg);
+            }
         }
     }
 

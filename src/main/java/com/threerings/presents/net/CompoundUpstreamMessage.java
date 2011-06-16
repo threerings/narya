@@ -19,46 +19,24 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-package com.threerings.presents.net {
+package com.threerings.presents.net;
 
-import flash.utils.getTimer;
+import java.util.List;
 
-import com.threerings.util.Long;
+import com.google.common.collect.Lists;
 
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
-
-public class PongResponse extends DownstreamMessage
+/**
+ * Groups messages to be dispatched without triggering the message throttle. Any messages sent to
+ * a client while processing an upstream message will be sent back en masse in a
+ * CompoundDownstreamMessage.
+ */
+public class CompoundUpstreamMessage extends UpstreamMessage
 {
-    public function getPackStamp () :Long
+    public List<UpstreamMessage> msgs = Lists.newArrayList();
+
+    @Override
+    public String toString ()
     {
-        return _packStamp;
+        return "[type=COMPOUND, msgid=" + messageId + "]";
     }
-
-    public function getProcessDelay () :int
-    {
-        return _processDelay;
-    }
-
-    public function getUnpackStamp () :uint
-    {
-        return _unpackStamp;
-    }
-
-    override public function readObject (ins :ObjectInputStream) :void
-    {
-        _unpackStamp = getTimer();
-        super.readObject(ins);
-
-        _packStamp = ins.readLong();
-        _processDelay = ins.readInt();
-    }
-
-    protected var _packStamp :Long;
-
-    protected var _processDelay :int;
-
-    protected var _unpackStamp :uint;
-}
 }

@@ -47,6 +47,8 @@ import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.BootstrapNotification;
+import com.threerings.presents.net.CompoundDownstreamMessage;
+import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.EventNotification;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
@@ -184,44 +186,52 @@ public class ClientDObjectMgr
         // process the next event on our queue
         Object obj;
         if ((obj = _actions.getNonBlocking()) != null) {
-            // do the proper thing depending on the object
-            if (obj instanceof EventNotification) {
-                dispatchEvent(((EventNotification)obj).getEvent());
+            dispatchAction(obj);
+        }
+    }
 
-            } else if (obj instanceof BootstrapNotification) {
-                BootstrapData data = ((BootstrapNotification)obj).getData();
-                _client.gotBootstrap(data, this);
+    protected void dispatchAction (Object obj)
+    {
+        if (obj instanceof EventNotification) {
+            dispatchEvent(((EventNotification)obj).getEvent());
 
-            } else if (obj instanceof ObjectResponse<?>) {
-                registerObjectAndNotify((ObjectResponse<?>)obj);
+        } else if (obj instanceof BootstrapNotification) {
+            BootstrapData data = ((BootstrapNotification)obj).getData();
+            _client.gotBootstrap(data, this);
 
-            } else if (obj instanceof UnsubscribeResponse) {
-                int oid = ((UnsubscribeResponse)obj).getOid();
-                if (_dead.remove(oid) == null) {
-                    log.warning("Received unsub ACK from unknown object", "oid", oid);
-                }
+        } else if (obj instanceof ObjectResponse<?>) {
+            registerObjectAndNotify((ObjectResponse<?>)obj);
 
-            } else if (obj instanceof FailureResponse) {
-                notifyFailure(((FailureResponse)obj).getOid(), ((FailureResponse)obj).getMessage());
-
-            } else if (obj instanceof PongResponse) {
-                _client.gotPong((PongResponse)obj);
-
-            } else if (obj instanceof UpdateThrottleMessage) {
-                UpdateThrottleMessage upmsg = (UpdateThrottleMessage)obj;
-                _client.setOutgoingMessageThrottle(upmsg.messagesPerSec);
-
-            } else if (obj instanceof ObjectAction<?>) {
-                ObjectAction<?> act = (ObjectAction<?>)obj;
-                if (act.subscribe) {
-                    doSubscribe(act);
-                } else {
-                    doUnsubscribe(act.oid, act.target);
-                }
-
-            } else {
-                log.warning("Unknown action", "action", obj);
+        } else if (obj instanceof UnsubscribeResponse) {
+            int oid = ((UnsubscribeResponse)obj).getOid();
+            if (_dead.remove(oid) == null) {
+                log.warning("Received unsub ACK from unknown object", "oid", oid);
             }
+
+        } else if (obj instanceof FailureResponse) {
+            notifyFailure(((FailureResponse)obj).getOid(), ((FailureResponse)obj).getMessage());
+
+        } else if (obj instanceof PongResponse) {
+            _client.gotPong((PongResponse)obj);
+
+        } else if (obj instanceof UpdateThrottleMessage) {
+            UpdateThrottleMessage upmsg = (UpdateThrottleMessage)obj;
+            _client.setOutgoingMessageThrottle(upmsg.messagesPerSec);
+
+        } else if (obj instanceof ObjectAction<?>) {
+            ObjectAction<?> act = (ObjectAction<?>)obj;
+            if (act.subscribe) {
+                doSubscribe(act);
+            } else {
+                doUnsubscribe(act.oid, act.target);
+            }
+
+        } else if (obj instanceof CompoundDownstreamMessage) {
+            for (DownstreamMessage submsg : ((CompoundDownstreamMessage)obj).msgs) {
+                dispatchAction(submsg);
+            }
+        } else {
+            log.warning("Unknown action", "action", obj);
         }
     }
 
