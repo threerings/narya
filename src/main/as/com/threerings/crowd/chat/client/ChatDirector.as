@@ -20,7 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.crowd.chat.client {
-import com.threerings.util.ArrayUtil;
+import com.threerings.util.Arrays;
 import com.threerings.util.Log;
 import com.threerings.util.Map;
 import com.threerings.util.Maps;
@@ -214,7 +214,7 @@ public class ChatDirector extends BasicDirector
             return;
         }
 
-        var wasThere :Boolean = ArrayUtil.removeAll(_chatters, name);
+        var wasThere :Boolean = Arrays.removeAll(_chatters, name);
         _chatters.unshift(name);
 
         if (!wasThere) {
@@ -782,7 +782,7 @@ public class ChatDirector extends BasicDirector
     protected function addToHistory (cmd :String) :void
     {
         // remove any previous instance of this command
-        ArrayUtil.removeAll(_history, cmd);
+        Arrays.removeAll(_history, cmd);
 
         // append it to the end
         _history.push(cmd);

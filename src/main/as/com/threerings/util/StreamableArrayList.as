@@ -60,7 +60,7 @@ public class StreamableArrayList
 
     public function contains (item :Object) :Boolean
     {
-        return ArrayUtil.contains(_array, item);
+        return Arrays.contains(_array, item);
     }
 
     public function get (index :int) :*
@@ -70,7 +70,7 @@ public class StreamableArrayList
 
     public function indexOf (item :Object) :int
     {
-        return ArrayUtil.indexOf(_array, item);
+        return Arrays.indexOf(_array, item);
     }
 
     public function isEmpty () :Boolean
@@ -85,7 +85,7 @@ public class StreamableArrayList
 
     public  function remove (item :Object) :Boolean
     {
-        return ArrayUtil.removeFirst(_array, item);
+        return Arrays.removeFirst(_array, item);
     }
 
     public function removeAll (otherList :*) :Boolean

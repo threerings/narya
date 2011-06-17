@@ -21,7 +21,7 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.ArrayUtil;
+import com.threerings.util.Arrays;
 
 import com.threerings.io.Streamable;
 
@@ -64,7 +64,7 @@ public class OidList
     public function add (oid :int) :Boolean
     {
         // check for existence
-        if (ArrayUtil.contains(_oids, oid)) {
+        if (Arrays.contains(_oids, oid)) {
             return false;
         }
 
@@ -82,7 +82,7 @@ public class OidList
     public function remove (oid :int) :Boolean
     {
         // scan for the oid in question
-        return ArrayUtil.removeFirst(_oids, oid);
+        return Arrays.removeFirst(_oids, oid);
     }
 
     /**
@@ -90,7 +90,7 @@ public class OidList
      */
     public function contains (oid :int) :Boolean
     {
-        return ArrayUtil.contains(_oids, oid);
+        return Arrays.contains(_oids, oid);
     }
 
     /**
