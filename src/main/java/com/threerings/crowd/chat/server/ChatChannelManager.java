@@ -134,7 +134,7 @@ public abstract class ChatChannelManager
     public void collectChatHistory (final Name user, final ResultListener<ChatHistoryResult> lner)
     {
         _peerMan.invokeNodeRequest(new NodeRequest() {
-            @Override public boolean isApplicable (NodeObject nodeobj) {
+            public boolean isApplicable (NodeObject nodeobj) {
                 return true; // poll all nodes
             }
             @Override protected void execute (InvocationService.ResultListener listener) {
@@ -401,7 +401,7 @@ public abstract class ChatChannelManager
         public ChannelAction (ChatChannel channel) {
             _channel = channel;
         }
-        @Override public boolean isApplicable (NodeObject nodeobj) {
+        public boolean isApplicable (NodeObject nodeobj) {
             return ((CrowdNodeObject)nodeobj).hostedChannels.contains(_channel);
         }
         protected ChatChannel _channel;

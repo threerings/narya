@@ -143,15 +143,19 @@ public abstract class PeerManager
         void fail (String peerName);
     }
 
+    public static interface NodeApplicant
+    {
+        /** Returns true if this should be executed on the specified node. This will be
+         * called on the originating server to decide whether or not to deliver the action to the
+         * server in question. */
+        boolean isApplicable (NodeObject nodeobj);
+    }
+
     /**
      * Encapsulates code that is meant to be executed one or more servers.
      */
-    public static abstract class NodeAction implements Streamable.Closure
+    public static abstract class NodeAction implements Streamable.Closure, NodeApplicant
     {
-        /** Returns true if this action should be executed on the specified node. This will be
-         * called on the originating server to decide whether or not to deliver the action to the
-         * server in question. */
-        public abstract boolean isApplicable (NodeObject nodeobj);
 
         /** Invokes the action on the target server. */
         public void invoke () {
@@ -168,13 +172,8 @@ public abstract class PeerManager
     /**
      * Encapsulates code that is meant to be executed one or more servers and return a result.
      */
-    public static abstract class NodeRequest implements Streamable.Closure
+    public static abstract class NodeRequest implements Streamable.Closure, NodeApplicant
     {
-        /** Returns true if this request should be executed on the specified node. This will be
-         * called on the originating server to decide whether or not to deliver the request to the
-         * server in question. */
-        public abstract boolean isApplicable (NodeObject nodeobj);
-
         /** Invokes the action on the target server. */
         public void invoke (final InvocationService.ResultListener listener) {
             try {
@@ -529,16 +528,16 @@ public abstract class PeerManager
     }
 
     /**
-     * Returns all nodes for which <code>request.isApplicable</code> returns true.
+     * Returns all nodes for which <code>applicant.isApplicable</code> returns true.
      */
-    public Set<String> findApplicableNodes (NodeRequest request)
+    public Set<String> findApplicableNodes (NodeApplicant applicant)
     {
         Set<String> nodes = Sets.newHashSet();
-        if (request.isApplicable(_nodeobj)) {
+        if (applicant.isApplicable(_nodeobj)) {
             nodes.add(_nodeobj.nodeName);
         }
         for (PeerNode peer : _peers.values()) {
-            if (request.isApplicable(peer.nodeobj)) {
+            if (applicant.isApplicable(peer.nodeobj)) {
                 nodes.add(peer.getNodeName());
             }
         }
