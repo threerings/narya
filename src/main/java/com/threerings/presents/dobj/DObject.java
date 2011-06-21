@@ -1093,12 +1093,9 @@ public class DObject
     /** Indicates whether we want to be destroyed when our last subscriber is removed. */
     protected transient boolean _deathWish = false;
 
-    /** Any local attributes configured on this object or null. */
-    protected transient Object[] _locattrs = NO_ATTRS;
+    /** Any local attributes configured on this object. */
+    protected transient Object[] _locattrs = ArrayUtil.EMPTY_OBJECT;
 
     /** Maintains a mapping of sorted accessor arrays for each distributed object class. */
     protected static Map<Class<?>, Accessor[]> _atable = Maps.newHashMap();
-
-    /** Simplifies code for objects that have no local attributes. */
-    protected static final Object[] NO_ATTRS = {};
 }
