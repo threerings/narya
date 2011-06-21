@@ -252,8 +252,12 @@ public class PresentsDObjectMgr
 
         // initialize this object
         object.setOid(oid);
-        object.setManager(PresentsDObjectMgr.this);
-        object.setAccessController(_defaultController);
+        object.setManager(this);
+
+        // set the default access controller if a controller hasn't already been specified
+        if (object.getAccessController() == null) {
+            object.setAccessController(_defaultController);
+        }
 
         // insert it into the table
         _objects.put(oid, object);
@@ -472,8 +476,14 @@ public class PresentsDObjectMgr
         // remove the object from the table
         _objects.remove(oid);
 
-        // inactivate the object
+        // deactivate the object
         target.setManager(null);
+
+        // if it's using the default access controller, clear it out so it'll get the current
+        // default controller if it's reactivated.
+        if (target.getAccessController() == _defaultController) {
+            target.setAccessController(null);
+        }
 
         // deal with any remaining oid lists that reference this object
         Reference[] refs = _refs.remove(oid);
