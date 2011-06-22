@@ -1372,6 +1372,15 @@ public abstract class PeerManager
     }
 
     /**
+     * Returns the amount of time to wait for peer ratification to complete before
+     * acquiring/releasing a lock.
+     */
+    protected long getLockTimeout ()
+    {
+        return DEFAULT_LOCK_TIMEOUT;
+    }
+
+    /**
      * Handles a lock in a state of resolution.
      */
     protected class LockHandler
@@ -1408,7 +1417,7 @@ public abstract class PeerManager
                     _stats.lockTimeouts++;
                     activate();
                 }
-            })).schedule(LOCK_TIMEOUT);
+            })).schedule(getLockTimeout());
         }
 
         /**
@@ -1653,6 +1662,6 @@ public abstract class PeerManager
     @Inject protected PresentsDObjectMgr _omgr;
     @Inject protected ReportManager _repmgr;
 
-    /** We wait this long for peer ratification to complete before acquiring/releasing the lock. */
-    protected static final long LOCK_TIMEOUT = 5000L;
+    /** The default lock timeout. */
+    protected static final long DEFAULT_LOCK_TIMEOUT = 5000L;
 }
