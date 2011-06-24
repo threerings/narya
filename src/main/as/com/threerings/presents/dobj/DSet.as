@@ -110,12 +110,7 @@ public class DSet
     }
 
     /**
-     * Copies the elements of this distributed set into the supplied
-     * array. If the array is not large enough to hold all of the
-     * elements, as many as fit into the array will be copied. If the
-     * <code>array</code> argument is null, an object array of sufficient
-     * size to contain all of the elements of this set will be created and
-     * returned.
+     * Returns the elements of this distributed set in an Array.
      */
     public function toArray () :Array
     {
