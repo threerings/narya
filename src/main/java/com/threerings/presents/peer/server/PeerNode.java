@@ -27,8 +27,6 @@ import java.util.Date;
 
 import com.google.inject.Inject;
 
-import com.samskivert.util.ResultListenerList;
-
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientObserver;
 import com.threerings.presents.client.Communicator;
@@ -220,6 +218,9 @@ public class PeerNode
         for (ClientInfo clinfo : nodeobj.clients) {
             _peermgr.clientLoggedOff(nodeName, clinfo);
         }
+        for (NodeObject.Lock lock : nodeobj.locks) {
+            _peermgr.peerRemovedLock(nodeName, lock);
+        }
 
         nodeobj.removeListener(_listener);
 
@@ -247,21 +248,15 @@ public class PeerNode
         for (ClientInfo clinfo : nodeobj.clients) {
             _peermgr.clientLoggedOn(nodeName, clinfo);
         }
+        for (NodeObject.Lock lock : nodeobj.locks) {
+            _peermgr.peerAddedLock(nodeName, lock);
+        }
     }
 
     // documentation inherited from interface Subscriber
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         log.warning("Failed to subscribe to peer's node object", "peer", _record, "cause", cause);
-    }
-
-    /**
-     * Determines whether the first node named has priority over the second when resolving
-     * lock disputes.
-     */
-    protected static boolean hasPriority (String nodeName1, String nodeName2)
-    {
-        return nodeName1.compareTo(nodeName2) < 0;
     }
 
     protected Communicator createCommunicator (Client client)
@@ -287,39 +282,10 @@ public class PeerNode
         public void attributeChanged (AttributeChangedEvent event) {
             String name = event.getName();
             if (name.equals(NodeObject.ACQUIRING_LOCK)) {
-                NodeObject.Lock lock = nodeobj.acquiringLock;
-                PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
-                if (handler == null) {
-                    if (_peermgr.getNodeObject().locks.contains(lock)) {
-                        log.warning("Peer trying to acquire lock owned by this node", "lock", lock,
-                                    "node", _record.nodeName);
-                        return;
-                    }
-                    _peermgr.createLockHandler(PeerNode.this, lock, true);
-                    return;
-                }
-
-                // if the other node has priority, we're done
-                if (hasPriority(handler.getNodeName(), _record.nodeName)) {
-                    return;
-                }
-
-                // this node has priority, so cancel the existing handler and take over
-                // its listeners
-                ResultListenerList<String> olisteners = handler.listeners;
-                handler.cancel();
-                handler = _peermgr.createLockHandler(PeerNode.this, lock, true);
-                handler.listeners = olisteners;
+                _peermgr.peerAcquiringLock(PeerNode.this, (NodeObject.Lock)event.getValue());
 
             } else if (name.equals(NodeObject.RELEASING_LOCK)) {
-                NodeObject.Lock lock = nodeobj.releasingLock;
-                PeerManager.LockHandler handler = _peermgr.getLockHandler(lock);
-                if (handler == null) {
-                    _peermgr.createLockHandler(PeerNode.this, lock, false);
-                } else {
-                    log.warning("Received request to release resolving lock",
-                       "node", _record.nodeName, "handler", handler);
-                }
+                _peermgr.peerReleasingLock(PeerNode.this, (NodeObject.Lock)event.getValue());
 
             } else if (name.equals(NodeObject.CACHE_DATA)) {
                 _peermgr.changedCacheData(nodeobj.cacheData.cache, nodeobj.cacheData.data);
@@ -331,12 +297,17 @@ public class PeerNode
             String name = event.getName();
             if (NodeObject.CLIENTS.equals(name)) {
                 _peermgr.clientLoggedOn(getNodeName(), (ClientInfo)event.getEntry());
+
+            } else if (NodeObject.LOCKS.equals(name)) {
+                _peermgr.peerAddedLock(getNodeName(), (NodeObject.Lock)event.getEntry());
             }
         }
 
         // documentation inherited from interface SetListener
         public void entryUpdated (EntryUpdatedEvent<DSet.Entry> event) {
-            // nada
+            if (NodeObject.LOCKS.equals(event.getName())) {
+                _peermgr.peerUpdatedLock(getNodeName(), (NodeObject.Lock)event.getEntry());
+            }
         }
 
         // documentation inherited from interface SetListener
@@ -344,6 +315,9 @@ public class PeerNode
             String name = event.getName();
             if (NodeObject.CLIENTS.equals(name)) {
                 _peermgr.clientLoggedOff(getNodeName(), (ClientInfo)event.getOldEntry());
+
+            } else if (NodeObject.LOCKS.equals(name)) {
+                _peermgr.peerRemovedLock(getNodeName(), (NodeObject.Lock)event.getOldEntry());
             }
         }
     } // END: class NodeObjectListener
