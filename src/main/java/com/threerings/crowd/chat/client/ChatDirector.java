@@ -758,7 +758,7 @@ public class ChatDirector extends BasicDirector
 
         // if there was an originating speaker, see if we want to hear it
         if (speaker != null) {
-            if ((msg.message = filter(msg.message, speaker, false)) == null) {
+            if (shouldFilter(msg) && (msg.message = filter(msg.message, speaker, false)) == null) {
                 return;
             }
 
@@ -784,6 +784,14 @@ public class ChatDirector extends BasicDirector
                 "m.auto_responded", speakerDisplay, autoResponse);
             displayFeedback(_bundle, amsg);
         }
+    }
+
+    /**
+     * Checks whether we should filter the supplied incoming message.
+     */
+    protected boolean shouldFilter (ChatMessage msg)
+    {
+        return true;
     }
 
     /**
