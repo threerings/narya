@@ -383,8 +383,13 @@ public class GenServiceTask extends InvocationTask
         // change imports of Foo$Bar to Foo_Bar
         imports.translateInnerClasses();
 
-        // marshallers just use the built-in actionscript classes in place of byte, short, etc
-        imports.removeGlobals();
+        // Boolean is built in
+        imports.remove("boolean");
+
+        // int is used for these
+        imports.remove("byte");
+        imports.remove("short");
+        imports.remove("char");
 
         // convert java bases and primitives
         ActionScriptUtils.convertBaseClasses(imports);

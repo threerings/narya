@@ -236,6 +236,11 @@ public class ImportSet
         }
     }
 
+    public void remove (String name)
+    {
+        _imports.remove(name);
+    }
+
     /**
      * Removes the name of a class from the imports.
      * @param clazz the class whose name should be removed
@@ -348,7 +353,7 @@ public class ImportSet
         });
         List<List<String>> result = Lists.newArrayList();
         List<String> current = null;
-        int lastGroup = -1;
+        int lastGroup = -2;
         for (String imp : list) {
             int group = findImportGroup(imp, groups);
             if (group != lastGroup) {
