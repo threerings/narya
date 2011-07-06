@@ -21,7 +21,6 @@
 
 package com.threerings.presents.client {
 
-
 /**
  * An ActionScript version of the Java TimeBaseService_GotTimeBaseListener interface.
  */

@@ -21,11 +21,11 @@
 
 package com.threerings.presents.data;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
-import java.util.List;
 
 /**
  * Provides the implementation of the {@link TestService} interface

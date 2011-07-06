@@ -21,7 +21,6 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 
 /**

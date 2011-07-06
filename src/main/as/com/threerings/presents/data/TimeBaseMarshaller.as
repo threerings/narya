@@ -21,7 +21,6 @@
 
 package com.threerings.presents.data {
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.TimeBaseService;
 import com.threerings.presents.client.TimeBaseService_GotTimeBaseListener;
 
