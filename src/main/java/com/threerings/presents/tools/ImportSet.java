@@ -328,11 +328,20 @@ public class ImportSet
      */
     public List<List<String>> toGroups ()
     {
+        return toGroups(IMPORT_GROUPS);
+    }
+
+    /**
+     * Converts the set of imports to groups of class names, according to the provided groups.
+     * Within each group, sorting is alphabetical.
+     */
+    public List<List<String>> toGroups (final List<String> groups)
+    {
         List<String> list = Lists.newArrayList(_imports);
         Collections.sort(list, new Comparator<String>() {
             public int compare (String class1, String class2) {
                 return ComparisonChain.start()
-                    .compare(findImportGroup(class1), findImportGroup(class2))
+                    .compare(findImportGroup(class1, groups), findImportGroup(class2, groups))
                     .compare(class1, class2)
                     .result();
             }
@@ -341,7 +350,7 @@ public class ImportSet
         List<String> current = null;
         int lastGroup = -1;
         for (String imp : list) {
-            int group = findImportGroup(imp);
+            int group = findImportGroup(imp, groups);
             if (group != lastGroup) {
                 if (current == null || !current.isEmpty()) {
                     result.add(current = Lists.<String>newArrayList());
@@ -401,10 +410,10 @@ public class ImportSet
         return Pattern.compile(pattern.toString());
     }
 
-    protected static int findImportGroup (String imp)
+    protected static int findImportGroup (String imp, List<String> groups)
     {
         String longest = null;
-        for (String prefix : IMPORT_GROUPS) {
+        for (String prefix : groups) {
             if (!imp.startsWith(prefix)) {
                 continue;
             }
@@ -412,7 +421,7 @@ public class ImportSet
                 longest = prefix;
             }
         }
-        return IMPORT_GROUPS.indexOf(longest);
+        return groups.indexOf(longest);
     }
 
     protected HashSet<String> _imports = Sets.newHashSet();
