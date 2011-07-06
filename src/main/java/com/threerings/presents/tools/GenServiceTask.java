@@ -327,7 +327,7 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
-        ctx.put("importGroups", imports.toGroups());
+        ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
 
         // now generate ActionScript versions of our marshaller
 
@@ -362,7 +362,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(mpackage);
 
-            ctx.put("importGroups", imports.toGroups());
+            ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
             ctx.put("listener", listener);
             String aslpath = _asroot + File.separator + mppath +
                 File.separator + mname + "_" + listener.getListenerName() + "Marshaller.as";
@@ -383,13 +383,16 @@ public class GenServiceTask extends InvocationTask
         // change imports of Foo$Bar to Foo_Bar
         imports.translateInnerClasses();
 
+        // marshallers just use the built-in actionscript classes in place of byte, short, etc
+        imports.removeGlobals();
+
         // convert java bases and primitives
         ActionScriptUtils.convertBaseClasses(imports);
 
         // remove imports in our own package
         imports.removeSamePackage(sdesc.spackage);
 
-        ctx.put("importGroups", imports.toGroups());
+        ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
         ctx.put("package", sdesc.spackage);
 
         // make sure our service directory exists
@@ -421,7 +424,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(sdesc.spackage);
 
-            ctx.put("importGroups", imports.toGroups());
+            ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
             ctx.put("listener", listener);
 
             String aslpath = _asroot + File.separator + sppath + File.separator +
