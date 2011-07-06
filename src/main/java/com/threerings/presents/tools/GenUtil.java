@@ -146,25 +146,18 @@ public class GenUtil extends com.samskivert.util.GenUtil
      */
     public static String boxASArgument (Class<?> clazz, String name)
     {
-        if (clazz == Boolean.TYPE) {
-            return "langBoolean.valueOf(" + name + ")";
-        } else if (clazz == Byte.TYPE) {
-            return "Byte.valueOf(" + name + ")";
-        } else if (clazz == Character.TYPE) {
-            return "Character.valueOf(" + name + ")";
-        } else if (clazz == Short.TYPE) {
-            return "Short.valueOf(" + name + ")";
-        } else if (clazz == Integer.TYPE) {
-            return "Integer.valueOf(" + name + ")";
-        } else if (clazz == Long.TYPE) {
-            return name; // Long is left as is
-        } else if (clazz == Float.TYPE) {
-            return "Float.valueOf(" + name + ")";
-        } else if (clazz == Double.TYPE) {
-            return "Double.valueOf(" + name + ")";
-        } else {
-            return name;
-        }
+        return boxASArgumentAndGatherImports(clazz, name, new ImportSet());
+    }
+
+    /**
+     * Calculates the set of imports required for the code to box the given class in actionscript.
+     * For example, for <code>int</code>, <code>Integer.class</code> will be returned.
+     */
+    public static ImportSet getASBoxImports (Class<?> clazz)
+    {
+        ImportSet imports = new ImportSet();
+        boxASArgumentAndGatherImports(clazz, "foo", imports);
+        return imports;
     }
 
     /**
@@ -276,5 +269,38 @@ public class GenUtil extends com.samskivert.util.GenUtil
         }
         anno += ")";
         return anno;
+    }
+
+    protected static String boxASArgumentAndGatherImports (Class<?> clazz, String name,
+            ImportSet imports)
+    {
+        if (clazz == Boolean.TYPE) {
+            imports.add(Boolean.class);
+            return "langBoolean.valueOf(" + name + ")";
+        } else if (clazz == Byte.TYPE) {
+            imports.add(Byte.class);
+            return "Byte.valueOf(" + name + ")";
+        } else if (clazz == Character.TYPE) {
+            imports.add(Character.class);
+            return "Character.valueOf(" + name + ")";
+        } else if (clazz == Short.TYPE) {
+            imports.add(Short.class);
+            return "Short.valueOf(" + name + ")";
+        } else if (clazz == Integer.TYPE) {
+            imports.add(Integer.class);
+            return "Integer.valueOf(" + name + ")";
+        } else if (clazz == Long.TYPE) {
+            imports.add(Long.class);
+            return name; // Long is left as is
+        } else if (clazz == Float.TYPE) {
+            imports.add(Float.class);
+            return "Float.valueOf(" + name + ")";
+        } else if (clazz == Double.TYPE) {
+            imports.add(Double.class);
+            return "Double.valueOf(" + name + ")";
+        } else {
+            imports.add(name);
+            return name;
+        }
     }
 }
