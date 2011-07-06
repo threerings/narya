@@ -1,9 +1,11 @@
 package {{package}} {
 
-{{#imports}}
+{{#importGroups}}
+{{#this}}
 import {{this}};
-{{/imports}}
+{{/this}}
 
+{{/importGroups}}
 /**
  * A functional adapter for the {{name}}Service_{{listener.listenerName}}Listener interface.
  */

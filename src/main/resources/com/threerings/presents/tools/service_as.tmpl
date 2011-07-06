@@ -1,9 +1,11 @@
 package {{package}} {
 
-{{#imports}}
+{{#importGroups}}
+{{#this}}
 import {{this}};
-{{/imports}}
+{{/this}}
 
+{{/importGroups}}
 /**
  * An ActionScript version of the Java {{name}}Service interface.
  */

@@ -230,7 +230,6 @@ public class ActionScriptUtils
     {
         // replace primitive types with OOO types (required for unboxing)
         imports.replace("byte", "com.threerings.util.Byte");
-        imports.replace("int", "com.threerings.util.Integer");
         imports.replace("boolean", "com.threerings.util.langBoolean");
         imports.replace("[B", "flash.utils.ByteArray");
         imports.replace("float", "com.threerings.util.Float");

@@ -87,10 +87,15 @@ public abstract class InvocationTask extends GenTask
         protected int _index;
     }
 
-    public ServiceMethod createAndGatherImports (Method method, ImportSet set)
+    /**
+     * Creates a new service method and adds its basic imports to a set.
+     * @param method the method to create
+     * @param imports will be filled with the types required by the method
+     */
+    public ServiceMethod createAndGatherImports (Method method, ImportSet imports)
     {
         ServiceMethod sm = new ServiceMethod(method);
-        sm.gatherImports(set);
+        sm.gatherImports(imports);
         return sm;
     }
 
@@ -103,7 +108,6 @@ public abstract class InvocationTask extends GenTask
         /**
          * Creates a new service method.
          * @param method the method to inspect
-         * @param imports will be filled with the types required by the method
          */
         public ServiceMethod (Method method) {
             this.method = method;
@@ -211,6 +215,13 @@ public abstract class InvocationTask extends GenTask
                 buf.append(boxArgument(args[ii], ii+1));
             }
             return buf.toString();
+        }
+
+        public void gatherASWrappedArgListImports (ImportSet set) {
+            Class<?>[] args = method.getParameterTypes();
+            for (int ii = 0; ii < args.length; ii++) {
+                set.addAll(GenUtil.getASBoxImports(args[ii]));
+            }
         }
 
         public String getASWrappedArgList () {

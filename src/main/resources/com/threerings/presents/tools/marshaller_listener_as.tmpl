@@ -1,9 +1,11 @@
 package {{package}} {
 
-{{#imports}}
+{{#importGroups}}
+{{#this}}
 import {{this}};
-{{/imports}}
+{{/this}}
 
+{{/importGroups}}
 /**
  * Marshalls instances of the {{name}}Service_{{listener.listenerName}}Marshaller interface.
  */

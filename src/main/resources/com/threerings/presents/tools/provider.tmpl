@@ -1,11 +1,11 @@
 package {{package}};
 
-import javax.annotation.Generated;
-
-{{#imports}}
+{{#importGroups}}
+{{#this}}
 import {{this}};
-{{/imports}}
+{{/this}}
 
+{{/importGroups}}
 /**
  * Defines the server-side of the {@link {{name}}Service}.
  */

@@ -24,6 +24,7 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,6 @@ import com.samskivert.util.StringUtil;
 
 import com.threerings.util.ActionScript;
 
-import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
@@ -247,6 +247,7 @@ public class GenServiceTask extends InvocationTask
         // import things marshaller will always need
         imports.add(sdesc.service);
         imports.add(InvocationMarshaller.class);
+        imports.add("javax.annotation.Generated");
 
         // import classes contained in arrays
         imports.translateClassArrays();
@@ -275,7 +276,7 @@ public class GenServiceTask extends InvocationTask
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
-        ctx.put("imports", imports.toList());
+        ctx.put("importGroups", imports.toGroups(Arrays.asList("java", "com.threerings")));
 
         // determine the path to our marshaller file
         String mpath = source.getPath();
@@ -296,7 +297,6 @@ public class GenServiceTask extends InvocationTask
 
         // add some things that marshallers just need
         imports.add(sdesc.service);
-        imports.add(Client.class);
         imports.add(InvocationMarshaller.class);
 
         // replace inner classes with action script equivalents
@@ -317,13 +317,17 @@ public class GenServiceTask extends InvocationTask
             ".client.", ".data.");
         imports.popIn();
 
+        for (ServiceMethod method : sdesc.methods) {
+            method.gatherASWrappedArgListImports(imports);
+        }
+
         // convert java bases and primitives
         ActionScriptUtils.convertBaseClasses(imports);
 
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
-        ctx.put("imports", imports.toList());
+        ctx.put("importGroups", imports.toGroups());
 
         // now generate ActionScript versions of our marshaller
 
@@ -358,7 +362,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(mpackage);
 
-            ctx.put("imports", imports.toList());
+            ctx.put("importGroups", imports.toGroups());
             ctx.put("listener", listener);
             String aslpath = _asroot + File.separator + mppath +
                 File.separator + mname + "_" + listener.getListenerName() + "Marshaller.as";
@@ -374,7 +378,6 @@ public class GenServiceTask extends InvocationTask
         imports = sdesc.imports.clone();
 
         // add some things required by action script
-        imports.add(Client.class);
         imports.add(InvocationService.class);
 
         // change imports of Foo$Bar to Foo_Bar
@@ -386,7 +389,7 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(sdesc.spackage);
 
-        ctx.put("imports", imports.toList());
+        ctx.put("importGroups", imports.toGroups());
         ctx.put("package", sdesc.spackage);
 
         // make sure our service directory exists
@@ -418,7 +421,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(sdesc.spackage);
 
-            ctx.put("imports", imports.toList());
+            ctx.put("importGroups", imports.toGroups());
             ctx.put("listener", listener);
 
             String aslpath = _asroot + File.separator + sppath + File.separator +
@@ -453,7 +456,6 @@ public class GenServiceTask extends InvocationTask
 
         // swap Client for ClientObject
         imports.add(ClientObject.class);
-        imports.remove(Client.class);
 
         // add some classes required for all dispatchers
         imports.add(InvocationDispatcher.class);
@@ -506,11 +508,11 @@ public class GenServiceTask extends InvocationTask
 
         // swap Client for ClientObject
         imports.add(ClientObject.class);
-        imports.remove(Client.class);
 
         // import superclass and service
         imports.add(InvocationProvider.class);
         imports.add(sdesc.service);
+        imports.add("javax.annotation.Generated");
 
         // any method that takes a listener may throw this
         if (sdesc.hasAnyListenerArgs()) {
@@ -542,7 +544,7 @@ public class GenServiceTask extends InvocationTask
             "package", mpackage,
             "methods", sdesc.methods,
             "listeners", sdesc.listeners,
-            "imports", imports.toList());
+            "importGroups", imports.toGroups(Arrays.asList("java", "com.threerings")));
     }
 
     /**
