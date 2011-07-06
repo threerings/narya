@@ -77,7 +77,7 @@ public class ObjectOutputStream
             }
 
             writeShort(-cmap.code);
-            writeUTF(streamer.getJavaClassName());
+            writeUTF(streamer.getUpstreamJavaClassName());
 
         } else {
             writeShort(cmap.code);

@@ -37,6 +37,7 @@ import com.threerings.io.streamers.MapStreamer;
 import com.threerings.io.streamers.NumberStreamer;
 import com.threerings.io.streamers.SetStreamer;
 import com.threerings.io.streamers.StringStreamer;
+import com.threerings.io.streamers.DelegatingStreamer;
 
 public class Streamer
 {
@@ -94,7 +95,17 @@ public class Streamer
                 streamer = new Streamer(clazz, jname);
 
             } else {
-                return null;
+                // if we already support streaming a superclass of this object, use it instead
+                // (e.g. a DictionaryMap gets deserialized on the server as a HashMap)
+                for each (var upcast :Streamer in _byJName) {
+                    if (ClassUtil.isAssignableAs(upcast._target, clazz)) {
+                        streamer = new DelegatingStreamer(upcast, clazz, jname);
+                        break;
+                    }
+                }
+                if (streamer == null) {
+                    return null;
+                }
             }
         }
 
@@ -112,9 +123,22 @@ public class Streamer
     }
 
     /**
-     * Return the String to use to identify the class that we're streaming.
+     * Returns the canonical class name used to identify this streamer. This is known as the java
+     * class name and is typically the class sent to the server, but may in some cases be different.
+     * @see com.threerings.io.streamers.DelegatingStreamer
      */
     public function getJavaClassName () :String
+    {
+        return _jname;
+    }
+
+    /**
+     * Returns the class name used to deserialize the class represented by this streamer on the
+     * server. This is typically the same as the java class name, but may in some cases be
+     * different.
+     * @see com.threerings.io.streamers.DelegatingStreamer
+     */
+    public function getUpstreamJavaClassName () :String
     {
         return _jname;
     }
