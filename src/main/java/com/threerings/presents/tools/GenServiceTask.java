@@ -92,7 +92,7 @@ public class GenServiceTask extends InvocationTask
                         System.out.println("Adding " + m + ", imports are " +
                                            StringUtil.toString(imports));
                     }
-                    methods.add(new ServiceMethod(m, imports));
+                    methods.add(createAndGatherImports(m, imports));
                     if (_verbose) {
                         System.out.println("Added " + m + ", imports are " +
                                            StringUtil.toString(imports));
@@ -302,14 +302,6 @@ public class GenServiceTask extends InvocationTask
         // replace inner classes with action script equivalents
         imports.translateInnerClasses();
 
-        // replace primitive types with OOO types (required for unboxing)
-        imports.replace("byte", "com.threerings.util.Byte");
-        imports.replace("int", "com.threerings.util.Integer");
-        imports.replace("boolean", "com.threerings.util.langBoolean");
-        imports.replace("[B", "flash.utils.ByteArray");
-        imports.replace("float", "com.threerings.util.Float");
-        imports.replace("[I", "com.threerings.io.TypedArray");
-
         // ye olde special case - any method that uses a default listener
         // causes the need for the default listener marshaller
         imports.duplicateAndMunge("*.InvocationService_InvocationListener",
@@ -325,19 +317,8 @@ public class GenServiceTask extends InvocationTask
             ".client.", ".data.");
         imports.popIn();
 
-        // convert java primitive types to ooo util types
-        imports.replace(Integer.class, "com.threerings.util.Integer");
-
-        // get rid of java.lang stuff and any remaining primitives
-        imports.removeGlobals();
-
-        imports.replace("[B", "flash.utils.ByteArray");
-        if (imports.removeAll("[*") > 0) {
-            imports.add("com.threerings.io.TypedArray");
-        }
-
-        // get rid of remaining arrays
-        imports.removeArrays();
+        // convert java bases and primitives
+        ActionScriptUtils.convertBaseClasses(imports);
 
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
@@ -371,16 +352,8 @@ public class GenServiceTask extends InvocationTask
             // replace '$' with '_' for action script naming convention
             imports.translateInnerClasses();
 
-            // convert primitive java types to ooo util types
-            imports.replace("long", "com.threerings.util.Long");
-
-            imports.replace("[B", "flash.utils.ByteArray");
-            if (imports.removeAll("[*") > 0) {
-                imports.add("com.threerings.io.TypedArray");
-            }
-
-            // get rid of remaining primitives and java.lang types
-            imports.removeGlobals();
+            // convert java bases and primitives
+            ActionScriptUtils.convertBaseClasses(imports);
 
             // remove imports in our own package
             imports.removeSamePackage(mpackage);
@@ -404,25 +377,11 @@ public class GenServiceTask extends InvocationTask
         imports.add(Client.class);
         imports.add(InvocationService.class);
 
-        // allow primitive types in service methods
-        imports.replace("[B", "flash.utils.ByteArray");
-        imports.replace("[I", "com.threerings.io.TypedArray");
-
-        // convert java primitive types to ooo util types
-        imports.replace("java.lang.Integer", "com.threerings.util.Integer");
-
-        if (imports.removeAll("[*") > 0) {
-            imports.add("com.threerings.io.TypedArray");
-        }
-
-        // get rid of primitives and java.lang classes
-        imports.removeGlobals();
-
-        // get rid of remaining arrays
-        imports.removeArrays();
-
         // change imports of Foo$Bar to Foo_Bar
         imports.translateInnerClasses();
+
+        // convert java bases and primitives
+        ActionScriptUtils.convertBaseClasses(imports);
 
         // remove imports in our own package
         imports.removeSamePackage(sdesc.spackage);
@@ -454,16 +413,7 @@ public class GenServiceTask extends InvocationTask
             // change Foo$Bar to Foo_Bar
             imports.translateInnerClasses();
 
-            imports.replace("[B", "flash.utils.ByteArray");
-            if (imports.removeAll("[*") > 0) {
-                imports.add("com.threerings.io.TypedArray");
-            }
-
-            // convert java primitive types to ooo util types
-            imports.replace("long", "com.threerings.util.Long");
-
-            // get rid of remaining primitives and java.lang types
-            imports.removeGlobals();
+            ActionScriptUtils.convertBaseClasses(imports);
 
             // remove imports in our own package
             imports.removeSamePackage(sdesc.spackage);
@@ -644,7 +594,7 @@ public class GenServiceTask extends InvocationTask
                     System.out.println("Adding " + m + ", imports are " +
                         StringUtil.toString(imports));
                 }
-                methods.add(new ServiceMethod(m, imports));
+                methods.add(createAndGatherImports(m, imports));
                 if (_verbose) {
                     System.out.println("Added " + m + ", imports are " +
                         StringUtil.toString(imports));

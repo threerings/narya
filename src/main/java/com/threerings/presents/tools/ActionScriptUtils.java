@@ -223,6 +223,36 @@ public class ActionScriptUtils
         }
     }
 
+    /**
+     * Converts java types to their actionscript equivalents for ooo-style streaming.
+     */
+    public static void convertBaseClasses (ImportSet imports)
+    {
+        // replace primitive types with OOO types (required for unboxing)
+        imports.replace("byte", "com.threerings.util.Byte");
+        imports.replace("int", "com.threerings.util.Integer");
+        imports.replace("boolean", "com.threerings.util.langBoolean");
+        imports.replace("[B", "flash.utils.ByteArray");
+        imports.replace("float", "com.threerings.util.Float");
+        imports.replace("long", "com.threerings.util.Long");
+
+        if (imports.removeAll("[*") > 0) {
+            imports.add("com.threerings.io.TypedArray");
+        }
+
+        // convert java primitive boxes to their ooo counterparts
+        imports.replace(Integer.class, "com.threerings.util.Integer");
+
+        // convert some java.util types to their ooo counterparts
+        imports.replace(Map.class, "com.threerings.util.Map");
+
+        // get rid of java.lang stuff and any remaining primitives
+        imports.removeGlobals();
+
+        // get rid of remaining arrays
+        imports.removeArrays();
+    }
+
     public static File createActionScriptPath (File actionScriptRoot, Class<?> sclass)
     {
         // determine the path to the corresponding action script source file

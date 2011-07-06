@@ -87,6 +87,13 @@ public abstract class InvocationTask extends GenTask
         protected int _index;
     }
 
+    public ServiceMethod createAndGatherImports (Method method, ImportSet set)
+    {
+        ServiceMethod sm = new ServiceMethod(method);
+        sm.gatherImports(set);
+        return sm;
+    }
+
     /** Used to keep track of invocation service methods or listener methods. */
     public class ServiceMethod implements Comparable<ServiceMethod>
     {
@@ -98,7 +105,7 @@ public abstract class InvocationTask extends GenTask
          * @param method the method to inspect
          * @param imports will be filled with the types required by the method
          */
-        public ServiceMethod (Method method, ImportSet imports) {
+        public ServiceMethod (Method method) {
             this.method = method;
 
             // if this method has listener arguments, we need to add listener argument info for them
@@ -113,7 +120,9 @@ public abstract class InvocationTask extends GenTask
                     listenerArgs.add(new ListenerArgument(ii, arg));
                 }
             }
+        }
 
+        public void gatherImports (ImportSet imports) {
             // we need to look through our arguments and note any needed imports in the supplied
             // table
             for (Type type : method.getGenericParameterTypes()) {
