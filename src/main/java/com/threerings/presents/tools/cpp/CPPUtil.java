@@ -21,16 +21,18 @@
 
 package com.threerings.presents.tools.cpp;
 
+import java.io.File;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-
 import java.util.Collections;
 import java.util.List;
-import java.io.File;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+
+import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.DSet;
 
 public class CPPUtil
@@ -47,7 +49,7 @@ public class CPPUtil
                 return "Shared<Streamable>";
             } else if (raw.equals(List.class)) {
                 return "Shared< std::vector< " + getCPPType(typeArguments[0]) + " > >";
-            } else if (raw.equals(DSet.class)) {
+            } else if (raw.equals(DSet.class) || raw.equals(InvocationMarshaller.class)) {
                 ftype = raw;
             } else {
                 throw new IllegalArgumentException("Don't know how to handle " + raw);

@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.threerings.io.Streamable;
+
 import com.threerings.presents.dobj.DSet;
 
 public class CPPType
@@ -89,12 +90,18 @@ public class CPPType
                     dependent = new CPPType(Streamable.class);
                     representationImport = "presents/Streamable.h";
                 } else if (rawType == List.class) {
-                    if (!Streamable.class.isAssignableFrom((Class<?>)typeArguments[0])) {
+                    Class<?> param;
+                    if (typeArguments[0] instanceof ParameterizedType) {
+                        param = (Class<?>)((ParameterizedType)typeArguments[0]).getRawType();
+                    } else {
+                        param = (Class<?>)typeArguments[0];
+                    }
+                    if (!Streamable.class.isAssignableFrom(param)) {
                         throw new IllegalArgumentException(
                             "Lists may only contain Streamables in C++, not '" + typeArguments[0]
                                 + "'");
                     }
-                    dependent = new CPPType(typeArguments[0]);
+                    dependent = new CPPType(param);
                     representationImport = null;
                 } else if (rawType.equals(DSet.class)) {
                     dependent = null;
