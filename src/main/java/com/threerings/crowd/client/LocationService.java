@@ -22,6 +22,7 @@
 package com.threerings.crowd.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 import com.threerings.crowd.data.PlaceConfig;
 
@@ -30,7 +31,7 @@ import com.threerings.crowd.data.PlaceConfig;
  * place in the server. These services should not be used directly, but instead should be accessed
  * via the {@link LocationDirector}.
  */
-public interface LocationService extends InvocationService
+public interface LocationService extends InvocationService<ClientObject>
 {
     /**
      * Used to communicate responses to {@link LocationService#moveTo} requests.

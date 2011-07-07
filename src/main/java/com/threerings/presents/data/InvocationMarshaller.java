@@ -40,8 +40,8 @@ import static com.threerings.presents.Log.log;
  * Provides a base from which all invocation service marshallers extend.  Handles functionality
  * common to all marshallers.
  */
-public class InvocationMarshaller
-    implements Streamable, InvocationService
+public class InvocationMarshaller<T extends ClientObject>
+    implements Streamable, InvocationService<T>
 {
     /**
      * Provides a base from which invocation listener marshallers extend.

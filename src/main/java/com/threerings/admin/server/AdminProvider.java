@@ -24,6 +24,7 @@ package com.threerings.admin.server;
 import javax.annotation.Generated;
 
 import com.threerings.admin.client.AdminService;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;

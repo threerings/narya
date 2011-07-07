@@ -21,13 +21,15 @@
 
 package com.threerings.presents.client;
 
+import com.threerings.presents.data.ClientObject;
+
 /**
  * Serves as the base interface for invocation services. An invocation service can be defined by
  * extending this interface and defining service methods, as well as response listeners (which must
  * extend {@link InvocationListener}). For example:
  *
  * <pre>
- * public interface LocationService extends InvocationService
+ * public interface LocationService extends InvocationService&lt;ClientObject>
  * {
  *
  *     // Used to communicate responses to moveTo() requests.
@@ -62,7 +64,7 @@ package com.threerings.presents.client;
  * }
  * </pre>
  */
-public interface InvocationService
+public interface InvocationService<T extends ClientObject>
 {
     /**
      * Invocation service methods that require a response should take a listener argument that can

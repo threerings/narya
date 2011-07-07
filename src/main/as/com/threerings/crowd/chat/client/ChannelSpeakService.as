@@ -22,6 +22,7 @@
 package com.threerings.crowd.chat.client {
 
 import com.threerings.crowd.chat.data.ChatChannel;
+
 import com.threerings.presents.client.InvocationService;
 
 /**

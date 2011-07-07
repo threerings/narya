@@ -22,8 +22,10 @@
 package com.threerings.crowd.chat.data {
 
 import com.threerings.crowd.chat.client.SpeakService;
-import com.threerings.presents.data.InvocationMarshaller;
+
 import com.threerings.util.Byte;
+
+import com.threerings.presents.data.InvocationMarshaller;
 
 /**
  * Provides the implementation of the <code>SpeakService</code> interface

@@ -24,6 +24,8 @@ package com.threerings.admin.data;
 import javax.annotation.Generated;
 
 import com.threerings.admin.client.AdminService;
+
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**
@@ -35,7 +37,7 @@ import com.threerings.presents.data.InvocationMarshaller;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from AdminService.java.")
-public class AdminMarshaller extends InvocationMarshaller
+public class AdminMarshaller extends InvocationMarshaller<ClientObject>
     implements AdminService
 {
     /**

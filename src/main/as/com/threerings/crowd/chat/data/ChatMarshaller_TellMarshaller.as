@@ -22,8 +22,10 @@
 package com.threerings.crowd.chat.data {
 
 import com.threerings.crowd.chat.client.ChatService_TellListener;
-import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
+
 import com.threerings.util.Long;
+
+import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
 
 /**
  * Marshalls instances of the ChatService_TellMarshaller interface.

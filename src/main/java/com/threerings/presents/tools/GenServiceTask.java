@@ -21,17 +21,16 @@
 
 package com.threerings.presents.tools;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
-import java.util.Arrays;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import java.io.File;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -249,6 +248,11 @@ public class GenServiceTask extends InvocationTask
         imports.add(InvocationMarshaller.class);
         imports.add("javax.annotation.Generated");
 
+        // We only add a type parameter for the caller ClientObject type if the service has one
+        if (sdesc.callerTypeSpecified) {
+            imports.add(sdesc.callerType);
+        }
+
         // import classes contained in arrays
         imports.translateClassArrays();
 
@@ -276,7 +280,9 @@ public class GenServiceTask extends InvocationTask
         ctx.put("package", mpackage);
         ctx.put("methods", sdesc.methods);
         ctx.put("listeners", sdesc.listeners);
-        ctx.put("importGroups", imports.toGroups(Arrays.asList("java", "com.threerings")));
+        ctx.put("typeParameters",
+            sdesc.callerTypeSpecified ? "<" + sdesc.callerType.getSimpleName() + ">" : "");
+        ctx.put("importGroups", imports.toGroups());
 
         // determine the path to our marshaller file
         String mpath = source.getPath();
@@ -327,7 +333,7 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(mpackage);
 
-        ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
+        ctx.put("importGroups", imports.toGroups());
 
         // now generate ActionScript versions of our marshaller
 
@@ -362,7 +368,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(mpackage);
 
-            ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
+            ctx.put("importGroups", imports.toGroups());
             ctx.put("listener", listener);
             String aslpath = _asroot + File.separator + mppath +
                 File.separator + mname + "_" + listener.getListenerName() + "Marshaller.as";
@@ -397,7 +403,7 @@ public class GenServiceTask extends InvocationTask
         // remove imports in our own package
         imports.removeSamePackage(sdesc.spackage);
 
-        ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
+        ctx.put("importGroups", imports.toGroups());
         ctx.put("package", sdesc.spackage);
 
         // make sure our service directory exists
@@ -429,7 +435,7 @@ public class GenServiceTask extends InvocationTask
             // remove imports in our own package
             imports.removeSamePackage(sdesc.spackage);
 
-            ctx.put("importGroups", imports.toGroups(Arrays.asList("com.threerings")));
+            ctx.put("importGroups", imports.toGroups());
             ctx.put("listener", listener);
 
             String aslpath = _asroot + File.separator + sppath + File.separator +
@@ -463,7 +469,7 @@ public class GenServiceTask extends InvocationTask
         }
 
         // swap Client for ClientObject
-        imports.add(ClientObject.class);
+        imports.add(sdesc.callerType);
 
         // add some classes required for all dispatchers
         imports.add(InvocationDispatcher.class);
@@ -514,8 +520,9 @@ public class GenServiceTask extends InvocationTask
         // start with imports required by service methods
         ImportSet imports = sdesc.imports.clone();
 
-        // swap Client for ClientObject
-        imports.add(ClientObject.class);
+        if (!sdesc.methods.isEmpty()) {
+            imports.add(sdesc.callerType);
+        }
 
         // import superclass and service
         imports.add(InvocationProvider.class);
@@ -552,7 +559,8 @@ public class GenServiceTask extends InvocationTask
             "package", mpackage,
             "methods", sdesc.methods,
             "listeners", sdesc.listeners,
-            "importGroups", imports.toGroups(Arrays.asList("java", "com.threerings")));
+            "callerType", sdesc.callerType.getSimpleName(),
+            "importGroups", imports.toGroups());
     }
 
     /**
@@ -567,6 +575,8 @@ public class GenServiceTask extends InvocationTask
     /** Rolls up everything needed for the generate* methods. */
     protected class ServiceDescription
     {
+        public Class<?> callerType = ClientObject.class;
+        public boolean callerTypeSpecified;// True if callerType came from a type parameter
         public Class<?> service;
         public String sname;
         public String spackage;
@@ -578,6 +588,11 @@ public class GenServiceTask extends InvocationTask
         public ServiceDescription (Class<?> serviceClass)
         {
             service = serviceClass;
+            Type[] genint = service.getGenericInterfaces();
+            if (genint.length > 0 && genint[0] instanceof ParameterizedType) {
+                callerType = (Class<?>)((ParameterizedType)genint[0]).getActualTypeArguments()[0];
+                callerTypeSpecified = true;
+            }
             sname = service.getSimpleName();
             spackage = service.getPackage().getName();
             ActionScript asa = service.getAnnotation(ActionScript.class);

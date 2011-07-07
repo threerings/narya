@@ -24,6 +24,7 @@ package com.threerings.presents.peer.data;
 import javax.annotation.Generated;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.peer.client.PeerService;
 
@@ -36,7 +37,7 @@ import com.threerings.presents.peer.client.PeerService;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from PeerService.java.")
-public class PeerMarshaller extends InvocationMarshaller
+public class PeerMarshaller extends InvocationMarshaller<ClientObject>
     implements PeerService
 {
     /** The method id used to dispatch {@link #generateReport} requests. */

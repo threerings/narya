@@ -22,12 +22,13 @@
 package com.threerings.crowd.chat.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 /**
  * Provides a means by which "speaking" can be allowed among subscribers
  * of a particular distributed object.
  */
-public interface SpeakService extends InvocationService
+public interface SpeakService extends InvocationService<ClientObject>
 {
     /**
      * Issues a request to speak "on" the distributed object via which

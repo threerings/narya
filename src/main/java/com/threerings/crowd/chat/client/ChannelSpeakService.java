@@ -22,13 +22,14 @@
 package com.threerings.crowd.chat.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 import com.threerings.crowd.chat.data.ChatChannel;
 
 /**
  * Provides a way for clients to speak on chat channels.
  */
-public interface ChannelSpeakService extends InvocationService
+public interface ChannelSpeakService extends InvocationService<ClientObject>
 {
     /**
      * Requests to speak the supplied message on the specified channel.

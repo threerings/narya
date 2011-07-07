@@ -24,6 +24,8 @@ package com.threerings.crowd.chat.data;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.chat.client.ChannelSpeakService;
+
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**
@@ -35,7 +37,7 @@ import com.threerings.presents.data.InvocationMarshaller;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from ChannelSpeakService.java.")
-public class ChannelSpeakMarshaller extends InvocationMarshaller
+public class ChannelSpeakMarshaller extends InvocationMarshaller<ClientObject>
     implements ChannelSpeakService
 {
     /** The method id used to dispatch {@link #speak} requests. */

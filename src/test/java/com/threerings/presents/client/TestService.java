@@ -23,10 +23,12 @@ package com.threerings.presents.client;
 
 import java.util.List;
 
+import com.threerings.presents.data.ClientObject;
+
 /**
  * A test of the invocation services.
  */
-public interface TestService extends InvocationService
+public interface TestService extends InvocationService<ClientObject>
 {
     /** Used to dispatch responses to {@link TestService#test} requests. */
     public static interface TestFuncListener extends InvocationListener

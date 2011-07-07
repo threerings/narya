@@ -22,12 +22,13 @@
 package com.threerings.presents.peer.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.peer.data.NodeObject.Lock;
 
 /**
  * Defines requests made from one peer to another.
  */
-public interface PeerService extends InvocationService
+public interface PeerService extends InvocationService<ClientObject>
 {
     /**
      * Informs the node that the sending peer ratifies its acquisition or release of the specified

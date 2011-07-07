@@ -25,6 +25,7 @@ import javax.annotation.Generated;
 
 import com.threerings.crowd.chat.client.ChannelSpeakService;
 import com.threerings.crowd.chat.data.ChatChannel;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
 

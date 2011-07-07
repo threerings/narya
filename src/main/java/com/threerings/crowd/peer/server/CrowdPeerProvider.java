@@ -26,10 +26,12 @@ import javax.annotation.Generated;
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
+
+import com.threerings.util.Name;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
-import com.threerings.util.Name;
 
 /**
  * Defines the server-side of the {@link CrowdPeerService}.

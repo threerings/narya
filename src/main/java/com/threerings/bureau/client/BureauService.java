@@ -22,11 +22,12 @@
 package com.threerings.bureau.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 /**
  * Interface for the bureau to communicate with the server.
  */
-public interface BureauService extends InvocationService
+public interface BureauService extends InvocationService<ClientObject>
 {
     /**
      * Notifies the server that the bureau is up and running and ready to receive

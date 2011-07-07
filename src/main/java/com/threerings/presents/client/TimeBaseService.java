@@ -21,11 +21,13 @@
 
 package com.threerings.presents.client;
 
+import com.threerings.presents.data.ClientObject;
+
 /**
  * Provides a means by which to obtain access to a time base object which can be used to convert
  * delta times into absolute times.
  */
-public interface TimeBaseService extends InvocationService
+public interface TimeBaseService extends InvocationService<ClientObject>
 {
     /**
      * Used to communicated the result of a {@link TimeBaseService#getTimeOid} request.

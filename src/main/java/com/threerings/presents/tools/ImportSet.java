@@ -333,20 +333,11 @@ public class ImportSet
      */
     public List<List<String>> toGroups ()
     {
-        return toGroups(IMPORT_GROUPS);
-    }
-
-    /**
-     * Converts the set of imports to groups of class names, according to the provided groups.
-     * Within each group, sorting is alphabetical.
-     */
-    public List<List<String>> toGroups (final List<String> groups)
-    {
         List<String> list = Lists.newArrayList(_imports);
         Collections.sort(list, new Comparator<String>() {
             public int compare (String class1, String class2) {
                 return ComparisonChain.start()
-                    .compare(findImportGroup(class1, groups), findImportGroup(class2, groups))
+                    .compare(findImportGroup(class1), findImportGroup(class2))
                     .compare(class1, class2)
                     .result();
             }
@@ -355,7 +346,7 @@ public class ImportSet
         List<String> current = null;
         int lastGroup = -2;
         for (String imp : list) {
-            int group = findImportGroup(imp, groups);
+            int group = findImportGroup(imp);
             if (group != lastGroup) {
                 if (current == null || !current.isEmpty()) {
                     result.add(current = Lists.<String>newArrayList());
@@ -415,10 +406,10 @@ public class ImportSet
         return Pattern.compile(pattern.toString());
     }
 
-    protected static int findImportGroup (String imp, List<String> groups)
+    protected static int findImportGroup (String imp)
     {
         String longest = null;
-        for (String prefix : groups) {
+        for (String prefix : IMPORT_GROUPS) {
             if (!imp.startsWith(prefix)) {
                 continue;
             }
@@ -426,7 +417,7 @@ public class ImportSet
                 longest = prefix;
             }
         }
-        return groups.indexOf(longest);
+        return IMPORT_GROUPS.indexOf(longest);
     }
 
     protected HashSet<String> _imports = Sets.newHashSet();
@@ -438,17 +429,24 @@ public class ImportSet
     protected static List<String> IMPORT_GROUPS = Lists.newArrayList(
         "flash.",
         "fl.",
+        "java",
         "",
         OOO,
         OOO + "io.",
         OOO + "util.",
         OOO + "presents.",
+        OOO + "tudey.",
         OOO + "orth.",
+        OOO + "riposte.",
         OOO + "riposte.",
         OOO + "samsara.",
         OOO + "flashbang.",
         OOO + "downtown.",
         OOO + "biteme.",
         OOO + "who.",
-        OOO + "blueharvest.");
+        OOO + "blueharvest.",
+        OOO + "piracy.",
+        OOO + "ppa.",
+        OOO + "yohoho.",
+        OOO + "projectx.");
 }

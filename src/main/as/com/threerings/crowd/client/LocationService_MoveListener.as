@@ -22,6 +22,7 @@
 package com.threerings.crowd.client {
 
 import com.threerings.crowd.data.PlaceConfig;
+
 import com.threerings.presents.client.InvocationService_InvocationListener;
 
 /**

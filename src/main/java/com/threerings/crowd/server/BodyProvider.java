@@ -24,6 +24,7 @@ package com.threerings.crowd.server;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.client.BodyService;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
 

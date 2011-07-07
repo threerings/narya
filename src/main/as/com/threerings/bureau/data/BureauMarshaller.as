@@ -22,8 +22,10 @@
 package com.threerings.bureau.data {
 
 import com.threerings.bureau.client.BureauService;
-import com.threerings.presents.data.InvocationMarshaller;
+
 import com.threerings.util.Integer;
+
+import com.threerings.presents.data.InvocationMarshaller;
 
 /**
  * Provides the implementation of the <code>BureauService</code> interface

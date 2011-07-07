@@ -34,7 +34,7 @@ import com.threerings.presents.client.TimeBaseService;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from TimeBaseService.java.")
-public class TimeBaseMarshaller extends InvocationMarshaller
+public class TimeBaseMarshaller extends InvocationMarshaller<ClientObject>
     implements TimeBaseService
 {
     /**

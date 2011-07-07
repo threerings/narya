@@ -21,9 +21,10 @@
 
 package com.threerings.crowd.chat.client {
 
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.InvocationService_InvocationListener;
-import com.threerings.util.Name;
 
 /**
  * An ActionScript version of the Java ChatService interface.

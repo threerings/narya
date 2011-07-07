@@ -26,6 +26,8 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
@@ -62,9 +64,6 @@ import com.threerings.crowd.data.Place;
 import com.threerings.crowd.data.PlaceConfig;
 import com.threerings.crowd.data.PlaceObject;
 import com.threerings.crowd.server.CrowdObjectAccess.PlaceAccessController;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 import static com.threerings.crowd.Log.log;
 
@@ -567,7 +566,7 @@ public class PlaceManager
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
-    protected <T extends InvocationMarshaller> T addProvider (
+    protected <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
         T marsh = _invmgr.registerProvider(prov, mclass);
@@ -579,7 +578,7 @@ public class PlaceManager
      * Registers an invocation dispatcher and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
-    protected <T extends InvocationMarshaller> T addDispatcher (InvocationDispatcher<T> disp)
+    protected <T extends InvocationMarshaller<?>> T addDispatcher (InvocationDispatcher<T> disp)
     {
         T marsh = _invmgr.registerDispatcher(disp);
         _marshallers.add(marsh);

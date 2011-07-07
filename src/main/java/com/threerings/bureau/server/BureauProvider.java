@@ -24,6 +24,7 @@ package com.threerings.bureau.server;
 import javax.annotation.Generated;
 
 import com.threerings.bureau.client.BureauService;
+
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
 

@@ -23,10 +23,12 @@ package com.threerings.crowd.chat.data {
 
 import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.client.ChatService_TellListener;
+
+import com.threerings.util.Name;
+
 import com.threerings.presents.client.InvocationService_InvocationListener;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
-import com.threerings.util.Name;
 
 /**
  * Provides the implementation of the <code>ChatService</code> interface

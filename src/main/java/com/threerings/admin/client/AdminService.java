@@ -22,11 +22,12 @@
 package com.threerings.admin.client;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 /**
  * Defines the client side of the admin invocation services.
  */
-public interface AdminService extends InvocationService
+public interface AdminService extends InvocationService<ClientObject>
 {
     /**
      * Used to communicate a response to a {@link AdminService#getConfigInfo} request.

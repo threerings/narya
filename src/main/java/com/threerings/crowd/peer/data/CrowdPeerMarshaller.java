@@ -27,8 +27,11 @@ import com.threerings.crowd.chat.client.ChatService;
 import com.threerings.crowd.chat.data.ChatMarshaller;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.peer.client.CrowdPeerService;
-import com.threerings.presents.data.InvocationMarshaller;
+
 import com.threerings.util.Name;
+
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 
 /**
  * Provides the implementation of the {@link CrowdPeerService} interface
@@ -39,7 +42,7 @@ import com.threerings.util.Name;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from CrowdPeerService.java.")
-public class CrowdPeerMarshaller extends InvocationMarshaller
+public class CrowdPeerMarshaller extends InvocationMarshaller<ClientObject>
     implements CrowdPeerService
 {
     /** The method id used to dispatch {@link #deliverBroadcast} requests. */

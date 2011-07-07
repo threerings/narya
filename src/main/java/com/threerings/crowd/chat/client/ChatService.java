@@ -24,6 +24,7 @@ package com.threerings.crowd.chat.client;
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
 
 /**
  * The chat services provide a mechanism by which the client can broadcast chat messages to all
@@ -31,7 +32,7 @@ import com.threerings.presents.client.InvocationService;
  * These services should not be used directly, but instead should be accessed via the
  * {@link ChatDirector}.
  */
-public interface ChatService extends InvocationService
+public interface ChatService extends InvocationService<ClientObject>
 {
     /**
      * Used to communicate the response to a {@link ChatService#tell} request.

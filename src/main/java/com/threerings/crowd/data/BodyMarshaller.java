@@ -24,6 +24,8 @@ package com.threerings.crowd.data;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.client.BodyService;
+
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**
@@ -35,7 +37,7 @@ import com.threerings.presents.data.InvocationMarshaller;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from BodyService.java.")
-public class BodyMarshaller extends InvocationMarshaller
+public class BodyMarshaller extends InvocationMarshaller<ClientObject>
     implements BodyService
 {
     /** The method id used to dispatch {@link #setIdle} requests. */

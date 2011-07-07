@@ -24,9 +24,12 @@ package com.threerings.crowd.chat.data;
 import javax.annotation.Generated;
 
 import com.threerings.crowd.chat.client.ChatService;
-import com.threerings.presents.client.InvocationService;
-import com.threerings.presents.data.InvocationMarshaller;
+
 import com.threerings.util.Name;
+
+import com.threerings.presents.client.InvocationService;
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationMarshaller;
 
 /**
  * Provides the implementation of the {@link ChatService} interface
@@ -37,7 +40,7 @@ import com.threerings.util.Name;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from ChatService.java.")
-public class ChatMarshaller extends InvocationMarshaller
+public class ChatMarshaller extends InvocationMarshaller<ClientObject>
     implements ChatService
 {
     /**

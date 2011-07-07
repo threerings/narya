@@ -24,6 +24,8 @@ package com.threerings.bureau.data;
 import javax.annotation.Generated;
 
 import com.threerings.bureau.client.BureauService;
+
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
 
 /**
@@ -35,7 +37,7 @@ import com.threerings.presents.data.InvocationMarshaller;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from BureauService.java.")
-public class BureauMarshaller extends InvocationMarshaller
+public class BureauMarshaller extends InvocationMarshaller<ClientObject>
     implements BureauService
 {
     /** The method id used to dispatch {@link #agentCreated} requests. */
