@@ -41,5 +41,5 @@ public class BootstrapData extends SimpleStreamableObject
     public int clientOid;
 
     /** A list of handles to invocation services. */
-    public List<InvocationMarshaller> services;
+    public List<InvocationMarshaller<?>> services;
 }

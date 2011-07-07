@@ -22,12 +22,14 @@
 package com.threerings.presents.client;
 
 import com.threerings.presents.client.InvocationReceiver.Registration;
+import com.threerings.presents.data.ClientObject;
 
 /**
- * Adds a receiver registration for a client that doesn't use DObject and thereby can't
- * use the registration set on ClientObject.
+ * Adds a receiver registration for a client that doesn't use DObject and thereby can't use the
+ * registration set on ClientObject.
  */
 public interface RegistrationService
+    extends InvocationService<ClientObject>
 {
     void registerReceiver(Registration registration);
 }

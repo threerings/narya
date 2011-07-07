@@ -21,15 +21,14 @@
 
 package com.threerings.presents.peer.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
@@ -38,6 +37,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+
 import com.samskivert.util.ArrayIntSet;
 import com.samskivert.util.ChainedResultListener;
 import com.samskivert.util.Interval;
@@ -55,8 +55,6 @@ import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
-import com.threerings.presents.peer.data.DObjectAddress;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.PeerInvoker;
@@ -64,16 +62,13 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.EntryAddedEvent;
-import com.threerings.presents.dobj.EntryRemovedEvent;
-import com.threerings.presents.dobj.EntryUpdatedEvent;
 import com.threerings.presents.dobj.ObjectAccessException;
-import com.threerings.presents.dobj.SetListener;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.DownstreamMessage;
 import com.threerings.presents.net.Message;
 import com.threerings.presents.peer.client.PeerService;
 import com.threerings.presents.peer.data.ClientInfo;
+import com.threerings.presents.peer.data.DObjectAddress;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.data.PeerAuthName;
 import com.threerings.presents.peer.data.PeerMarshaller;

@@ -546,7 +546,7 @@ public class PlaceManager
         _plobj.removeListener(_deathListener);
 
         // clear out our invocation service registrations
-        for (InvocationMarshaller marsh : _marshallers) {
+        for (InvocationMarshaller<?> marsh : _marshallers) {
             _invmgr.clearDispatcher(marsh);
         }
 
@@ -815,7 +815,7 @@ public class PlaceManager
 
     /** A list of services registered with {@link #addProvider} which will be automatically
      * cleared when this manager shuts down. */
-    protected List<InvocationMarshaller> _marshallers = Lists.newArrayList();
+    protected List<InvocationMarshaller<?>> _marshallers = Lists.newArrayList();
 
     /** Used to keep a canonical copy of the occupant info records. */
     protected HashIntMap<OccupantInfo> _occInfo = new HashIntMap<OccupantInfo>();

@@ -35,7 +35,7 @@ import com.threerings.presents.client.RegistrationService;
  */
 @Generated(value={"com.threerings.presents.tools.cpp.GenCPPServiceTask"},
            comments="Derived from RegistrationService.java.")
-public class RegistrationMarshaller extends InvocationMarshaller
+public class RegistrationMarshaller extends InvocationMarshaller<ClientObject>
     implements RegistrationService
 {
     /** The method id used to dispatch {@link #registerReceiver} requests. */

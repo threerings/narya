@@ -115,7 +115,7 @@ public class PlaceManagerDelegate
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when our parent manager shuts down.
      */
-    protected <T extends InvocationMarshaller> T addProvider (
+    protected <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
         return _plmgr.addProvider(prov, mclass);
@@ -125,7 +125,7 @@ public class PlaceManagerDelegate
      * Registers an invocation dispatcher and notes the registration such that it will be
      * automatically cleared when our parent manager shuts down.
      */
-    protected <T extends InvocationMarshaller> T addDispatcher (InvocationDispatcher<T> disp)
+    protected <T extends InvocationMarshaller<?>> T addDispatcher (InvocationDispatcher<T> disp)
     {
         return _plmgr.addDispatcher(disp);
     }

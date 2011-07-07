@@ -21,8 +21,6 @@
 
 package com.threerings.presents.client;
 
-import static com.threerings.presents.Log.log;
-
 import java.security.PublicKey;
 import java.util.HashSet;
 
@@ -48,6 +46,8 @@ import com.threerings.presents.net.PingRequest;
 import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.ThrottleUpdatedMessage;
 import com.threerings.presents.util.SecureUtil;
+
+import static com.threerings.presents.Log.log;
 
 /**
  * Through the client object, a connection to the system is established and maintained. The client
@@ -416,7 +416,7 @@ public class Client
         }
         int scount = _bstrap.services.size();
         for (int ii = 0; ii < scount; ii++) {
-            InvocationService service = _bstrap.services.get(ii);
+            InvocationService<?> service = _bstrap.services.get(ii);
             if (sclass.isInstance(service)) {
                 return sclass.cast(service);
             }

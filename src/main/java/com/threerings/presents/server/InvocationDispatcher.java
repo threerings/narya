@@ -29,7 +29,7 @@ import static com.threerings.presents.Log.log;
 /**
  * Provides the base class via which invocation service requests are dispatched.
  */
-public abstract class InvocationDispatcher<T extends InvocationMarshaller>
+public abstract class InvocationDispatcher<T extends InvocationMarshaller<?>>
     implements InvocationManager.Dispatcher
 {
     /** The invocation provider for whom we're dispatching. */

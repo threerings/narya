@@ -107,7 +107,7 @@ public class InvocationManager
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
      */
-    public <T extends InvocationMarshaller> T registerProvider (
+    public <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
         return registerProvider(provider, mclass, null);
@@ -123,7 +123,7 @@ public class InvocationManager
      * groups. You must collect shared marshaller into as fine grained a set of groups as necessary
      * and have different types of clients specify the list of groups they need.
      */
-    public <T extends InvocationMarshaller> T registerProvider (
+    public <T extends InvocationMarshaller<?>> T registerProvider (
         final InvocationProvider provider, Class<T> mclass, String group)
     {
         _omgr.requireEventThread(); // sanity check
@@ -238,7 +238,7 @@ public class InvocationManager
      *
      * @param dispatcher the dispatcher to be registered.
      */
-    public <T extends InvocationMarshaller> T registerDispatcher (
+    public <T extends InvocationMarshaller<?>> T registerDispatcher (
         InvocationDispatcher<T> dispatcher)
     {
         return registerDispatcher(dispatcher, null);
@@ -247,7 +247,7 @@ public class InvocationManager
     /**
      * @deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
      */
-    @Deprecated public <T extends InvocationMarshaller> T registerDispatcher (
+    @Deprecated public <T extends InvocationMarshaller<?>> T registerDispatcher (
         InvocationDispatcher<T> dispatcher, boolean bootstrap)
     {
         return registerDispatcher(dispatcher, null);
@@ -263,7 +263,7 @@ public class InvocationManager
      * groups. You must collect shared dispatchers into as fine grained a set of groups as
      * necessary and have different types of clients specify the list of groups they need.
      */
-    public <T extends InvocationMarshaller> T registerDispatcher (
+    public <T extends InvocationMarshaller<?>> T registerDispatcher (
         InvocationDispatcher<T> dispatcher, String group)
     {
         _omgr.requireEventThread(); // sanity check
@@ -294,7 +294,7 @@ public class InvocationManager
      * Clears out a dispatcher registration. This should be called to free up resources when an
      * invocation service is no longer going to be used.
      */
-    public void clearDispatcher (InvocationMarshaller marsh)
+    public void clearDispatcher (InvocationMarshaller<?> marsh)
     {
         _omgr.requireEventThread(); // sanity check
 
@@ -312,9 +312,9 @@ public class InvocationManager
     /**
      * Constructs a list of all bootstrap services registered in any of the supplied groups.
      */
-    public List<InvocationMarshaller> getBootstrapServices (String[] bootGroups)
+    public List<InvocationMarshaller<?>> getBootstrapServices (String[] bootGroups)
     {
-        List<InvocationMarshaller> services = Lists.newArrayList();
+        List<InvocationMarshaller<?>> services = Lists.newArrayList();
         for (String group : bootGroups) {
             services.addAll(_bootlists.get(group));
         }
@@ -450,7 +450,7 @@ public class InvocationManager
     protected IntMap<Dispatcher> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
-    protected Multimap<String, InvocationMarshaller> _bootlists = ArrayListMultimap.create();
+    protected Multimap<String, InvocationMarshaller<?>> _bootlists = ArrayListMultimap.create();
 
     /** Tracks recently registered services so that we can complain informatively if a request
      * comes in on a service we don't know about. */

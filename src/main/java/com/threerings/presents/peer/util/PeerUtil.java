@@ -24,7 +24,6 @@ package com.threerings.presents.peer.util;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
 import java.util.HashMap;
 
 import com.google.common.collect.Maps;
@@ -52,7 +51,7 @@ public class PeerUtil
      * @param svc the implementation of the corresponding subclass of {@link InvocationService}
      * @param client the client to pass to the service methods
      */
-    public static <S extends InvocationProvider, T extends InvocationService>
+    public static <S extends InvocationProvider, T extends InvocationService<?>>
         S createProviderProxy (Class<S> clazz, final T svc, final Client client)
     {
         return clazz.cast(Proxy.newProxyInstance(
