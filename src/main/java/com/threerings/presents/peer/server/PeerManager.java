@@ -569,9 +569,16 @@ public abstract class PeerManager
         final DObjectAddress remote, final ResultListener<Integer> listener)
     {
         if (remote.nodeName.equals(_nodeName)) {
-            _omgr.postRunnable(new Runnable() {
-                public void run () {
+            // Still subscribe if the DObject is local to preserve the behavior of
+            // DObject.setDestroyOnLastSubscriberRemoved on the proxied object
+            _omgr.subscribeToObject(remote.oid, new Subscriber<T>() {
+                public void objectAvailable (T object) {
+                    _proxies.put(remote, new Tuple<Subscriber<?>, DObject>(this, object));
                     listener.requestCompleted(remote.oid);
+                }
+
+                public void requestFailed(int oid, ObjectAccessException oae) {
+                    listener.requestFailed(oae);
                 }
             });
             return;
@@ -617,6 +624,13 @@ public abstract class PeerManager
             log.warning("Requested to clear unknown proxy", "key", key);
             return;
         }
+
+        // If it's local, just remove the subscriber we added and bail
+        if (key.nodeName.equals(_nodeName)) {
+            bits.right.removeSubscriber(bits.left);
+            return;
+        }
+
 
         // clear out the local object manager's proxy mapping
         _omgr.clearProxyObject(remoteOid, bits.right);
