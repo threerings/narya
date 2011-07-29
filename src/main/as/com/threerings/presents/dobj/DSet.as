@@ -63,6 +63,14 @@ public class DSet
     }
 
     /**
+     * Returns true if this set contains no entries.
+     */
+    public function isEmpty () :Boolean
+    {
+        return _entries.length == 0;
+    }
+
+   /**
      * Returns true if the set contains an entry whose
      * <code>getKey()</code> method returns a key that
      * <code>equals()</code> the key returned by <code>getKey()</code> of
