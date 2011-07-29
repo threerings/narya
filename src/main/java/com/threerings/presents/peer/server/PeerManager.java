@@ -612,42 +612,51 @@ public abstract class PeerManager
         });
     }
 
+
     /**
      * Unsubscribes from and clears a proxied object. The caller must be sure that there are no
      * remaining subscribers to the object on this local server.
      */
     public void unproxyRemoteObject (String nodeName, int remoteOid)
     {
-        DObjectAddress key = new DObjectAddress(nodeName, remoteOid);
-        Tuple<Subscriber<?>, DObject> bits = _proxies.remove(key);
+        unproxyRemoteObject(new DObjectAddress(nodeName, remoteOid));
+    }
+
+    /**
+     * Unsubscribes from and clears a proxied object. The caller must be sure that there are no
+     * remaining subscribers to the object on this local server.
+     */
+    public void unproxyRemoteObject (DObjectAddress addr)
+    {
+        Tuple<Subscriber<?>, DObject> bits = _proxies.remove(addr);
         if (bits == null) {
-            log.warning("Requested to clear unknown proxy", "key", key);
+            log.warning("Requested to clear unknown proxy", "addr", addr);
             return;
         }
 
         // If it's local, just remove the subscriber we added and bail
-        if (key.nodeName.equals(_nodeName)) {
+        if (addr.nodeName.equals(_nodeName)) {
             bits.right.removeSubscriber(bits.left);
             return;
         }
 
 
         // clear out the local object manager's proxy mapping
-        _omgr.clearProxyObject(remoteOid, bits.right);
+        _omgr.clearProxyObject(addr.oid, bits.right);
 
-        final Client peer = getPeerClient(nodeName);
+        final Client peer = getPeerClient(addr.nodeName);
         if (peer == null) {
-            log.warning("Unable to unsubscribe from proxy, missing peer", "key", key);
+            log.warning("Unable to unsubscribe from proxy, missing peer", "addr", addr);
             return;
         }
 
         // restore the object's omgr reference to our ClientDObjectMgr and its oid back to the
         // remote oid so that it can properly finish the unsubscription process
-        bits.right.setOid(remoteOid);
+        bits.right.setOid(addr.oid);
         bits.right.setManager(peer.getDObjectManager());
 
         // finally unsubscribe from the object on our peer
-        peer.getDObjectManager().unsubscribeFromObject(remoteOid, bits.left);
+        peer.getDObjectManager().unsubscribeFromObject(addr.oid, bits.left);
     }
 
     /**
