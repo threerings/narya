@@ -23,10 +23,10 @@ package com.threerings.bureau.server;
 
 import javax.annotation.Generated;
 
-import com.threerings.bureau.client.BureauService;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
+
+import com.threerings.bureau.client.BureauService;
 
 /**
  * Defines the server-side of the {@link BureauService}.

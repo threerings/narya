@@ -21,12 +21,12 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.crowd.client.LocationService;
-import com.threerings.crowd.client.LocationService_MoveListener;
-
 import com.threerings.util.Integer;
 
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.crowd.client.LocationService;
+import com.threerings.crowd.client.LocationService_MoveListener;
 
 /**
  * Provides the implementation of the <code>LocationService</code> interface

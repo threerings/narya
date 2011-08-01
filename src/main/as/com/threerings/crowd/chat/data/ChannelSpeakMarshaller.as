@@ -21,11 +21,11 @@
 
 package com.threerings.crowd.chat.data {
 
-import com.threerings.crowd.chat.client.ChannelSpeakService;
-
 import com.threerings.util.Byte;
 
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.crowd.chat.client.ChannelSpeakService;
 
 /**
  * Provides the implementation of the <code>ChannelSpeakService</code> interface

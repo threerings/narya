@@ -23,13 +23,13 @@ package com.threerings.crowd.chat.data;
 
 import javax.annotation.Generated;
 
-import com.threerings.crowd.chat.client.ChatService;
-
 import com.threerings.util.Name;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.crowd.chat.client.ChatService;
 
 /**
  * Provides the implementation of the {@link ChatService} interface

@@ -23,10 +23,10 @@ package com.threerings.crowd.chat.server;
 
 import javax.annotation.Generated;
 
-import com.threerings.crowd.chat.client.SpeakService;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationProvider;
+
+import com.threerings.crowd.chat.client.SpeakService;
 
 /**
  * Defines the server-side of the {@link SpeakService}.

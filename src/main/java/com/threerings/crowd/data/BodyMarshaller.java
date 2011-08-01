@@ -23,10 +23,10 @@ package com.threerings.crowd.data;
 
 import javax.annotation.Generated;
 
-import com.threerings.crowd.client.BodyService;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.crowd.client.BodyService;
 
 /**
  * Provides the implementation of the {@link BodyService} interface

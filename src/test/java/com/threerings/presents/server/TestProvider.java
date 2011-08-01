@@ -22,6 +22,7 @@
 package com.threerings.presents.server;
 
 import java.util.List;
+
 import javax.annotation.Generated;
 
 import com.threerings.presents.client.InvocationService;

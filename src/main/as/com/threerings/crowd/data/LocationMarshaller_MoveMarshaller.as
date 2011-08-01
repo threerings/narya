@@ -21,9 +21,9 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.crowd.client.LocationService_MoveListener;
-
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
+
+import com.threerings.crowd.client.LocationService_MoveListener;
 
 /**
  * Marshalls instances of the LocationService_MoveMarshaller interface.

@@ -21,9 +21,9 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.crowd.data.PlaceConfig;
-
 import com.threerings.presents.client.InvocationService_InvocationListener;
+
+import com.threerings.crowd.data.PlaceConfig;
 
 /**
  * An ActionScript version of the Java LocationService_MoveListener interface.

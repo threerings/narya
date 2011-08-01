@@ -23,11 +23,11 @@ package com.threerings.admin.server;
 
 import javax.annotation.Generated;
 
-import com.threerings.admin.client.AdminService;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
+
+import com.threerings.admin.client.AdminService;
 
 /**
  * Defines the server-side of the {@link AdminService}.

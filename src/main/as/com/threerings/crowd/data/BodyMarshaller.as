@@ -21,11 +21,11 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.crowd.client.BodyService;
-
 import com.threerings.util.langBoolean;
 
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.crowd.client.BodyService;
 
 /**
  * Provides the implementation of the <code>BodyService</code> interface

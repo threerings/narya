@@ -23,10 +23,10 @@ package com.threerings.admin.data;
 
 import javax.annotation.Generated;
 
-import com.threerings.admin.client.AdminService;
-
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
+
+import com.threerings.admin.client.AdminService;
 
 /**
  * Provides the implementation of the {@link AdminService} interface
