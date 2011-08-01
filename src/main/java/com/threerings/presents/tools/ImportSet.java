@@ -383,8 +383,7 @@ public class ImportSet
      */
     protected static Pattern makePattern (String input)
     {
-        StringBuilder pattern = new StringBuilder();
-        pattern.append("^");
+        StringBuilder pattern = new StringBuilder('^');
 
         while (true) {
             String[] parts = _splitter.split(input, 2);
@@ -425,28 +424,63 @@ public class ImportSet
 
     protected static Pattern _splitter = Pattern.compile("\\*");
 
-    protected static String OOO = "com.threerings.";
     protected static List<String> IMPORT_GROUPS = Lists.newArrayList(
-        "flash.",
-        "fl.",
+        "flash",
+        "fl",
         "java",
+        "javax",
+        "android",
         "",
-        OOO,
-        OOO + "io.",
-        OOO + "util.",
-        OOO + "presents.",
-        OOO + "tudey.",
-        OOO + "orth.",
-        OOO + "riposte.",
-        OOO + "riposte.",
-        OOO + "samsara.",
-        OOO + "flashbang.",
-        OOO + "downtown.",
-        OOO + "biteme.",
-        OOO + "who.",
-        OOO + "blueharvest.",
-        OOO + "piracy.",
-        OOO + "ppa.",
-        OOO + "yohoho.",
-        OOO + "projectx.");
+        "com.samskivert",
+        "com.samskivert.swing",
+        "com.samskivert.servlet",
+        "com.samskivert.velocity",
+        "com.samskivert.jdbc",
+
+        "com.samskivert.depot",
+
+        "com.threerings.io",// Narya
+        "com.threerings.no",
+        "com.threerings.util",
+        "com.threerings.presents",
+        "com.threerings.crowd",
+        "com.threerings.admin",
+        "com.threerings.bureau",
+
+        "com.threering.tudey",
+
+        "com.threerings.display",// Aspirin
+        "com.threerings.geom",
+        "com.threerings.media",
+        "com.threerings.text",
+        "com.threerings.ui",
+
+        "com.threerings.flashbang",
+
+        "com.threerings.samsara",
+
+        "com.threerings.cast", // Nenya
+        "com.threerings.resource",
+        "com.threerings.miso",
+        "com.threerings.jme",
+        "com.threerings.openal",
+        "com.threerings.tools",
+
+        "com.threerings.lembas",
+
+        "com.threerings.parlor", // Vilya
+        "com.threerings.puzzle",
+        "com.threerings.whirled",
+        "com.threerings.micasa",
+        "com.threerings.stage",
+        "com.threerings.stats",
+
+        "com.threerings.orth",
+
+        "com.threerings",
+        "com.threerings.piracy",
+        "com.threerings.ppa",
+        "com.threerings.yohoho",
+        "com.threerings.who",
+        "com.threerings.projectx");
 }
