@@ -253,7 +253,7 @@ public abstract class GenTask extends Task
         }
     }
 
-    protected static String convertEols (String str)
+    protected String convertEols (String str)
     {
         return str.replace("\n", EOL);
     }
