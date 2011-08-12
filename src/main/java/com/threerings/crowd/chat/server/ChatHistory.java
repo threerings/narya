@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.chat.server;
 
+import java.io.IOException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +33,8 @@ import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.presents.server.PresentsDObjectMgr;
 import com.threerings.util.Name;
 
@@ -66,6 +70,17 @@ public class ChatHistory
         public Entry (ChatChannel channel, ChatMessage message) {
             this.channel = channel;
             this.message = message;
+        }
+
+        public void writeObject (ObjectOutputStream out) throws IOException {
+            // ChatMessage.timestamp is transient, so write it externally
+            out.defaultWriteObject();
+            out.writeLong(message.timestamp);
+        }
+
+        public void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            message.timestamp = in.readLong();
         }
     }
 
