@@ -22,13 +22,14 @@
 package com.threerings.presents.util {
 
 import flash.utils.Dictionary;
+
+import com.threerings.util.Log;
+
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessError;
-import com.threerings.presents.dobj.ObjectDeathListener;
+import com.threerings.presents.dobj.ObjectDeathAdapter;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
-import com.threerings.presents.dobj.SubscriberAdapter;
-import com.threerings.util.Log;
 
 /**
  * Safely manages subscriptions and provides access to objects.
@@ -208,14 +209,12 @@ public class SafeObjectManager
     protected var _log :Log;
     protected var _available :Function;
     protected var _failed :Function;
-    protected var _odlist :ObjectDeathListenerAdapter = new ObjectDeathListenerAdapter(destroyed);
+    protected var _odlist :ObjectDeathAdapter = new ObjectDeathAdapter(destroyed);
     protected var _entries :Dictionary = new Dictionary();
 }
 }
 
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.ObjectDeathListener;
-import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.util.SafeSubscriber;
 
 class Entry
@@ -230,21 +229,5 @@ class Entry
     public function Entry (subscriber :SafeSubscriber)
     {
         sub = subscriber;
-    }
-}
-
-class ObjectDeathListenerAdapter
-    implements ObjectDeathListener
-{
-    public var callback :Function;
-
-    public function ObjectDeathListenerAdapter (callback :Function)
-    {
-        this.callback = callback;
-    }
-
-    public function objectDestroyed (event :ObjectDestroyedEvent) :void
-    {
-        callback(event);
     }
 }
