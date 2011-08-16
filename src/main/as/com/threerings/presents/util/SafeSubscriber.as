@@ -72,6 +72,14 @@ public class SafeSubscriber implements Subscriber
     }
 
     /**
+     * Gets the object we are subscribed to, or null if the subscription is not yet complete.
+     */
+    public function getObject () :DObject
+    {
+        return _object;
+    }
+
+    /**
      * Initiates the subscription process.
      */
     public function subscribe (omgr :DObjectManager) :void
