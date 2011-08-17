@@ -22,7 +22,6 @@
 package com.threerings.bureau.client {
 
 import com.threerings.presents.client.Client;
-import com.threerings.presents.dobj.DObjectManager;
 
 import com.threerings.bureau.data.BureauAuthName;
 import com.threerings.bureau.data.BureauCredentials;
@@ -77,10 +76,11 @@ public class BureauClient extends Client
 
 }
 
+import com.threerings.presents.client.Client;
+import com.threerings.presents.dobj.DObjectManager;
+
 import com.threerings.bureau.client.BureauClient;
 import com.threerings.bureau.client.BureauDirector;
-import com.threerings.presents.dobj.DObjectManager;
-import com.threerings.presents.client.Client;
 import com.threerings.bureau.util.BureauContext;
 
 class Context

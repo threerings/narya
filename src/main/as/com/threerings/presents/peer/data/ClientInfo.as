@@ -24,6 +24,7 @@ package com.threerings.presents.peer.data {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DSet_Entry;

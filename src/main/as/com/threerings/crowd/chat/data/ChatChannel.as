@@ -22,6 +22,7 @@
 package com.threerings.crowd.chat.data {
 
 import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.util.Comparable;
 import com.threerings.util.Equalable;
 import com.threerings.util.Hashable;

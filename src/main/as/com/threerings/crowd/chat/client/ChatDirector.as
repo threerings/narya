@@ -22,11 +22,16 @@
 package com.threerings.crowd.chat.client {
 import com.threerings.util.Arrays;
 import com.threerings.util.Log;
+import com.threerings.util.Long;
 import com.threerings.util.Map;
 import com.threerings.util.Maps;
+import com.threerings.util.MessageBundle;
+import com.threerings.util.MessageManager;
+import com.threerings.util.Name;
 import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
 import com.threerings.util.StringUtil;
+import com.threerings.util.TimeUtil;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
@@ -36,18 +41,6 @@ import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 
-import com.threerings.util.Long;
-import com.threerings.util.MessageBundle;
-import com.threerings.util.MessageManager;
-import com.threerings.util.Name;
-import com.threerings.util.TimeUtil;
-
-import com.threerings.crowd.client.CrowdClient;
-import com.threerings.crowd.data.BodyObject;
-import com.threerings.crowd.data.CrowdCodes;
-import com.threerings.crowd.data.PlaceObject;
-import com.threerings.crowd.util.CrowdContext;
-
 import com.threerings.crowd.chat.data.ChatChannel;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.ChatMarshaller;
@@ -56,6 +49,11 @@ import com.threerings.crowd.chat.data.SystemMessage;
 import com.threerings.crowd.chat.data.TellFeedbackMessage;
 import com.threerings.crowd.chat.data.UserMessage;
 import com.threerings.crowd.chat.data.UserSystemMessage;
+import com.threerings.crowd.client.CrowdClient;
+import com.threerings.crowd.data.BodyObject;
+import com.threerings.crowd.data.CrowdCodes;
+import com.threerings.crowd.data.PlaceObject;
+import com.threerings.crowd.util.CrowdContext;
 
 /**
  * The chat director is the client side coordinator of all chat related services. It handles both

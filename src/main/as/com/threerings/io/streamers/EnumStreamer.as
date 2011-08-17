@@ -21,11 +21,11 @@
 
 package com.threerings.io.streamers {
 
-import com.threerings.util.Enum;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
+
+import com.threerings.util.Enum;
 
 public class EnumStreamer extends Streamer
 {

@@ -21,7 +21,6 @@
 
 package com.threerings.util {
 
-import mx.resources.IResourceBundle;
 import mx.resources.Locale;
 import mx.resources.ResourceManager;
 

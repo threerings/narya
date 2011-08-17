@@ -23,6 +23,7 @@ package com.threerings.crowd.chat.data {
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.util.Name;
 
 /**

@@ -21,13 +21,12 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.Arrays;
-
-import com.threerings.io.Streamable;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.Streamable;
 import com.threerings.io.TypedArray;
+
+import com.threerings.util.Arrays;
 
 /**
  * An oid list is used to store lists of object ids. The list will not

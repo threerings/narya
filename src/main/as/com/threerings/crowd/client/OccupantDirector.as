@@ -21,8 +21,8 @@
 
 package com.threerings.crowd.client {
 
-import com.threerings.util.ObserverList;
 import com.threerings.util.Name;
+import com.threerings.util.ObserverList;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;

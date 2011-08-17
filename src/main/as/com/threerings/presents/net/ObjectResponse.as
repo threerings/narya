@@ -21,9 +21,9 @@
 
 package com.threerings.presents.net {
 
-import com.threerings.presents.dobj.DObject;
-
 import com.threerings.io.ObjectInputStream;
+
+import com.threerings.presents.dobj.DObject;
 
 public class ObjectResponse extends DownstreamMessage
 {

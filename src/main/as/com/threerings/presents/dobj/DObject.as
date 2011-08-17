@@ -20,19 +20,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.dobj {
-import org.osflash.signals.Signal;
-
 import flash.errors.IllegalOperationError;
-
 import flash.events.EventDispatcher;
 
-import com.threerings.util.ClassUtil;
-import com.threerings.util.Joiner;
-import com.threerings.util.Log;
+import org.osflash.signals.Signal;
 
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
+
+import com.threerings.util.ClassUtil;
+import com.threerings.util.Joiner;
+import com.threerings.util.Log;
 
 public class DObject // extends EventDispatcher
     implements Streamable
@@ -427,12 +426,11 @@ public class DObject // extends EventDispatcher
 }
 }
 
+import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.MessageListener;
 import com.threerings.presents.dobj.ObjectDeathListener;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
-
-import com.threerings.presents.dobj.DObject;
 
 class Signaller
     implements MessageListener, ObjectDeathListener

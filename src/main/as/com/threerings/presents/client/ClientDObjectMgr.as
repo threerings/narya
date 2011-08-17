@@ -20,17 +20,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.client {
-import com.threerings.presents.net.CompoundDownstreamMessage;
-
 import flash.events.Event;
 import flash.events.TimerEvent;
 import flash.utils.Timer;
-import flash.utils.getTimer; // function import
+import flash.utils.getTimer;
 
-import com.threerings.util.ClassUtil;
+import com.threerings.util.Log;
 import com.threerings.util.Map;
 import com.threerings.util.Maps;
-import com.threerings.util.Log;
 
 import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;
@@ -39,10 +36,10 @@ import com.threerings.presents.dobj.DObjectManager;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.ObjectDestroyedEvent;
 import com.threerings.presents.dobj.Subscriber;
-
 import com.threerings.presents.net.BootstrapNotification;
-import com.threerings.presents.net.EventNotification;
+import com.threerings.presents.net.CompoundDownstreamMessage;
 import com.threerings.presents.net.DownstreamMessage;
+import com.threerings.presents.net.EventNotification;
 import com.threerings.presents.net.FailureResponse;
 import com.threerings.presents.net.ForwardEventRequest;
 import com.threerings.presents.net.ObjectResponse;

@@ -22,16 +22,16 @@
 package com.threerings.presents.client {
 
 import flash.errors.IllegalOperationError;
-import flash.utils.getTimer; // function import
+import flash.utils.getTimer;
 
 import com.threerings.util.Boxed;
+import com.threerings.util.Log;
 import com.threerings.util.Map;
 import com.threerings.util.Maps;
-import com.threerings.util.Log;
 import com.threerings.util.Short;
 
+import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller_ListenerMarshaller;
-
 import com.threerings.presents.dobj.CompoundEvent;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
@@ -45,8 +45,6 @@ import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.dobj.SubscriberAdapter;
-
-import com.threerings.presents.data.ClientObject;
 
 public class InvocationDirector
     implements EventListener

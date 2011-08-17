@@ -23,7 +23,6 @@ package com.threerings.io {
 
 import flash.errors.IOError;
 import flash.errors.MemoryError;
-
 import flash.utils.ByteArray;
 import flash.utils.IDataInput;
 

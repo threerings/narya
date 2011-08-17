@@ -21,10 +21,10 @@
 
 package com.threerings.presents.net {
 
-import com.threerings.presents.dobj.DObject;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.dobj.DObject;
 
 public class AuthResponseData extends DObject
 {

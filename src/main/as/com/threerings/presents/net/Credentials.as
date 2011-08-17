@@ -22,7 +22,6 @@
 package com.threerings.presents.net {
 
 import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
 
 public /* abstract */ class Credentials extends SimpleStreamableObject

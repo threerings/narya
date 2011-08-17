@@ -24,17 +24,13 @@ package com.threerings.util {
 import flash.display.DisplayObject;
 import flash.display.Loader;
 import flash.display.LoaderInfo;
-
 import flash.errors.IllegalOperationError;
-
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IOErrorEvent;
-
-import flash.utils.ByteArray;
-
 import flash.system.ApplicationDomain;
 import flash.system.LoaderContext;
+import flash.utils.ByteArray;
 
 /**
  * Allows you to load an embeded SWF stored as a ByteArray then access any stored classes

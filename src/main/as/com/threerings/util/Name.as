@@ -21,8 +21,6 @@
 
 package com.threerings.util {
 
-import com.threerings.util.Equalable;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;

@@ -23,7 +23,6 @@ package com.threerings.presents.net {
 
 import com.adobe.crypto.MD5;
 
-import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
 import com.threerings.util.Joiner;

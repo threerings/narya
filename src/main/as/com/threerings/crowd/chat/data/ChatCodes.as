@@ -24,8 +24,6 @@ package com.threerings.crowd.chat.data {
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.Permission;
 
-import com.threerings.crowd.data.BodyObject;
-
 /**
  * Contains codes used by the chat invocation services.
  */

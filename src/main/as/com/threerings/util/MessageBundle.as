@@ -22,8 +22,8 @@
 package com.threerings.util {
 
 import mx.resources.IResourceBundle;
-import mx.resources.ResourceManager;
 import mx.resources.IResourceManager;
+import mx.resources.ResourceManager;
 
 /**
  * A message bundle provides an easy mechanism by which to obtain

@@ -22,7 +22,6 @@
 package com.threerings.presents.client {
 import flash.events.EventDispatcher;
 import flash.events.TimerEvent;
-
 import flash.utils.Timer;
 
 import com.threerings.util.DelayUtil;
@@ -33,9 +32,7 @@ import com.threerings.presents.client.InvocationService_ConfirmListener;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.TimeBaseMarshaller;
-
 import com.threerings.presents.dobj.DObjectManager;
-
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.BootstrapData;
 import com.threerings.presents.net.Credentials;

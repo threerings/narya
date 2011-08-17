@@ -22,7 +22,6 @@
 package com.threerings.presents.net {
 
 import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 public class AuthResponse extends DownstreamMessage
 {

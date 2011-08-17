@@ -21,10 +21,9 @@
 
 package com.threerings.presents.net {
 
-import com.threerings.presents.dobj.DEvent;
-
-import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.presents.dobj.DEvent;
 
 public class ForwardEventRequest extends UpstreamMessage
 {

@@ -21,18 +21,17 @@
 
 package com.threerings.crowd.data {
 
-import com.threerings.util.Iterator;
-import com.threerings.util.Name;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.Iterator;
+import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 
 import com.threerings.crowd.chat.data.SpeakMarshaller;
-//import com.threerings.crowd.chat.data.SpeakObject;
 
 /**
  * A distributed object that contains information on a place that is

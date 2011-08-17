@@ -21,10 +21,10 @@
 
 package com.threerings.crowd.chat.data {
 
-import com.threerings.util.Name;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.Name;
 
 /**
  * A system message triggered by the activity of another user.

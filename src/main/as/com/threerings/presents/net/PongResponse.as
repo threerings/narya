@@ -23,11 +23,9 @@ package com.threerings.presents.net {
 
 import flash.utils.getTimer;
 
-import com.threerings.util.Long;
-
 import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.Streamable;
+
+import com.threerings.util.Long;
 
 public class PongResponse extends DownstreamMessage
 {

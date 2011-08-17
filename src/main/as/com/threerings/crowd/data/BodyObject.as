@@ -21,17 +21,14 @@
 
 package com.threerings.crowd.data {
 
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.util.Byte;
 import com.threerings.util.Name;
 
 import com.threerings.presents.data.ClientObject;
-import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.PermissionPolicy;
-
-import com.threerings.crowd.chat.data.ChatCodes;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 /**
  * The basic user object class for Crowd users. Bodies have a location and a status.

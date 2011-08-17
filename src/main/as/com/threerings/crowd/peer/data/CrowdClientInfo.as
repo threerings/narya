@@ -21,10 +21,10 @@
 
 package com.threerings.crowd.peer.data {
 
-import com.threerings.util.Name;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.Name;
 
 import com.threerings.presents.peer.data.ClientInfo;
 

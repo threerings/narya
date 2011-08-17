@@ -26,7 +26,6 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
 
 import com.threerings.util.ClassUtil;
-
 import com.threerings.util.Set;
 import com.threerings.util.Sets;
 

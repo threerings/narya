@@ -21,10 +21,10 @@
 
 package com.threerings.presents.dobj {
 
-import com.threerings.util.Joiner;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
+
+import com.threerings.util.Joiner;
 
 /**
  * A common parent class for all events that are associated with a name

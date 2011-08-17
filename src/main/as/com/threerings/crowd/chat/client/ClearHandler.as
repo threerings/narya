@@ -21,9 +21,8 @@
 
 package com.threerings.crowd.chat.client {
 
-import com.threerings.crowd.util.CrowdContext;
-
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.util.CrowdContext;
 
 public class ClearHandler extends CommandHandler
 {

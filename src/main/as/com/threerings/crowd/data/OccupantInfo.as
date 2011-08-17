@@ -21,16 +21,14 @@
 
 package com.threerings.crowd.data {
 
-import flash.system.ApplicationDomain;
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
+import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Cloneable;
 import com.threerings.util.Integer;
 import com.threerings.util.Name;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
-import com.threerings.io.SimpleStreamableObject;
 
 import com.threerings.presents.dobj.DSet_Entry;
 

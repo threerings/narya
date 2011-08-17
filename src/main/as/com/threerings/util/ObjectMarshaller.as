@@ -21,12 +21,10 @@
 
 package com.threerings.util {
 
-import flash.net.registerClassAlias; // function import
-import flash.net.ObjectEncoding;
-
 import flash.geom.Point;
 import flash.geom.Rectangle;
-
+import flash.net.ObjectEncoding;
+import flash.net.registerClassAlias;
 import flash.utils.ByteArray;
 import flash.utils.Dictionary;
 import flash.utils.Endian;

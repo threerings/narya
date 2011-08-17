@@ -21,16 +21,15 @@
 
 package com.threerings.crowd.client {
 
-import flash.utils.getTimer; // function import
+import flash.utils.getTimer;
 
-import com.threerings.util.ObserverList;
 import com.threerings.util.Log;
+import com.threerings.util.ObserverList;
 import com.threerings.util.ResultListener;
 
 import com.threerings.presents.client.BasicDirector;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.ClientEvent;
-
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessError;
 import com.threerings.presents.dobj.Subscriber;

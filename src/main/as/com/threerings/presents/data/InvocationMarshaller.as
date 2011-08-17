@@ -21,17 +21,15 @@
 
 package com.threerings.presents.data {
 
-import com.threerings.util.ClassUtil;
-
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
+import com.threerings.util.ClassUtil;
+
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationDirector;
 import com.threerings.presents.client.InvocationService;
-
-import com.threerings.presents.dobj.DObjectManager;
 
 /**
  * Provides a base from which all invocation service marshallers extend.

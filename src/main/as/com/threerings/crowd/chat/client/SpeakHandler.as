@@ -25,8 +25,6 @@ import com.threerings.util.StringUtil;
 
 import com.threerings.crowd.util.CrowdContext;
 
-import com.threerings.crowd.chat.data.ChatCodes;
-
 public class SpeakHandler extends CommandHandler
 {
     override public function handleCommand (

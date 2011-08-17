@@ -24,7 +24,7 @@ package com.threerings.crowd.client {
 import flash.display.DisplayObject;
 import flash.display.DisplayObjectContainer;
 
-import mx.core.IRawChildrenContainer; // a simple interface from flex
+import mx.core.IRawChildrenContainer;
 
 import com.threerings.util.Log;
 

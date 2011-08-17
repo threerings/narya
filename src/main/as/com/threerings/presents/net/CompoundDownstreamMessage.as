@@ -20,9 +20,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 package com.threerings.presents.net {
-import com.threerings.io.streamers.ArrayStreamer;
-import com.threerings.io.TypedArray;
 import com.threerings.io.ObjectInputStream;
+import com.threerings.io.TypedArray;
+import com.threerings.io.streamers.ArrayStreamer;
 
 public class CompoundDownstreamMessage extends DownstreamMessage
 {

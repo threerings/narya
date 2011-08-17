@@ -22,6 +22,7 @@
 package com.threerings.bureau.util {
 
 import com.threerings.presents.util.PresentsContext;
+
 import com.threerings.bureau.client.BureauDirector;
 
 /**

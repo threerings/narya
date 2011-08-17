@@ -23,9 +23,8 @@ package com.threerings.crowd.chat.client {
 
 import com.threerings.util.StringUtil;
 
-import com.threerings.crowd.util.CrowdContext;
-
 import com.threerings.crowd.chat.data.ChatCodes;
+import com.threerings.crowd.util.CrowdContext;
 
 public class EmoteHandler extends CommandHandler
 {

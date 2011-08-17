@@ -21,11 +21,10 @@
 
 package com.threerings.presents.net {
 
+import com.threerings.io.ObjectOutputStream;
+
 import com.threerings.util.Joiner;
 import com.threerings.util.Name;
-
-import com.threerings.io.ObjectInputStream;
-import com.threerings.io.ObjectOutputStream;
 
 public class UsernamePasswordCreds extends Credentials
 {

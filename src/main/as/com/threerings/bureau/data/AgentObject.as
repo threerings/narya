@@ -22,6 +22,7 @@
 package com.threerings.bureau.data {
 
 import com.threerings.io.ObjectInputStream;
+
 import com.threerings.presents.dobj.DObject;
 
 public class AgentObject extends DObject

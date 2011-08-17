@@ -23,9 +23,7 @@ package com.threerings.io {
 
 import flash.events.EventDispatcher;
 import flash.events.ProgressEvent;
-
 import flash.net.Socket;
-
 import flash.utils.ByteArray;
 import flash.utils.Endian;
 

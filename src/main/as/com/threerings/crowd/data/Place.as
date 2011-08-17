@@ -24,6 +24,7 @@ package com.threerings.crowd.data {
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.SimpleStreamableObject;
+
 import com.threerings.util.Hashable;
 
 /**

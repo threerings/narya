@@ -27,9 +27,10 @@ import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamer;
 import com.threerings.io.Translations;
 import com.threerings.io.TypedArray;
+
+import com.threerings.util.Byte;
 import com.threerings.util.ClassUtil;
 import com.threerings.util.Enum;
-import com.threerings.util.Byte;
 import com.threerings.util.Float;
 import com.threerings.util.Integer;
 import com.threerings.util.Log;

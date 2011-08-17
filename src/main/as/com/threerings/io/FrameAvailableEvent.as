@@ -22,7 +22,6 @@
 package com.threerings.io {
 
 import flash.events.Event;
-
 import flash.utils.ByteArray;
 
 public class FrameAvailableEvent extends Event
