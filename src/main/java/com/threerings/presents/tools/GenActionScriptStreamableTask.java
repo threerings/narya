@@ -33,6 +33,7 @@ import org.apache.tools.ant.Project;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
+import com.google.common.primitives.Primitives;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.Files;
@@ -189,7 +190,7 @@ public class GenActionScriptStreamableTask extends GenTask
                 for (Type param : ((ParameterizedType) genType).getActualTypeArguments()) {
                     if (param instanceof Class) {
                         // Convert any box classes to primitives to avoid having to import them
-                        Class<?> primitive = ActionScriptUtils.toPrimitiveType((Class<?>) param);
+                        Class<?> primitive = Primitives.unwrap((Class<?>) param);
                         parameters.add(ActionScriptUtils.addImportAndGetShortType(
                             primitive, false, imports));
                     }
