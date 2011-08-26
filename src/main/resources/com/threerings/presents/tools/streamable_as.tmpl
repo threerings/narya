@@ -42,8 +42,8 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 
 {{#pubFields}}
     public static const {{dobjectField}} :String = "{{name}}";
-
 {{/pubFields}}
+
 {{/dobject}}
     {{#superclassStreamable}}override {{/superclassStreamable}}public function readObject (ins :ObjectInputStream) :void
     {
