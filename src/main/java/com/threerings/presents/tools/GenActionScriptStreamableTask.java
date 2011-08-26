@@ -24,6 +24,8 @@ package com.threerings.presents.tools;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,12 +167,14 @@ public class GenActionScriptStreamableTask extends GenTask
         public final String name;
         public final String capitalName;
         public final String simpleType;
+        public final String parameterTypes;
         public final String reader;
         public final String writer;
         public final String dobjectField;
         public boolean dset;
         public boolean array;
         public boolean oidList;
+        public boolean hasTypeParameters;
 
         public ASField (Field f, ImportSet imports)
         {
@@ -178,6 +182,25 @@ public class GenActionScriptStreamableTask extends GenTask
             capitalName = StringUtil.capitalize(name);
             dobjectField = StringUtil.unStudlyName(name).toUpperCase();
             simpleType = ActionScriptUtils.addImportAndGetShortType(f.getType(), true, imports);
+
+            List<String> parameters = Lists.newLinkedList();
+            Type genType = f.getGenericType();
+            if (genType instanceof ParameterizedType) {
+                for (Type param : ((ParameterizedType) genType).getActualTypeArguments()) {
+                    if (param instanceof Class) {
+                        // Convert any box classes to primitives to avoid having to import them
+                        Class<?> primitive = ActionScriptUtils.toPrimitiveType((Class<?>) param);
+                        parameters.add(ActionScriptUtils.addImportAndGetShortType(
+                            primitive, false, imports));
+                    }
+                }
+            }
+            if (!parameters.isEmpty()) {
+                parameterTypes = Joiner.on(", ").join(parameters);
+                hasTypeParameters = true;
+            } else {
+                parameterTypes = "";
+            }
 
             // Lists and Maps use their Streamers directly
             if (List.class.isAssignableFrom(f.getType())) {
@@ -188,7 +211,6 @@ public class GenActionScriptStreamableTask extends GenTask
                 imports.add("com.threerings.io.streamers.SetStreamer");
             } else if (DSet.class.isAssignableFrom(f.getType())) {
                 dset = true;
-                imports.add("com.threerings.presents.dobj.DSet_Entry"); // Used for signals
             } else if (OidList.class.isAssignableFrom(f.getType())) {
                 oidList = true;
             }

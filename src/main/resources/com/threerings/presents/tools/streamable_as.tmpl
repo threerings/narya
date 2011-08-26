@@ -19,16 +19,17 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 
 // GENERATED STREAMING START
 {{#pubFields}}
-    public var {{name}} :{{simpleType}};
+    public var {{name}} :{{simpleType}};{{#hasTypeParameters}} /* of */ {{parameterTypes}};{{/hasTypeParameters}}
+
 
 {{/pubFields}}
 {{#dobject}}
 {{#pubFields}}
     public var {{name}}Changed :Signal = new Signal({{simpleType}}, {{simpleType}});
 {{#dset}}
-    public var {{name}}EntryAdded :Signal = new Signal(DSet_Entry);
-    public var {{name}}EntryRemoved :Signal = new Signal(DSet_Entry);
-    public var {{name}}EntryUpdated :Signal = new Signal(DSet_Entry, DSet_Entry);
+    public var {{name}}EntryAdded :Signal = new Signal({{parameterTypes}});
+    public var {{name}}EntryRemoved :Signal = new Signal({{parameterTypes}});
+    public var {{name}}EntryUpdated :Signal = new Signal({{parameterTypes}}, {{parameterTypes}});
 {{/dset}}
 {{#array}}
     public var {{name}}ElementUpdated :Signal = new Signal(int, Object, Object);

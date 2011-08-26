@@ -274,6 +274,32 @@ public class ActionScriptUtils
         return false;
     }
 
+    /**
+     * Returns the primitive (unboxed) counterpart of a class, or the same class if it isn't a boxed
+     * type.
+     */
+    public static Class<?> toPrimitiveType (Class<?> cclass)
+    {
+        if (Boolean.class == cclass) {
+            return Boolean.TYPE;
+        } else if (Character.class == cclass) {
+            return Character.TYPE;
+        } else if (Byte.class == cclass) {
+            return Byte.TYPE;
+        } else if (Short.class == cclass) {
+            return Short.TYPE;
+        } else if (Integer.class == cclass) {
+            return Integer.TYPE;
+        } else if (Long.class == cclass) {
+            return Long.TYPE;
+        } else if (Float.class == cclass) {
+            return Float.TYPE;
+        } else if (Double.class == cclass) {
+            return Double.TYPE;
+        }
+        return cclass;
+    }
+
     /** Returns if the given class is an implementation of Map that doesn't know about Streaming */
     protected static boolean isNaiveMap (Class<?> type)
     {
