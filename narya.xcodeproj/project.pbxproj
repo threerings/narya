@@ -415,6 +415,9 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0410;
+			};
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "narya" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -496,6 +499,7 @@
 		1DEB91EC08733DB70010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				HEADER_SEARCH_PATHS = (
 					"$(BOOST_ROOT)",
 					./src/cpp,
@@ -516,13 +520,13 @@
 					"$(BOOST_ROOT)/ThirdParty/boost_1_43_0",
 					./src/cpp,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-fvisibility=hidden",
 					"-fvisibility-inlines-hidden",
 				);
-				PREBINDING = NO;
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
 			};
