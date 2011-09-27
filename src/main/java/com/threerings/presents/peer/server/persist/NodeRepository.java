@@ -26,12 +26,16 @@ import java.util.Set;
 
 import java.sql.Timestamp;
 
+import com.google.common.collect.Lists;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.StringUtil;
 
+import com.samskivert.depot.expression.SQLExpression;
 import com.samskivert.depot.DepotRepository;
+import com.samskivert.depot.Ops;
 import com.samskivert.depot.PersistenceContext;
 import com.samskivert.depot.PersistentRecord;
 import com.samskivert.depot.Query;
@@ -51,26 +55,39 @@ public class NodeRepository extends DepotRepository
     }
 
     /**
-     * Returns a list of all nodes registered in the repository.
+     * Returns a list of all nodes registered in the repository that are not explicitly shut down.
      */
     public List<NodeRecord> loadNodes ()
     {
-        return loadNodes("");
+        return loadNodes("", false);
     }
 
     /**
      * Returns a list of all nodes registered in the repository with names starting with the given
-     * string.
+     * string that are not explicitly shut down.
      */
     public List<NodeRecord> loadNodes (String namespace)
+    {
+        return loadNodes(namespace, false);
+    }
+
+    /**
+     * Returns a list of all nodes registered in the repository with names starting with the given
+     * string, optionally including nodes that are explicitly shut down.
+     */
+    public List<NodeRecord> loadNodes (String namespace, boolean includeShutdown)
     {
         // we specifically avoid caching this query because we want the servers to always see the
         // most up to date set of nodes
         Query<NodeRecord> query = from(NodeRecord.class).noCache();
+        List<SQLExpression<?>> conditions = Lists.newArrayList();
         if (!StringUtil.isBlank(namespace)) {
-            query = query.where(NodeRecord.NODE_NAME.like(namespace + "%"));
+            conditions.add(NodeRecord.NODE_NAME.like(namespace + "%"));
         }
-        return query.select();
+        if (!includeShutdown) {
+            conditions.add(Ops.not(NodeRecord.SHUTDOWN));
+        }
+        return (conditions.isEmpty() ? query : query.where(conditions)).select();
     }
 
     /**
@@ -93,11 +110,11 @@ public class NodeRepository extends DepotRepository
     }
 
     /**
-     * Deletes the identified node record.
+     * Marks the identified node as shut down in its record.
      */
-    public void deleteNode (String nodeName)
+    public void shutdownNode (String nodeName)
     {
-        delete(NodeRecord.getKey(nodeName));
+        updatePartial(NodeRecord.getKey(nodeName), NodeRecord.SHUTDOWN, true);
     }
 
     @Override // from DepotRepository

@@ -45,11 +45,12 @@ public class NodeRecord extends PersistentRecord
     public static final ColumnExp<String> PUBLIC_HOST_NAME = colexp(_R, "publicHostName");
     public static final ColumnExp<Integer> PORT = colexp(_R, "port");
     public static final ColumnExp<Timestamp> LAST_UPDATED = colexp(_R, "lastUpdated");
+    public static final ColumnExp<Boolean> SHUTDOWN = colexp(_R, "shutdown");
     // AUTO-GENERATED: FIELDS END
 
     /** Increment this value if you modify the definition of this persistent
      * object in a way that will result in a change to its SQL counterpart. */
-    public static final int SCHEMA_VERSION = 1;
+    public static final int SCHEMA_VERSION = 2;
 
     /** The unique name assigned to this node. */
     @Id
@@ -71,6 +72,10 @@ public class NodeRecord extends PersistentRecord
     /** The last time this node has reported in. */
     @Column(name="LAST_UPDATED")
     public Timestamp lastUpdated;
+
+    /** Whether or not this node is explicitly shut down. */
+    @Column(name="SHUTDOWN")
+    public boolean shutdown;
 
     /** Used to create a blank instance when loading from the database. */
     public NodeRecord ()

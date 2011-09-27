@@ -945,10 +945,10 @@ public abstract class PeerManager
         _clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        _invoker.postUnit(new WriteOnlyUnit("deleteNode(" + _nodeName + ")") {
+        _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
             @Override
             public void invokePersist () throws Exception {
-                _noderepo.deleteNode(_nodeName);
+                _noderepo.shutdownNode(_nodeName);
             }
         });
 
