@@ -39,31 +39,31 @@ public class WeightedList<T>
 
     public static <K> WeightedList<K> newList (K... entry)
     {
-        return new WeightedList<K>().add(entry);
+        return new WeightedList<K>().addAll(entry);
     }
 
     public static <K> WeightedList<K> newList (Float weight, K entry)
     {
-        return new WeightedList<K>().add(weight, entry);
+        return new WeightedList<K>().addAll(weight, entry);
     }
 
     public static <K> WeightedList<K> newList (Float weight, K... entry)
     {
-        return new WeightedList<K>().add(weight, entry);
+        return new WeightedList<K>().addAll(weight, entry);
     }
 
     /**
      * Adds the given items with a weight of 1.
      */
-    public WeightedList<T> add (T... items)
+    public WeightedList<T> addAll (T... items)
     {
-        return add(1f, items);
+        return addAll(1f, items);
     }
 
     /**
      * Adds the given item with the given weight.
      */
-    public WeightedList<T> add (float weight, T item)
+    public WeightedList<T> addAll (float weight, T item)
     {
         _items.add(new Tuple<Float, T>(weight, item));
         _weights = null;
@@ -73,10 +73,10 @@ public class WeightedList<T>
     /**
      * Adds all of the given items with the given weight.
      */
-    public WeightedList<T> add (float weight, T... items)
+    public WeightedList<T> addAll (float weight, T... items)
     {
         for (T item : items) {
-            add(weight, item);
+            addAll(weight, item);
         }
         return this;
     }
@@ -137,7 +137,7 @@ public class WeightedList<T>
     @Override
     public String toString ()
     {
-        return StringUtil.toString(_items);
+        return _items.toString();
     }
 
     protected float[] _weights;
