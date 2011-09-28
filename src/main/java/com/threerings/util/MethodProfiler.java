@@ -23,8 +23,12 @@ package com.threerings.util;
 
 import java.util.Map;
 
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
+
 import com.samskivert.util.StringUtil;
 
 import static com.threerings.NaryaLog.log;
@@ -122,8 +126,9 @@ public class MethodProfiler
      */
     public Map<String, Result> getResults ()
     {
-        Map<String, Result> results = Maps.newHashMapWithExpectedSize(_profiles.size());
-        for (Map.Entry<String, RunningStats> entry : _profiles.entrySet()) {
+        Map<String, Result> results = Maps.newHashMapWithExpectedSize(
+            Ints.saturatedCast(_profiles.size()));
+        for (Map.Entry<String, RunningStats> entry : _profiles.asMap().entrySet()) {
             synchronized (entry.getValue()) {
                 results.put(entry.getKey(), toResult(entry.getValue()));
             }
@@ -196,7 +201,7 @@ public class MethodProfiler
      */
     public void reset ()
     {
-        _profiles.clear();
+        _profiles.invalidateAll();
     }
 
     /**
@@ -204,7 +209,7 @@ public class MethodProfiler
      */
     protected void recordTime (String method, double elapsedMs)
     {
-        RunningStats stats = _profiles.get(method);
+        RunningStats stats = _profiles.getUnchecked(method);
         synchronized (stats) {
             stats.addSample(elapsedMs);
         }
@@ -331,6 +336,10 @@ public class MethodProfiler
     };
 
     /** Stats by method name. */
-    protected final Map<String, RunningStats> _profiles =
-        new MapMaker().makeComputingMap(DefaultMap.newInstanceCreator(RunningStats.class));
+    protected final Cache<String, RunningStats> _profiles = CacheBuilder.newBuilder()
+        .build(new CacheLoader<String, RunningStats>() {
+            public RunningStats load (String key) {
+                return new RunningStats();
+            }
+        });
 }
