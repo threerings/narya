@@ -39,6 +39,7 @@ import static org.junit.Assert.*;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -143,9 +144,9 @@ public class StreamableTest
         public Collection<Integer> collection = Arrays.asList(4, 5, 6);
         public Collection<Integer> nullCollection = null;
 
-        public Set<Integer> set = Sets.newHashSet(6, 7, 8);
+        public Set<Integer> set = Sets.newHashSet(ImmutableSet.of(6, 7, 8));
         public Set<Integer> nullSet = null;
-        public HashSet<Integer> hashSet = Sets.newHashSet(7, 8, 9);
+        public HashSet<Integer> hashSet = Sets.newHashSet(ImmutableSet.of(7, 8, 9));
         public HashSet<Integer> nullHashSet = null;
 
         public Map<Integer, String> map = ImmutableMap.of(1, "one", 2, "two", 3, "three");
