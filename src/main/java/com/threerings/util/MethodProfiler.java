@@ -27,7 +27,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Maps;
-import com.google.common.primitives.Ints;
 
 import com.samskivert.util.StringUtil;
 
@@ -126,9 +125,9 @@ public class MethodProfiler
      */
     public Map<String, Result> getResults ()
     {
-        Map<String, Result> results = Maps.newHashMapWithExpectedSize(
-            Ints.saturatedCast(_profiles.size()));
-        for (Map.Entry<String, RunningStats> entry : _profiles.asMap().entrySet()) {
+        Map<String, RunningStats> cmap = _profiles.asMap();
+        Map<String, Result> results = Maps.newHashMapWithExpectedSize(cmap.size());
+        for (Map.Entry<String, RunningStats> entry : cmap.entrySet()) {
             synchronized (entry.getValue()) {
                 results.put(entry.getKey(), toResult(entry.getValue()));
             }
