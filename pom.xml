@@ -163,7 +163,7 @@
             <link>http://samskivert.github.com/samskivert/apidocs/</link>
             <link>http://depot.googlecode.com/svn/apidocs/</link>
             <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
-            <link>http://google-web-toolkit.googlecode.com/svn/javadoc/2.1/</link>
+            <link>http://google-web-toolkit.googlecode.com/svn/javadoc/latest/</link>
             <link>http://evgeny-goldin.org/ant/api/</link>
           </links>
         </configuration>
