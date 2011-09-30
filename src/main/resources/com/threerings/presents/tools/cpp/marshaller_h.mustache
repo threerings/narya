@@ -12,7 +12,6 @@
 
 {{#namespaces}}namespace {{this}} { {{/namespaces}}
 
-
 class {{name}} : public presents::data::InvocationMarshaller, public boost::enable_shared_from_this<{{name}}> {
 public:
     DECLARE_STREAMABLE();
@@ -26,5 +25,4 @@ protected:
     Shared<{{name}}> getSharedThis();
 };
 
-{{#namespaces}}
-}{{/namespaces}}
+{{#namespaces}}}{{/namespaces}}
