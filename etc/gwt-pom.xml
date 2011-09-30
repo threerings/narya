@@ -6,7 +6,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya-gwt</artifactId>
   <packaging>jar</packaging>
-  <version>1.9</version>
+  <version>1.10-SNAPSHOT</version>
 
   <name>Narya GWT</name>
   <description>Source for classes that work with GWT.</description>
