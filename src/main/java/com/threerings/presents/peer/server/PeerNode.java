@@ -127,7 +127,9 @@ public class PeerNode
     public void refresh (NodeRecord record)
     {
         // if the hostname of this node changed, kill our existing client and connect anew
-        if (!record.hostName.equals(_record.hostName) && _client.isActive()) {
+        String region = _peermgr.getRegion();
+        String hostName = record.getPeerHostName(region);
+        if (!hostName.equals(_record.getPeerHostName(region)) && _client.isActive()) {
             _client.logoff(false);
         }
 
@@ -149,7 +151,7 @@ public class PeerNode
 
         // otherwise configure our client with the right bits and logon
         _client.setCredentials(_peermgr.createCreds());
-        _client.setServer(_record.hostName, new int[] { _record.port });
+        _client.setServer(hostName, new int[] { _record.port });
         _client.logon();
         _lastConnectStamp = System.currentTimeMillis();
     }

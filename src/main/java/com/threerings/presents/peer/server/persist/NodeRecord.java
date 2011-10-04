@@ -23,6 +23,8 @@ package com.threerings.presents.peer.server.persist;
 
 import java.sql.Timestamp;
 
+import com.google.common.base.Objects;
+
 import com.samskivert.util.StringUtil;
 
 import com.samskivert.depot.Key;
@@ -43,6 +45,7 @@ public class NodeRecord extends PersistentRecord
     public static final ColumnExp<String> NODE_NAME = colexp(_R, "nodeName");
     public static final ColumnExp<String> HOST_NAME = colexp(_R, "hostName");
     public static final ColumnExp<String> PUBLIC_HOST_NAME = colexp(_R, "publicHostName");
+    public static final ColumnExp<String> REGION = colexp(_R, "region");
     public static final ColumnExp<Integer> PORT = colexp(_R, "port");
     public static final ColumnExp<Timestamp> LAST_UPDATED = colexp(_R, "lastUpdated");
     public static final ColumnExp<Boolean> SHUTDOWN = colexp(_R, "shutdown");
@@ -50,7 +53,7 @@ public class NodeRecord extends PersistentRecord
 
     /** Increment this value if you modify the definition of this persistent
      * object in a way that will result in a change to its SQL counterpart. */
-    public static final int SCHEMA_VERSION = 2;
+    public static final int SCHEMA_VERSION = 3;
 
     /** The unique name assigned to this node. */
     @Id
@@ -64,6 +67,11 @@ public class NodeRecord extends PersistentRecord
     /** The DNS name used to connect to this node by normal clients. */
     @Column(name="PUBLIC_HOST_NAME", length=64)
     public String publicHostName;
+
+    /** The region in which the node exists.  Nodes in different regions must connect through the
+     * public host name. */
+    @Column(name="REGION", length=64, nullable=true)
+    public String region;
 
     /** The port on which to connect to this node. */
     @Column(name="PORT")
@@ -83,11 +91,13 @@ public class NodeRecord extends PersistentRecord
     }
 
     /** Creates a record for the specified node. */
-    public NodeRecord (String nodeName, String hostName, String publicHostName, int port)
+    public NodeRecord (
+        String nodeName, String hostName, String publicHostName, String region, int port)
     {
         this.nodeName = nodeName;
         this.hostName = hostName;
         this.publicHostName = publicHostName;
+        this.region = region;
         this.port = port;
     }
 
@@ -95,6 +105,14 @@ public class NodeRecord extends PersistentRecord
     public NodeRecord (String nodeName)
     {
         this.nodeName = nodeName;
+    }
+
+    /**
+     * Returns the host name to which peers in the specified region should connect.
+     */
+    public String getPeerHostName (String region)
+    {
+        return Objects.equal(this.region, region) ? hostName : publicHostName;
     }
 
     @Override
