@@ -347,6 +347,7 @@ public class ClientDObjectMgr
         // processed, it'll be 86ed
         var ooid :int = obj.getOid();
         _ocache.remove(ooid);
+        obj.setManager(null);
         _dead.put(ooid, obj);
 
         // ship off an unsubscribe message to the server; we'll remove the
