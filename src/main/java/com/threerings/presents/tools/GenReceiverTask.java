@@ -24,13 +24,11 @@ package com.threerings.presents.tools;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import java.util.Iterator;
 import java.util.List;
 
 import java.io.File;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
 
 import com.samskivert.util.ComparableArrayList;
 import com.samskivert.util.StringUtil;
@@ -95,27 +93,26 @@ public class GenReceiverTask extends InvocationTask
         // get rid of primitives and java.lang types
         imports.removeGlobals();
 
-        generateSender(source, rname, rpackage, methods, imports.toList().iterator());
-        generateDecoder(receiver, source, rname, rpackage, methods, imports.toList().iterator(),
+        generateSender(source, rname, rpackage, methods, imports);
+        generateDecoder(receiver, source, rname, rpackage, methods, imports,
             StringUtil.md5hex(rpackage + "." + rname));
     }
 
     protected void generateSender (File source, String rname, String rpackage,
-                                   List<?> methods, Iterator<String> imports)
+                                   List<?> methods, ImportSet imports)
         throws Exception
     {
         String name = rname.replace("Receiver", "");
         String spackage = rpackage.replace(".client", ".server");
 
         // construct our imports list
-        ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        Iterators.addAll(implist, imports);
-        checkedAdd(implist, ClientObject.class.getName());
-        checkedAdd(implist, InvocationSender.class.getName());
+        ImportSet impset = new ImportSet();
+        impset.addAll(imports);
+        impset.add(ClientObject.class);
+        impset.add(InvocationSender.class);
         String dname = rname.replace("Receiver", "Decoder");
-        checkedAdd(implist, rpackage + "." + dname);
-        checkedAdd(implist, rpackage + "." + rname);
-        implist.sort();
+        impset.add(rpackage + "." + dname);
+        impset.add(rpackage + "." + rname);
 
         // determine the path to our sender file
         String mpath = source.getPath();
@@ -125,20 +122,19 @@ public class GenReceiverTask extends InvocationTask
             "name", name,
             "package", spackage,
             "methods", methods,
-            "imports", implist);
+            "importGroups", impset.toGroups());
     }
 
     protected void generateDecoder (Class<?> receiver, File source, String rname, String rpackage,
-                                    List<ServiceMethod> methods, Iterator<String> imports,
+                                    List<ServiceMethod> methods, ImportSet imports,
                                     String rcode) throws Exception
     {
         String name = rname.replace("Receiver", "");
 
         // construct our imports list
-        ComparableArrayList<String> implist = new ComparableArrayList<String>();
-        Iterators.addAll(implist, imports);
-        checkedAdd(implist, InvocationDecoder.class.getName());
-        implist.sort();
+        ImportSet impset = new ImportSet();
+        impset.addAll(imports);
+        impset.add(InvocationDecoder.class);
 
         // determine the path to our sender file
         String mpath = source.getPath();
@@ -148,7 +144,7 @@ public class GenReceiverTask extends InvocationTask
             "receiver_code", rcode,
             "package", rpackage,
             "methods", methods,
-            "imports", implist);
+            "importGroups", impset.toGroups());
         if (_asroot == null) {
             return;
         }
@@ -160,17 +156,17 @@ public class GenReceiverTask extends InvocationTask
             "receiver_code", rcode,
             "package", rpackage,
             "methods", methods,
-            "imports", implist);
+            "importGroups", impset.toGroups());
 
         // ... and an ActionScript receiver
         aspath = _asroot + File.separator + sppath + File.separator + rname + ".as";
-        implist.remove(InvocationDecoder.class.getName());
-        checkedAdd(implist, InvocationReceiver.class.getName());
+        impset.remove(InvocationDecoder.class);
+        impset.add(InvocationReceiver.class);
         writeTemplate(AS_RECEIVER_TMPL, aspath,
             "name", name,
             "package", rpackage,
             "methods", methods,
-            "imports", implist);
+            "importGroups", impset.toGroups());
     }
 
     /** The path to our ActionScript source files. */

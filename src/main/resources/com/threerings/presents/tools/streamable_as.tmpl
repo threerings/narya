@@ -21,7 +21,6 @@ public class {{classname}} {{^extends.isEmpty}}extends {{extends}}
 {{#pubFields}}
     public var {{name}} :{{simpleType}};{{#hasTypeParameters}} /* of */ {{parameterTypes}};{{/hasTypeParameters}}
 
-
 {{/pubFields}}
 {{#dobject}}
 {{#pubFields}}
@@ -139,11 +138,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#dset}}
+{{#pubFields}}
+{{#dset}}
             case "{{name}}":
                 signal = _obj.{{name}}EntryAdded;
                 break;
-{{/dset}}{{/pubFields}}
+{{/dset}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -154,11 +155,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#dset}}
+{{#pubFields}}
+{{#dset}}
             case "{{name}}":
                 signal = _obj.{{name}}EntryRemoved;
                 break;
-{{/dset}}{{/pubFields}}
+{{/dset}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -169,11 +172,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#dset}}
+{{#pubFields}}
+{{#dset}}
             case "{{name}}":
                 signal = _obj.{{name}}EntryUpdated;
                 break;
-{{/dset}}{{/pubFields}}
+{{/dset}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -184,11 +189,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#array}}
+{{#pubFields}}
+{{#array}}
             case "{{name}}":
                 signal = _obj.{{name}}ElementUpdated;
                 break;
-{{/array}}{{/pubFields}}
+{{/array}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -199,11 +206,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#oidList}}
+{{#pubFields}}
+{{#oidList}}
             case "{{name}}":
                 signal = _obj.{{name}}ObjectAdded;
                 break;
-{{/oidList}}{{/pubFields}}
+{{/oidList}}
+{{/pubFields}}
             default:
                 return;
         }
@@ -214,11 +223,13 @@ class Signaller
     {
         var signal :Signal;
         switch (event.getName()) {
-{{#pubFields}}{{#oidList}}
+{{#pubFields}}
+{{#oidList}}
             case "{{name}}":
                 signal = _obj.{{name}}ObjectRemoved;
                 break;
-{{/oidList}}{{/pubFields}}
+{{/oidList}}
+{{/pubFields}}
             default:
                 return;
         }

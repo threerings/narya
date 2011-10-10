@@ -25,7 +25,6 @@ import static com.threerings.presents.tools.cpp.CPPUtil.makePath;
 
 import java.lang.reflect.Type;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +35,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.threerings.presents.tools.GenReceiverTask;
+import com.threerings.presents.tools.ImportSet;
 
 public class GenCPPReceiverTask extends GenReceiverTask
 {
@@ -46,7 +46,7 @@ public class GenCPPReceiverTask extends GenReceiverTask
 
     @Override
     protected void generateDecoder (Class<?> receiver, File source, String rname, String rpackage,
-        List<ServiceMethod> methods, Iterator<String> imports, String rcode)
+        List<ServiceMethod> methods, ImportSet imports, String rcode)
         throws Exception
     {
         String dname = rname.replace("Receiver", "Decoder");
