@@ -272,7 +272,7 @@
     <maveninstall file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
   </target>
 
-  <target name="deploy" depends="dist,aslib,javadoc"
+  <target name="deploy" depends="dist,aslib,tests,javadoc"
           description="Deploys our build artifacts to a Maven repository.">
     <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"
                  srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
