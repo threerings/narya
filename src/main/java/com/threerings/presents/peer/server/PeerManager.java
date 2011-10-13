@@ -689,6 +689,19 @@ public abstract class PeerManager
     }
 
     /**
+     * Returns the NodeObject of the named peer, or <code>null</code> if null if the peer is not
+     * currently connected to this server.
+     */
+    public NodeObject getPeerNodeObject (String nodeName)
+    {
+        if (_nodeName.equals(nodeName)) {
+            return _nodeobj;
+        }
+        PeerNode peer = _peers.get(nodeName);
+        return (peer == null) ? null : peer.nodeobj;
+    }
+
+    /**
      * Returns the client object representing the connection to the named peer, or
      * <code>null</code> if we are not currently connected to it.
      */
