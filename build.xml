@@ -8,7 +8,7 @@
   <property name="classes.dir"  location="${deploy.dir}/classes"/>
   <property name="tclasses.dir" location="${deploy.dir}/test-classes"/>
 
-  <property name="ooo-build.vers" value="2.8"/>
+  <property name="ooo-build.vers" value="2.9"/>
   <ant antfile="etc/bootstrap.xml"/>
   <import file="${user.home}/.m2/ooo-build/${ooo-build.vers}/ooo-build.xml"/>
 
@@ -221,7 +221,8 @@
 
   <!-- C++ streamable generation depends on a diverse enough set of classes that we just compile
        everything for it -->
-  <target name="gencppstream" depends="-preptools,compile" description="Generates C++ streamable classes.">
+  <target name="gencppstream" depends="-preptools,compile"
+          description="Generates C++ streamable classes.">
     <gencppstreamable classpathref="built.classpath" cpproot="src/cpp" checking="${gencheck}">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
@@ -263,28 +264,15 @@
     </instream>
   </target>
 
-  <target name="snapshot" description="Creates a zipfile with our source distribution">
-     <delete file="${deploy.dir}/${ant.project.name}-snapshot.zip"/>
-     <mkdir dir="${deploy.dir}/snapshot/${ant.project.name}"/>
-     <copy todir="${deploy.dir}/snapshot/${ant.project.name}">
-       <fileset dir=".">
-         <include name="**"/>
-         <exclude name="${deploy.dir}/**"/>
-         <exclude name="${ant.project.name}-*.zip"/>
-       </fileset>
-     </copy>
-     <copy todir="${deploy.dir}/snapshot/${ant.project.name}/lib">
-       <fileset dir="${deploy.dir}/lib" includes="*.jar"/>
-     </copy>
-     <copy todir="${deploy.dir}/snapshot/${ant.project.name}/docs/api">
-       <fileset dir="${deploy.dir}/docs" includes="**"/>
-     </copy>
-     <zip destfile="${deploy.dir}/${ant.project.name}-snapshot.zip"
-          basedir="${deploy.dir}/snapshot"/>
-     <delete dir="${deploy.dir}/snapshot"/>
+  <target name="install" depends="dist,aslib"
+          description="Installs artifacts to local Maven repository.">
+    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"/>
+    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="etc/tools-pom.xml"/>
+    <maveninstall file="${deploy.dir}/${ant.project.name}-gwt.jar" pom="etc/gwt-pom.xml"/>
+    <maveninstall file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
   </target>
 
-  <target name="maven-deploy" depends="dist,aslib,javadoc"
+  <target name="deploy" depends="dist,aslib,javadoc"
           description="Deploys our build artifacts to a Maven repository.">
     <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"
                  srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
