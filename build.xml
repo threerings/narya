@@ -8,7 +8,7 @@
   <property name="classes.dir"  location="${deploy.dir}/classes"/>
   <property name="tclasses.dir" location="${deploy.dir}/test-classes"/>
 
-  <property name="ooo-build.vers" value="2.5"/>
+  <property name="ooo-build.vers" value="2.8"/>
   <ant antfile="etc/bootstrap.xml"/>
   <import file="${user.home}/.m2/ooo-build/${ooo-build.vers}/ooo-build.xml"/>
 
@@ -79,10 +79,11 @@
              destdir="${deploy.dir}/docs" stylesheetfile="docs/stylesheet.css"
              link="http://www.threerings.net/code/narya/docs/api"
              additionalparam="-breakiterator" classpathref="built.classpath">
-      <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
-      <!-- ant documentation is not available online, sorry kids -->
-      <link href="file:///usr/share/doc/ant-doc/javadocs"/>
+      <link href="http://download.oracle.com/javase/6/docs/api/"/>
+      <link href="http://docs.guava-libraries.googlecode.com/git/javadoc/"/>
       <link href="http://samskivert.googlecode.com/svn/apidocs"/>
+      <link href="http://depot.googlecode.com/svn/apidocs/"/>
+      <link href="http://www.jajakarta.org/ant/ant-1.6.1/docs/ja/manual/api/"/>
     </javadoc>
   </target>
 
@@ -283,10 +284,10 @@
      <delete dir="${deploy.dir}/snapshot"/>
   </target>
 
-  <target name="maven-deploy" depends="dist,aslib"
+  <target name="maven-deploy" depends="dist,aslib,javadoc"
           description="Deploys our build artifacts to a Maven repository.">
-    <jar basedir="${src.dir}" destfile="${deploy.dir}/${ant.project.name}-sources.jar"/>
-    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" srcdir="${src.dir}" pom="pom.xml"/>
+    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"
+                 srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
     <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="etc/tools-pom.xml"/>
     <mavendeploy file="${deploy.dir}/${ant.project.name}-gwt.jar" pom="etc/gwt-pom.xml"/>
     <mavendeploy file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>

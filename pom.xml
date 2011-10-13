@@ -160,7 +160,7 @@
             <link>http://depot.googlecode.com/svn/apidocs/</link>
             <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
             <link>http://google-web-toolkit.googlecode.com/svn/javadoc/latest/</link>
-            <link>http://evgeny-goldin.org/ant/api/</link>
+            <link>http://www.jajakarta.org/ant/ant-1.6.1/docs/ja/manual/api/</link>
           </links>
         </configuration>
       </plugin>
