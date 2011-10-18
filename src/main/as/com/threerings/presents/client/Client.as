@@ -26,6 +26,7 @@ import flash.utils.Timer;
 
 import com.threerings.util.DelayUtil;
 import com.threerings.util.Log;
+import com.threerings.util.Long;
 import com.threerings.util.Throttle;
 
 import com.threerings.presents.client.InvocationService_ConfirmListener;
@@ -225,6 +226,26 @@ public class Client extends EventDispatcher
         return _bstrap;
     }
 
+    /**
+     * Converts a server time stamp to a value comparable to client clock readings.
+     */
+    public function fromServerTime (stamp :Long) :Long
+    {
+        // when we calculated our time delta, we did it such that: C - S = dT, thus to convert
+        // server to client time we do: C = S + dT
+        return Long.fromNumber(stamp.toNumber() + _serverDelta);
+    }
+
+    /**
+     * Converts a client clock reading to a value comparable to a server time stamp.
+     */
+    public function toServerTime (stamp :Long) :Long
+    {
+        // when we calculated our time delta, we did it such that: C - S = dT, thus to convert
+        // server to client time we do: S = C - dT
+        return Long.fromNumber(stamp.toNumber() - _serverDelta);
+    }
+
     public function isLoggedOn () :Boolean
     {
         return (_clobj != null);
@@ -369,6 +390,10 @@ public class Client extends EventDispatcher
 
         _invdir.init(omgr, _cloid, this);
 
+        // send a few pings to the server to establish the clock offset between this client and
+        // server standard time
+        establishClockDelta(flash.utils.getTimer());
+
         // log.debug("TimeBaseService: " + requireService(TimeBaseService));
     }
 
@@ -383,8 +408,40 @@ public class Client extends EventDispatcher
         }
 
         var now :uint = flash.utils.getTimer();
-        if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
+        if (_dcalc != null) {
+            // if our current calculator is done, clear it out
+            if (_dcalc.isDone()) {
+                //log.debug("Time offset from server: " + _serverDelta + "ms.");
+                _dcalc = null;
+            } else if (_dcalc.shouldSendPing()) {
+                // otherwise, send another ping
+                var req :PingRequest = new PingRequest();
+                _comm.postMessage(req);
+                _dcalc.sentPing(req);
+            }
+
+        } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
             _comm.postMessage(new PingRequest());
+        } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
+            // resync our clock with the server
+            establishClockDelta(now);
+        }
+    }
+
+    /**
+     * Called during initialization to initiate a sequence of ping/pong messages which will be used
+     * to determine (with "good enough" accuracy) the difference between the client clock and the
+     * server clock so that we can later interpret server timestamps.
+     */
+    protected function establishClockDelta (now :Number) :void
+    {
+        if (_comm != null) {
+            // create a new delta calculator and start the process
+            _dcalc = new DeltaCalculator();
+            var req :PingRequest = new PingRequest();
+            _comm.postMessage(req);
+            _dcalc.sentPing(req);
+            _lastSync = now;
         }
     }
 
@@ -405,7 +462,6 @@ public class Client extends EventDispatcher
     {
         // keep our client object around
         _clobj = clobj;
-
         // and start up our tick interval (which will send pings when necessary)
         if (_tickInterval == null) {
             _tickInterval = new Timer(5000);
@@ -453,7 +509,13 @@ public class Client extends EventDispatcher
      */
     internal function gotPong (pong :PongResponse) :void
     {
-        // TODO: compute time delta?
+        // if we're not currently calculating our delta, then we can throw away the pong
+        if (_dcalc != null) {
+            // we update the delta after every receipt so as to immediately obtain an estimate of
+            // the clock delta and then refine it as more packets come in
+            _dcalc.gotPong(pong);
+            _serverDelta = _dcalc.getTimeDelta();
+        }
     }
 
     internal function setOutgoingMessageThrottle (messagesPerSec :int) :void
@@ -536,6 +598,16 @@ public class Client extends EventDispatcher
     /** Manages invocation services. */
     protected var _invdir :InvocationDirector = new InvocationDirector();
 
+    /** The difference between the server clock and the client clock (estimated immediately after
+     * logging on). */
+    protected var _serverDelta :Number;
+
+    /** Used when establishing our clock delta between the client and server. */
+    protected var _dcalc :DeltaCalculator;
+
+    /** The last time at which we synced our clock with the server. */
+    protected var _lastSync :Number;
+
     /** Ticks. */
     protected var _tickInterval :Timer;
 
@@ -547,5 +619,8 @@ public class Client extends EventDispatcher
     /** Used to temporarily track our server switcher so that we can tell when we're logging off
      * whether or not we're switching servers or actually ending our session. */
     protected var _switcher :ServerSwitcher;
+
+    /** How often we recompute our time offset from the server. */
+    protected static const CLOCK_SYNC_INTERVAL :Number = 600 * 1000;
 }
 }
