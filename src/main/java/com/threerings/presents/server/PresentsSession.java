@@ -992,7 +992,7 @@ public class PresentsSession
             messagesPerSec = _pendingThrottles.remove(0);
         }
 
-        log.info("Applying updated throttle", "client", this, "msgsPerSec", messagesPerSec);
+        // log.info("Applying updated throttle", "client", this, "msgsPerSec", messagesPerSec);
         // We set our hard throttle over a 10 second period instead of a 1 second period to
         // account for periods of network congestion that might cause otherwise properly
         // throttled messages to bunch up while they're "on the wire"; we also add a one
