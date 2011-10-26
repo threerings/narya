@@ -512,6 +512,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = src/cpp/presents/stable.h;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -532,6 +533,80 @@
 			};
 			name = Debug;
 		};
+		2249D1F81458AA0800205E7C /* Playtest */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = src/cpp/presents/stable.h;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_ROOT)/ThirdParty/boost_1_43_0",
+					./src/cpp,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-fvisibility=hidden",
+					"-fvisibility-inlines-hidden",
+				);
+				SDKROOT = iphoneos;
+				STRIP_STYLE = debugging;
+				SYMROOT = "dist/xcode-build";
+			};
+			name = Playtest;
+		};
+		2249D1F91458AA0800205E7C /* Playtest */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_ROOT)",
+					./src/cpp,
+				);
+				PRODUCT_NAME = narya;
+			};
+			name = Playtest;
+		};
+		2249D1FA1458AA0E00205E7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = src/cpp/presents/stable.h;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_ROOT)/ThirdParty/boost_1_43_0",
+					./src/cpp,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 3.2;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-fvisibility=hidden",
+					"-fvisibility-inlines-hidden",
+				);
+				SDKROOT = iphoneos;
+				STRIP_STYLE = debugging;
+				SYMROOT = "dist/xcode-build";
+			};
+			name = Release;
+		};
+		2249D1FB1458AA0E00205E7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				HEADER_SEARCH_PATHS = (
+					"$(BOOST_ROOT)",
+					./src/cpp,
+				);
+				PRODUCT_NAME = narya;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -539,6 +614,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91EC08733DB70010E9CD /* Debug */,
+				2249D1F91458AA0800205E7C /* Playtest */,
+				2249D1FB1458AA0E00205E7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -547,6 +624,8 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91F008733DB70010E9CD /* Debug */,
+				2249D1F81458AA0800205E7C /* Playtest */,
+				2249D1FA1458AA0E00205E7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
