@@ -23,7 +23,11 @@ package com.threerings.nio;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
+
+import com.google.common.base.Charsets;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -79,14 +83,16 @@ public class PolicyServer extends ConnectionManager
             new ServerSocketChannelAcceptor(null, new int[] { socketPolicyPort }, this);
 
         // build the XML once and for all
-        StringBuilder policy = new StringBuilder("<cross-domain-policy>\n");
+        StringBuilder policy = new StringBuilder()
+            .append("<?xml version=\"1.0\"?>\n")
+            .append("<cross-domain-policy>\n");
         // if we're running on 843, serve a master policy file
         if (socketPolicyPort == MASTER_PORT) {
             policy.append("  <site-control permitted-cross-domain-policies=\"master-only\"/>\n");
         }
 
         policy.append("  <allow-access-from domain=\"*\" to-ports=\"*\"/>\n");
-        policy.append("</cross-domain-policy>\n");
+        policy.append("</cross-domain-policy>\n\n");
 
         try {
             _policy = policy.toString().getBytes("UTF-8");
@@ -114,22 +120,41 @@ public class PolicyServer extends ConnectionManager
     }
 
     @Override
-    protected void handleAcceptedSocket (SocketChannel channel)
+    protected void handleAcceptedSocket (final SocketChannel channel)
     {
-        Connection conn = new Connection() {
+        final ByteBuffer buf = ByteBuffer.allocate(REQUEST.length);
+
+        handleAcceptedSocket(channel, new Connection() {
             public int handleEvent (long when) {
-                // Ignore incoming data.  Should just be "<policy-file-request/>"
+                try {
+                    if (_channel.read(buf) != -1 && buf.remaining() > 0) return 0;
+                    if (Arrays.equals(REQUEST, buf.array())) {
+                        sendPolicy(this);
+                        return buf.position();
+                    }
+                    log.warning("Bad policy request", "request", new String(buf.array(), Charsets.UTF_8));
+                    _cmgr.closeConnection(this);
+
+                } catch (IOException e) {
+                    log.warning("IO failure in policy request", e);
+                    _cmgr.closeConnection(this);
+                }
                 return 0;
             }
-        };
-        handleAcceptedSocket(channel, conn);
+        });
+    }
+
+    protected void sendPolicy (Connection conn)
+    {
         _outq.append(Tuple.newTuple(conn, _policy));
-        postAsyncClose(conn);
+        _outq.append(Tuple.newTuple(conn, ASYNC_CLOSE_REQUEST));
     }
 
     protected ServerSocketChannelAcceptor _acceptor;
 
     protected byte[] _policy;
+
+    protected static final byte[] REQUEST = "<policy-file-request/>\0".getBytes(Charsets.UTF_8);
 
     protected static final int MASTER_PORT = 843;
 }
