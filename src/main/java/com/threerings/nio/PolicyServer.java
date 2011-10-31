@@ -147,7 +147,7 @@ public class PolicyServer extends ConnectionManager
     protected void sendPolicy (Connection conn)
     {
         _outq.append(Tuple.newTuple(conn, _policy));
-        _outq.append(Tuple.newTuple(conn, ASYNC_CLOSE_REQUEST));
+        postAsyncClose(conn);
     }
 
     protected ServerSocketChannelAcceptor _acceptor;
