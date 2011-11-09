@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.threerings</groupId>
       <artifactId>aspirin</artifactId>
-      <version>1.10</version>
+      <version>1.11</version>
       <type>swc</type>
     </dependency>
     <dependency>
