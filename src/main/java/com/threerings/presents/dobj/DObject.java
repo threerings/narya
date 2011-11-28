@@ -57,68 +57,19 @@ import static com.threerings.presents.Log.log;
  * notifications ceasing when a subscriber has relinquished its subscription. Always unregister all
  * listeners when they no longer need to hear from an object.
  *
- * <p> When there is any change to the the object's fields data, an event is generated which is
- * dispatched to all listeners of the object, notifying them of that change and effecting that
- * change to the copy of the object maintained at each client. In this way, both a repository of
- * shared information and a mechanism for asynchronous notification are made available as a
- * fundamental application building blocks.
+ * <p> When there is any change to the the object's properties (which must be effected via the
+ * setter methods), an event is generated which is dispatched to all listeners of the object,
+ * notifying them of that change and effecting that change to the copy of the object maintained at
+ * each client. In this way, both a repository of shared information and a mechanism for
+ * asynchronous notification are made available as a fundamental application building blocks.
  *
- * <p> To define what information is shared, an application creates a distributed object
- * declaration which is much like a class declaration except that it is transformed into a proper
- * derived class of <code>DObject</code> by a script. A declaration looks something like this:
- *
- * <pre>
- * public dclass RoomObject
- * {
- *     public String description;
- *     public int[] occupants;
- * }
- * </pre>
- *
- * which is converted into an actual Java class that looks like this:
- *
- * <pre>
- * public class RoomObject extends DObject
- * {
- *     public String getDescription ()
- *     {
- *         // ...
- *     }
- *
- *     public void setDescription (String description)
- *     {
- *         // ...
- *     }
- *
- *     public int[] getOccupants ()
- *     {
- *         // ...
- *     }
- *
- *     public void setOccupants (int[] occupants)
- *     {
- *         // ...
- *     }
- *
- *     public void setOccupantsAt (int index, int value)
- *     {
- *         // ...
- *     }
- * }
- * </pre>
- *
- * These method calls on the actual distributed object will result in the proper attribute change
- * events being generated and dispatched.
- *
- * <p> Note that distributed object fields can be any of the following set of primitive types:
- *
- * <code><pre>
+ * <p> Distributed object fields can be any of the following set of primitive types:
+ * <pre>{@code
  * boolean, byte, short, int, long, float, double
  * Boolean, Byte, Short, Integer, Long, Float, Double, String
  * boolean[], byte[], short[], int[], long[], float[], double[], String[]
- * </pre></code>
- *
- * Fields of type {@link Streamable} can also be used.
+ * }</pre>
+ * as well as custom types that implement {@link Streamable}.
  */
 public class DObject
     implements Streamable
