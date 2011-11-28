@@ -10,7 +10,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya</artifactId>
   <packaging>jar</packaging>
-  <version>1.11</version>
+  <version>1.11-SNAPSHOT</version>
 
   <name>Narya</name>
   <description>Facilities for making networked multiplayer games.</description>
