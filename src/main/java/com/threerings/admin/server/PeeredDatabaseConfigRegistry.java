@@ -105,13 +105,6 @@ public class PeeredDatabaseConfigRegistry extends DatabaseConfigRegistry
             fieldUpdated(name, value);
         }
 
-        @Override // from ObjectRecord
-        protected void serialize (String name, String key, Object value)
-        {
-            super.serialize(name, key, value);
-            fieldUpdated(name, value);
-        }
-
         protected void fieldUpdated (String field, Object value)
         {
             // broadcast to the other nodes that this value has changed
