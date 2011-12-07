@@ -537,6 +537,11 @@ public class Client extends EventDispatcher
 
     internal function cleanup (logonError :Error) :void
     {
+        // tell the object manager that we're no longer connected to the server
+        if (_omgr is ClientDObjectMgr) {
+            ClientDObjectMgr(_omgr).cleanup();
+        }
+
         // clear out our references
         _comm = null;
         _bstrap = null;

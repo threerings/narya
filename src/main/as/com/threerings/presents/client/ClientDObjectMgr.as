@@ -80,6 +80,27 @@ public class ClientDObjectMgr
         _flushInterval.start();
     }
 
+    /**
+     * Called when the client is cleaned up due to having disconnected from the server.
+     */
+    public function cleanup () :void
+    {
+        // tell any pending object subscribers that they're not getting their bits
+        for each (var req :PendingRequest in _penders.values()) {
+            for each (var sub :Subscriber in req.targets) {
+                sub.requestFailed(req.oid, new ObjectAccessError("Client connection closed"));
+            }
+        }
+        _penders.clear();
+        _flushes.clear();
+        _dead.clear();
+        _ocache.clear();
+
+        _flushInterval.stop();
+        _flushInterval.removeEventListener(TimerEvent.TIMER, flushObjects);
+        _flushInterval = null;
+   }
+
     // documentation inherited from interface DObjectManager
     public function isManager (object :DObject) :Boolean
     {
