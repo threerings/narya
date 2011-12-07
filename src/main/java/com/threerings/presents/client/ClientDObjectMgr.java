@@ -248,6 +248,9 @@ public class ClientDObjectMgr
         }
         _penders.clear();
         _flusher.cancel();
+        _flushes.clear();
+        _dead.clear();
+        _ocache.clear();
     }
 
     protected <T extends DObject> void queueAction (int oid, Subscriber<T> target, boolean subscribe)
