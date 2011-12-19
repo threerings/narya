@@ -394,7 +394,8 @@ public class InvocationManager
         // dispatch the request
         try {
             if (rlist != null) {
-                rlist.setInvocationId(StringUtil.shortClassName(disp) + ", methodId=" + methodId);
+                rlist.setInvocationId(
+                    StringUtil.shortClassName(disp.getProvider()) + ", methodId=" + methodId);
             }
             disp.dispatchRequest(source, methodId, args);
 
