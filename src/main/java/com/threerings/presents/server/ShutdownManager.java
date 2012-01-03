@@ -2,7 +2,7 @@
 // $Id$
 //
 // Narya library - tools for developing networked games
-// Copyright (C) 2002-2011 Three Rings Design, Inc., All Rights Reserved
+// Copyright (C) 2002-2012 Three Rings Design, Inc., All Rights Reserved
 // http://code.google.com/p/narya/
 //
 // This library is free software; you can redistribute it and/or modify it
