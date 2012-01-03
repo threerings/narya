@@ -51,7 +51,7 @@ public class SecureUtil
     /**
      * Creates our AES cipher.
      */
-    public static Cipher getAESCipher(int mode, byte[] key)
+    public static Cipher getAESCipher (int mode, byte[] key)
     {
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -67,7 +67,7 @@ public class SecureUtil
     /**
      * Creates our RSA cipher.
      */
-    public static Cipher getRSACipher(PrivateKey key)
+    public static Cipher getRSACipher (PrivateKey key)
     {
         return getRSACipher(Cipher.DECRYPT_MODE, key);
     }
@@ -75,7 +75,7 @@ public class SecureUtil
     /**
      * Creates our RSA cipher.
      */
-    public static Cipher getRSACipher(PublicKey key)
+    public static Cipher getRSACipher (PublicKey key)
     {
         return getRSACipher(Cipher.ENCRYPT_MODE, key);
     }
@@ -83,7 +83,7 @@ public class SecureUtil
     /**
      * Creates our RSA cipher.
      */
-    public static Cipher getRSACipher(int mode, Key key)
+    public static Cipher getRSACipher (int mode, Key key)
     {
         try {
             Cipher cipher = Cipher.getInstance("RSA");
