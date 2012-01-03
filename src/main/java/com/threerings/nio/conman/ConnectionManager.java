@@ -32,6 +32,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -171,7 +172,7 @@ public abstract class ConnectionManager extends LoopingThread
 
         // close connections that have had no network traffic for too long
         long idleStamp = iterStamp - _idleTime;
-        for (NetEventHandler handler : _handlers.values()) {
+        for (NetEventHandler handler : Lists.newArrayList(_handlers.values())) {
             if (handler.checkIdle(idleStamp)) {
                 // this will queue the connection for closure on our next tick
                 handler.becameIdle();
