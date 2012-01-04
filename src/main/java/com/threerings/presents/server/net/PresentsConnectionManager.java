@@ -367,38 +367,25 @@ public class PresentsConnectionManager extends ConnectionManager
             } else {
                 // otherwise we wire up a special event handler that will wait for our socket to
                 // finish the connection process and then wire things up fully
-                handler = new NetEventHandler() {
-                    public int handleEvent (long when) {
-                        try {
-                            if (sockchan.finishConnect()) {
-                                // great, we're ready to roll, wire up the connection
-                                conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
-                                _handlers.put(conn.selkey, conn);
-                                log.info("Outgoing connection ready", "conn", conn);
-                            }
-                        } catch (IOException ioe) {
-                            handleError(ioe);
-                        }
-                        return 0;
-                    }
-                    public boolean checkIdle (long idleStamp) {
-                        return conn.checkIdle(idleStamp);
-                    }
-                    public void becameIdle () {
-                        handleError(new IOException("Pending connection became idle."));
-                    }
-                    protected void handleError (IOException ioe) {
-                        _handlers.remove(conn.selkey);
-                        _oflowqs.remove(conn);
-                        conn.connectFailure(ioe);
-                    }
-                };
+                handler = new OutgoingConnectionHandler(conn);
             }
             _handlers.put(conn.selkey, handler);
 
         } catch (IOException ioe) {
             log.warning("Failed to initiate connection for " + sockchan + ".", ioe);
             conn.connectFailure(ioe); // nothing else to clean up
+        }
+    }
+
+    @Override // from LoopingThread
+    protected void iterate ()
+    {
+        super.iterate();
+
+        // reap any outgoing connection handlers that failed to connect due to idleness
+        OutgoingConnectionHandler handler;
+        while ((handler = _outfailq.getNonBlocking()) != null) {
+            handler.handleError(new IOException("Pending connection became idle."));
         }
     }
 
@@ -552,6 +539,50 @@ public class PresentsConnectionManager extends ConnectionManager
         }
     }
 
+    protected class OutgoingConnectionHandler implements NetEventHandler
+    {
+        public OutgoingConnectionHandler (Connection conn)
+        {
+            _conn = conn;
+        }
+
+        public int handleEvent (long when)
+        {
+            SocketChannel sockchan = _conn.getChannel();
+            try {
+                if (sockchan.finishConnect()) {
+                    // great, we're ready to roll, wire up the connection
+                    _conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
+                    _handlers.put(_conn.selkey, _conn);
+                    log.info("Outgoing connection ready", "conn", _conn);
+                }
+            } catch (IOException ioe) {
+                handleError(ioe);
+            }
+            return 0;
+        }
+
+        public boolean checkIdle (long idleStamp)
+        {
+            return _conn.checkIdle(idleStamp);
+        }
+
+        public void becameIdle ()
+        {
+            // this failed connection will be cleaned up in the next iterate() tick
+            _outfailq.append(this);
+        }
+
+        protected void handleError (IOException ioe)
+        {
+            _handlers.remove(_conn.selkey);
+            _oflowqs.remove(_conn);
+            _conn.connectFailure(ioe);
+        }
+
+        protected final Connection _conn;
+    }
+
     /** Handles client authentication. The base authenticator is injected but optional services
      * like the PeerManager may replace this authenticator with one that intercepts certain types
      * of authentication and then passes normal authentications through. */
@@ -561,6 +592,9 @@ public class PresentsConnectionManager extends ConnectionManager
 
     protected Queue<AuthingConnection> _authq = Queue.newQueue();
     protected Queue<Tuple<Connection, InetSocketAddress>> _connectq = Queue.newQueue();
+
+    /** failed (idled out) outgoing connections that need to be cleaned up */
+    protected Queue<OutgoingConnectionHandler> _outfailq = Queue.newQueue();
 
     protected FramingOutputStream _framer = new FramingOutputStream();
     protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
