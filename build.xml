@@ -68,7 +68,7 @@
   </target>
 
   <target name="aslib" depends="-prepare" description="Builds the ActionScript code">
-    <maventaskdef groupId="com.threerings.ant" artifactId="actionscript" version="1.0"/>
+    <maventaskdef groupId="com.threerings.ant" artifactId="actionscript" version="1.4"/>
     <compc srcdir="${asrc.dir}" libpath="${aslib.path}"
         dest="${deploy.dir}/${ant.project.name}lib.swc"/>
   </target>
@@ -88,7 +88,7 @@
   </target>
 
   <target name="asdoc" depends="-prepare" description="Builds the ActionScript documention">
-    <maventaskdef groupId="com.threerings.ant" artifactId="actionscript" version="1.0"/>
+    <maventaskdef groupId="com.threerings.ant" artifactId="actionscript" version="1.4"/>
     <mkdir dir="${deploy.dir}/asdocs"/>
     <asdoc srcdir="${asrc.dir}" libpath="${aslib.path}" destdir="${deploy.dir}/asdocs"/>
   </target>
