@@ -266,7 +266,7 @@ public abstract class RebootManager
             broadcast("m.rebooting_now");
 
             // wait 1 second, then do it
-            new Interval() { // Note: This interval does not run on the dobj thread
+            new Interval(Interval.RUN_DIRECT) {
                 @Override public void expired () {
                     _server.queueShutdown(); // this posts a LongRunnable
                 }

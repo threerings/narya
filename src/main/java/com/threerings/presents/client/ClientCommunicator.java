@@ -140,7 +140,7 @@ public class ClientCommunicator extends BlockingCommunicator
     protected class PrefPortInterval extends Interval
     {
         public PrefPortInterval (String key, int thisPort, int nextPort) {
-            super();
+            super(Interval.RUN_DIRECT);
             _key = key;
             _thisPort = thisPort;
             _nextPort = nextPort;
