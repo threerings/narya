@@ -308,22 +308,7 @@ public class LocationDirector extends BasicDirector
             _controller.init(_ctx, config);
 
             // subscribe to our new place object to complete the move
-            _subber = new SafeSubscriber<PlaceObject>(_placeId, new Subscriber<PlaceObject>() {
-                public void objectAvailable (PlaceObject object) {
-                    gotPlaceObject(object);
-                }
-                public void requestFailed (int oid, ObjectAccessException cause) {
-                    // aiya! we were unable to fetch our new place object; something is badly wrong
-                    log.warning("Aiya! Unable to fetch place object for new location", "plid", oid,
-                                "reason", cause);
-                    // clear out our half initialized place info
-                    int placeId = _placeId;
-                    _placeId = -1;
-                    // let the kids know shit be fucked
-                    handleFailure(placeId, "m.unable_to_fetch_place_object");
-                }
-            });
-            _subber.subscribe(_ctx.getDObjectManager());
+            subscribeToPlace();
 
         } catch (Exception e) {
             log.warning("Failed to create place controller", "config", config, e);
@@ -448,6 +433,30 @@ public class LocationDirector extends BasicDirector
     {
         // obtain our service handle
         _lservice = client.requireService(LocationService.class);
+    }
+
+    /**
+     * Subscribe to the PlaceObject identified by _placeId and
+     * call {@link #gotPlaceObject} with the result.
+     */
+    protected void subscribeToPlace ()
+    {
+        _subber = new SafeSubscriber<PlaceObject>(_placeId, new Subscriber<PlaceObject>() {
+            public void objectAvailable (PlaceObject object) {
+                gotPlaceObject(object);
+            }
+            public void requestFailed (int oid, ObjectAccessException cause) {
+                // aiya! we were unable to fetch our new place object; something is badly wrong
+                log.warning("Aiya! Unable to fetch place object for new location", "plid", oid,
+                            "reason", cause);
+                // clear out our half initialized place info
+                int placeId = _placeId;
+                _placeId = -1;
+                // let the kids know shit be fucked
+                handleFailure(placeId, "m.unable_to_fetch_place_object");
+            }
+        });
+        _subber.subscribe(_ctx.getDObjectManager());
     }
 
     protected void gotPlaceObject (PlaceObject object)
