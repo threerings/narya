@@ -250,7 +250,11 @@ public class ClientDObjectMgr
         _flusher.cancel();
         _flushes.clear();
         _dead.clear();
-        _ocache.clear();
+        _client.getRunQueue().postRunnable(new Runnable() {
+            public void run () {
+                _ocache.clear();
+            }
+        });
     }
 
     protected <T extends DObject> void queueAction (int oid, Subscriber<T> target, boolean subscribe)
