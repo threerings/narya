@@ -176,7 +176,7 @@
       <include name="**/*Service.java"/>
     </ooojavac>
     <!-- generate services with an actionscript counterpart-->
-    <genservice header="lib/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath"
+    <genservice header="etc/SOURCE_HEADER" asroot="${asrc.dir}" classpathref="built.classpath"
         checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/*Service.java">
         <exclude name="**/RegistrationService.java"/>
@@ -189,15 +189,15 @@
       <providerless service="TimeBaseService"/>
     </genservice>
     <!-- generate java-only services -->
-    <genservice header="lib/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}">
+    <genservice header="etc/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}">
       <fileset dir="${src.dir}" includes="**/peer/**/*Service.java"/>
       <fileset dir="${src.dir}" includes="**/admin/**/*Service.java"
           excludes="**/gwt/ConfigService.java"/>
     </genservice>
-    <genservice header="lib/SOURCE_HEADER" classpathref="test.classpath" checking="${gencheck}">
+    <genservice header="etc/SOURCE_HEADER" classpathref="test.classpath" checking="${gencheck}">
       <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
     </genservice>
-    <gencppservice header="lib/SOURCE_HEADER" classpathref="built.classpath"
+    <gencppservice header="etc/SOURCE_HEADER" classpathref="built.classpath"
                    cpproot="src/cpp" checking="${gencheck}">
         <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
     </gencppservice>
@@ -212,7 +212,7 @@
       <exclude name="**/InvocationReceiver.java"/>
     </ooojavac>
     <!-- now generate the associated files -->
-    <genreceiver header="lib/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}"
+    <genreceiver header="etc/SOURCE_HEADER" classpathref="built.classpath" checking="${gencheck}"
         asroot="${asrc.dir}">
       <fileset dir="${src.dir}" includes="**/*Receiver.java"
         excludes="**/InvocationReceiver.java,**/SignalReceiver.java"/>
