@@ -4,7 +4,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>naryalib</artifactId>
   <packaging>swc</packaging>
-  <version>1.11</version>
+  <version>1.12-SNAPSHOT</version>
 
   <name>Narya for ActionScript</name>
   <description>Facilities for making networked multiplayer games.</description>
