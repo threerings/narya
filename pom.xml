@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -10,7 +10,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.11-SNAPSHOT</version>
+  <version>1.11</version>
 
   <name>Narya Parent</name>
   <description>Facilities for making networked multiplayer games.</description>
@@ -36,9 +36,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/threerings/narya.git</connection>
-    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk</developerConnection>
-    <url>http://github.com/threerings/narya/</url>
+    <connection>scm:git:git://github.com/threerings/narya.git/tags/narya-parent-1.11</connection>
+    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/tags/narya-parent-1.11</developerConnection>
+    <url>http://github.com/threerings/narya/tags/narya-parent-1.11</url>
   </scm>
 
   <modules>
