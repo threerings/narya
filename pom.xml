@@ -10,7 +10,7 @@
   <groupId>com.threerings</groupId>
   <artifactId>narya-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.11</version>
+  <version>1.12-SNAPSHOT</version>
 
   <name>Narya Parent</name>
   <description>Facilities for making networked multiplayer games.</description>
@@ -36,9 +36,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/threerings/narya.git/tags/narya-parent-1.11</connection>
-    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/tags/narya-parent-1.11</developerConnection>
-    <url>http://github.com/threerings/narya/tags/narya-parent-1.11</url>
+    <connection>scm:git:git://github.com/threerings/narya.git</connection>
+    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk</developerConnection>
+    <url>http://github.com/threerings/narya/</url>
   </scm>
 
   <modules>
