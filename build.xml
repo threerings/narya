@@ -2,9 +2,9 @@
 <!-- build configuration -->
 <project name="narya" default="compile" xmlns:artifact="urn:maven-artifact-ant">
   <property name="deploy.dir"   location="dist"/>
-  <property name="src.dir"      location="src/main/java"/>
-  <property name="asrc.dir"     location="src/main/as"/>
-  <property name="tsrc.dir"     location="src/test/java"/>
+  <property name="src.dir"      location="core/src/main/java"/>
+  <property name="asrc.dir"     location="core/src/main/as"/>
+  <property name="tsrc.dir"     location="core/src/test/java"/>
   <property name="classes.dir"  location="${deploy.dir}/classes"/>
   <property name="tclasses.dir" location="${deploy.dir}/test-classes"/>
 
@@ -13,18 +13,18 @@
   <import file="${user.home}/.m2/ooo-build/${ooo-build.vers}/ooo-build.xml"/>
 
   <target name="-prepare" depends="-init-ooo">
-    <mavendep pom="pom.xml"/>
+    <mavendep pom="core/pom.xml" id="pom"/>
     <mavendep pom="etc/as-pom.xml" pathProp="aslib.path"/>
-    <mavendep pom="pom.xml" id="test" scope="test"/>
+    <mavendep pom="core/pom.xml" id="test" scope="test"/>
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${tclasses.dir}"/>
     <copy todir="${classes.dir}">
-      <fileset dir="src/main/resources" includes="**"/>
+      <fileset dir="core/src/main/resources" includes="**"/>
     </copy>
     <path id="built.classpath">
-      <path refid="pom.xml.path"/>
+      <path refid="pom.path"/>
       <pathelement location="${classes.dir}"/>
     </path>
     <path id="test.classpath">
@@ -37,11 +37,10 @@
   <target name="-preptools" depends="-prepare">
     <!-- Turn off generation checking if enablegencheck hasn't already set this property -->
     <property name="gencheck" value="false"/>
-    <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path">
-      <include name="com/threerings/presents/tools/**"/>
-    </ooojavac>
-    <taskdef resource="com/threerings/presents/tools.properties" classpathref="built.classpath"/>
+    <artifact:dependencies pathId="tools.classpath">
+      <dependency groupId="com.threerings" artifactId="narya-tools" version="1.11-SNAPSHOT"/>
+    </artifact:dependencies>
+    <taskdef resource="com/threerings/presents/tools.properties" classpathref="tools.classpath"/>
   </target>
 
   <target name="clean" depends="-init-ooo" description="Cleans out build results">
@@ -61,8 +60,8 @@
 
   <target name="compile" depends="-prepare" description="Builds the Java code.">
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path"/>
-    <copy todir="${tclasses.dir}"><fileset dir="src/test/resources" includes="**"/></copy>
+        classpathref="pom.path"/>
+    <copy todir="${tclasses.dir}"><fileset dir="core/src/test/resources" includes="**"/></copy>
     <ooojavac srcdir="${tsrc.dir}" destdir="${tclasses.dir}"
         version="1.5" classpathref="test.classpath"/>
   </target>
@@ -114,10 +113,7 @@
     <!-- build our main jar file -->
     <jar destfile="${deploy.dir}/${ant.project.name}.jar">
       <fileset dir="${classes.dir}" includes="**"/>
-    </jar>
-
-    <!-- we export a small selection of classes for use by GWT -->
-    <jar destfile="${deploy.dir}/${ant.project.name}-gwt.jar">
+      <!-- we export a small selection of classes for use by GWT -->
       <fileset dir="${src.dir}">
         <include name="**/web/server/*Exception.java"/>
         <include name="**/web/client/*.java"/>
@@ -133,7 +129,7 @@
              classpathref="built.classpath"/>
     <!-- make sure the record class files are all compiled -->
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path">
+        classpathref="pom.path">
       <include name="**/*Record.java"/>
     </ooojavac>
     <!-- now update the source files -->
@@ -155,7 +151,7 @@
           description="Generates additional methods for distributed object classes">
     <!-- make sure the dobject class files are all compiled -->
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path">
+        classpathref="pom.path">
       <include name="**/*Object.java"/>
     </ooojavac>
     <!-- now generate the associated files -->
@@ -168,7 +164,7 @@
           description="Generates marshaller and dispatcher classes for all invocation services">
     <!-- make sure the service class files are all compiled -->
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path">
+        classpathref="pom.path">
       <include name="**/*Service.java"/>
       <exclude name="**/InvocationService.java"/>
     </ooojavac>
@@ -198,7 +194,7 @@
       <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
     </genservice>
     <gencppservice header="etc/SOURCE_HEADER" classpathref="built.classpath"
-                   cpproot="src/cpp" checking="${gencheck}">
+                   cpproot="core/src/cpp" checking="${gencheck}">
         <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
     </gencppservice>
   </target>
@@ -207,7 +203,7 @@
           description="Generates sender and decoder classes for all invocation receivers">
     <!-- make sure the receiver class files are all compiled -->
     <ooojavac version="1.5" srcdir="${src.dir}" destdir="${classes.dir}"
-        classpathref="pom.xml.path">
+        classpathref="pom.path">
       <include name="**/*Receiver.java"/>
       <exclude name="**/InvocationReceiver.java"/>
     </ooojavac>
@@ -223,7 +219,7 @@
        everything for it -->
   <target name="gencppstream" depends="-preptools,compile"
           description="Generates C++ streamable classes.">
-    <gencppstreamable classpathref="built.classpath" cpproot="src/cpp" checking="${gencheck}">
+    <gencppstreamable classpathref="built.classpath" cpproot="core/src/cpp" checking="${gencheck}">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
       <generate class="com.threerings.presents.dobj.DEvent"/>
@@ -266,18 +262,16 @@
 
   <target name="install" depends="dist,aslib"
           description="Installs artifacts to local Maven repository.">
-    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"/>
-    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="etc/tools-pom.xml"/>
-    <maveninstall file="${deploy.dir}/${ant.project.name}-gwt.jar" pom="etc/gwt-pom.xml"/>
+    <maveninstall file="pom.xml" pom="pom.xml"/>
+    <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="core/pom.xml"/>
     <maveninstall file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
   </target>
 
   <target name="deploy" depends="dist,aslib,tests,javadoc"
           description="Deploys our build artifacts to a Maven repository.">
-    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="pom.xml"
+    <mavendeploy file="pom.xml" pom="pom.xml"/>
+    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="core/pom.xml"
                  srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
-    <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="etc/tools-pom.xml"/>
-    <mavendeploy file="${deploy.dir}/${ant.project.name}-gwt.jar" pom="etc/gwt-pom.xml"/>
     <mavendeploy file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
   </target>
 </project>

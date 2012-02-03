@@ -8,11 +8,11 @@
   </parent>
 
   <groupId>com.threerings</groupId>
-  <artifactId>narya</artifactId>
-  <packaging>jar</packaging>
+  <artifactId>narya-parent</artifactId>
+  <packaging>pom</packaging>
   <version>1.11-SNAPSHOT</version>
 
-  <name>Narya</name>
+  <name>Narya Parent</name>
   <description>Facilities for making networked multiplayer games.</description>
   <url>http://github.com/threerings/narya/</url>
   <issueManagement>
@@ -41,82 +41,10 @@
     <url>http://github.com/threerings/narya/</url>
   </scm>
 
-  <dependencies>
-    <!-- exported dependencies -->
-    <dependency>
-      <groupId>com.threerings</groupId>
-      <artifactId>ooo-util</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>2.0</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>jsr250-api</artifactId>
-      <version>1.0</version>
-    </dependency>
-
-    <!-- optional dependencies -->
-    <dependency>
-      <groupId>com.samskivert</groupId>
-      <artifactId>jmustache</artifactId>
-      <version>1.4</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.samskivert</groupId>
-      <artifactId>depot</artifactId>
-      <version>1.5</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-user</artifactId>
-      <version>2.4.0</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>javassist</groupId>
-      <artifactId>javassist</artifactId>
-      <version>3.8.0.GA</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>1.6.0</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>com.threerings</groupId>
-      <artifactId>gwt-utils</artifactId>
-      <version>1.5</version>
-      <optional>true</optional>
-    </dependency>
-
-    <!-- test/build dependencies -->
-    <dependency>
-      <groupId>org.apache.ant</groupId>
-      <artifactId>ant</artifactId>
-      <version>1.7.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.10</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <version>2.0.0</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <modules>
+    <module>core</module>
+    <module>tools</module>
+  </modules>
 
   <build>
     <plugins>
