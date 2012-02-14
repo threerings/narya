@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.threerings</groupId>
+    <artifactId>narya-parent</artifactId>
+    <version>1.12-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>naryalib</artifactId>
+  <packaging>swc</packaging>
+  <name>Narya ActionScript</name>
+
+  <repositories>
+    <repository>
+      <id>ooo-public</id>
+      <url>http://ooo-maven.googlecode.com/hg/repository</url>
+    </repository>
+    <repository>
+      <id>flexmojos</id>
+      <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+    </repository>
+  </repositories>
+
+  <properties>
+    <flex.version>4.1.0.16076</flex.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.threerings</groupId>
+      <artifactId>aspirin</artifactId>
+      <version>1.11</version>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe</groupId>
+      <artifactId>as3corelib</artifactId>
+      <version>0.93</version>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osflash</groupId>
+      <artifactId>signals</artifactId>
+      <version>0.8</version>
+      <type>swc</type>
+      <scope>external</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe.flex.framework</groupId>
+      <artifactId>flex-framework</artifactId>
+      <version>${flex.version}</version>
+      <type>pom</type>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>flexmojos</id>
+      <url>http://repository.sonatype.org/content/groups/flexgroup/</url>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <sourceDirectory>src/main/as</sourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.flexmojos</groupId>
+        <artifactId>flexmojos-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <version>3.9</version>
+        <configuration>
+          <omitTraceStatements>false</omitTraceStatements>
+          <debug>true</debug>
+          <incremental>false</incremental>
+          <useNetwork>false</useNetwork>
+          <verboseStacktraces>true</verboseStacktraces>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.adobe.flex</groupId>
+            <artifactId>compiler</artifactId>
+            <version>${flex.version}</version>
+            <type>pom</type>
+          </dependency>
+          <dependency>
+            <groupId>com.adobe.flex.compiler</groupId>
+            <artifactId>asdoc</artifactId>
+            <version>${flex.version}</version>
+            <classifier>template</classifier>
+            <type>zip</type>
+          </dependency>
+        </dependencies>
+      </plugin>
+    </plugins>
+  </build>
+</project>

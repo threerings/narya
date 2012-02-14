@@ -3,7 +3,7 @@
 <project name="narya" default="compile" xmlns:artifact="urn:maven-artifact-ant">
   <property name="deploy.dir"   location="dist"/>
   <property name="src.dir"      location="core/src/main/java"/>
-  <property name="asrc.dir"     location="core/src/main/as"/>
+  <property name="asrc.dir"     location="aslib/src/main/as"/>
   <property name="tsrc.dir"     location="core/src/test/java"/>
   <property name="classes.dir"  location="${deploy.dir}/classes"/>
   <property name="tclasses.dir" location="${deploy.dir}/test-classes"/>
@@ -14,7 +14,12 @@
 
   <target name="-prepare" depends="-init-ooo">
     <mavendep pom="core/pom.xml" id="pom"/>
-    <mavendep pom="etc/as-pom.xml" pathProp="aslib.path"/>
+    <!-- we can't use <mavendep> here because we need to exclude our pom depends -->
+    <artifact:dependencies filesetId="aslib.fileset" cacheDependencyRefs="true" type="swc"
+      dependencyRefsBuildFile="${deploy.dir}/aslib-pom.dependencies">
+      <pom file="aslib/pom.xml"/>
+    </artifact:dependencies>
+    <pathconvert pathsep="," property="aslib.path" refid="aslib.fileset"/>
     <mavendep pom="core/pom.xml" id="test" scope="test"/>
     <mkdir dir="${deploy.dir}"/>
     <mkdir dir="${deploy.dir}/lib"/>
@@ -50,7 +55,7 @@
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.jar"/></delete>
     <delete failonerror="false"><fileset dir="${deploy.dir}" includes="*.swc"/></delete>
     <cleanmavendepcache pom="pom.xml"/>
-    <cleanmavendepcache pom="etc/as-pom.xml"/>
+    <cleanmavendepcache pom="aslib/pom.xml"/>
     <cleanmavendepcache id="test"/>
   </target>
 
@@ -194,7 +199,7 @@
       <fileset dir="${tsrc.dir}" includes="**/*Service.java"/>
     </genservice>
     <gencppservice header="etc/SOURCE_HEADER" classpathref="built.classpath"
-                   cpproot="core/src/cpp" checking="${gencheck}">
+                   cpproot="cpplib/src" checking="${gencheck}">
         <fileset dir="${src.dir}" includes="**/RegistrationService.java"/>
     </gencppservice>
   </target>
@@ -219,7 +224,7 @@
        everything for it -->
   <target name="gencppstream" depends="-preptools,compile"
           description="Generates C++ streamable classes.">
-    <gencppstreamable classpathref="built.classpath" cpproot="core/src/cpp" checking="${gencheck}">
+    <gencppstreamable classpathref="built.classpath" cpproot="cpplib/src" checking="${gencheck}">
       <generate class="com.threerings.presents.client.InvocationReceiver$Registration"/>
       <generate class="com.threerings.presents.data.ClientObject"/>
       <generate class="com.threerings.presents.dobj.DEvent"/>
@@ -264,7 +269,7 @@
           description="Installs artifacts to local Maven repository.">
     <maveninstall file="pom.xml" pom="pom.xml"/>
     <maveninstall file="${deploy.dir}/${ant.project.name}.jar" pom="core/pom.xml"/>
-    <maveninstall file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
+    <maveninstall file="${deploy.dir}/${ant.project.name}lib.swc" pom="aslib/pom.xml"/>
   </target>
 
   <target name="deploy" depends="dist,aslib,tests,javadoc"
@@ -272,6 +277,6 @@
     <mavendeploy file="pom.xml" pom="pom.xml"/>
     <mavendeploy file="${deploy.dir}/${ant.project.name}.jar" pom="core/pom.xml"
                  srcdir="${src.dir}" docdir="${deploy.dir}/docs"/>
-    <mavendeploy file="${deploy.dir}/${ant.project.name}lib.swc" pom="etc/as-pom.xml"/>
+    <mavendeploy file="${deploy.dir}/${ant.project.name}lib.swc" pom="aslib/pom.xml"/>
   </target>
 </project>
