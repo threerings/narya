@@ -32,21 +32,18 @@
       <artifactId>aspirin</artifactId>
       <version>1.11</version>
       <type>swc</type>
-      <scope>external</scope>
     </dependency>
     <dependency>
       <groupId>com.adobe</groupId>
       <artifactId>as3corelib</artifactId>
       <version>0.93</version>
       <type>swc</type>
-      <scope>external</scope>
     </dependency>
     <dependency>
       <groupId>org.osflash</groupId>
       <artifactId>signals</artifactId>
       <version>0.8</version>
       <type>swc</type>
-      <scope>external</scope>
     </dependency>
     <dependency>
       <groupId>com.adobe.flex.framework</groupId>
@@ -71,13 +68,15 @@
         <groupId>org.sonatype.flexmojos</groupId>
         <artifactId>flexmojos-maven-plugin</artifactId>
         <extensions>true</extensions>
-        <version>3.9</version>
+        <version>4.2-beta</version>
         <configuration>
           <omitTraceStatements>false</omitTraceStatements>
           <debug>true</debug>
           <incremental>false</incremental>
           <useNetwork>false</useNetwork>
           <verboseStacktraces>true</verboseStacktraces>
+          <!-- we've never shown them in the Ant build, why start now? -->
+          <showWarnings>false</showWarnings>
         </configuration>
         <dependencies>
           <dependency>
