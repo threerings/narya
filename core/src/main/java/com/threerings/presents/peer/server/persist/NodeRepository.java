@@ -91,6 +91,18 @@ public class NodeRepository extends DepotRepository
     }
 
     /**
+     * Returns a list of nodes registered in the repository with the specified region that are not
+     * explicitly shut down.
+     */
+    public List<NodeRecord> loadNodesFromRegion (String region)
+    {
+        return from(NodeRecord.class)
+            .noCache()
+            .where(NodeRecord.REGION.eq(region), Ops.not(NodeRecord.SHUTDOWN))
+            .select();
+    }
+
+    /**
      * Updates the supplied node record, inserting it into the database if necessary.
      */
     public void updateNode (NodeRecord record)
