@@ -189,7 +189,7 @@ public class Resulting<T> extends Invoker.Unit
     // from InvocationService.InvocationListener
     public final void requestFailed (String error)
     {
-        requestFailed(INV_EX.get().setMessage(error));
+        requestFailed(new InvocationException(error));
     }
 
     // from InvocationService.ConfirmListener
@@ -265,34 +265,6 @@ public class Resulting<T> extends Invoker.Unit
     protected T _result;
 
     protected Exception _error;
-
-    protected static final ThreadLocal<ReusableInvocationException> INV_EX =
-        new ThreadLocal<ReusableInvocationException>() {
-            @Override protected ReusableInvocationException initialValue () {
-                return new ReusableInvocationException();
-            }
-        };
-
-    protected static class ReusableInvocationException extends InvocationException
-    {
-        public ReusableInvocationException ()
-        {
-            super("");
-        }
-
-        public ReusableInvocationException setMessage (String msg)
-        {
-            _msg = msg;
-            return this;
-        }
-
-        @Override public String getMessage ()
-        {
-            return _msg;
-        }
-
-        protected String _msg;
-    }
 
     protected static final ThreadLocal<StopException> STOP =
         new ThreadLocal<StopException>() {
