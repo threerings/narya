@@ -7,7 +7,6 @@
     <version>1.12-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.threerings</groupId>
   <artifactId>naryalib</artifactId>
   <packaging>swc</packaging>
   <name>Narya ActionScript</name>
