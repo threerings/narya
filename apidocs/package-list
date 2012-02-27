@@ -40,8 +40,6 @@ com.threerings.presents.peer.server.persist
 com.threerings.presents.peer.util
 com.threerings.presents.server
 com.threerings.presents.server.net
-com.threerings.presents.tools
-com.threerings.presents.tools.cpp
 com.threerings.presents.util
 com.threerings.util
 com.threerings.web.gwt
