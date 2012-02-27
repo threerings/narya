@@ -22,33 +22,38 @@ provided.
 Tutorials, etc.
 ---------------
 
-Three Rings hosts a site called [Game Gardens](http://www.gamegardens.com/)
-where the Narya library is used to develop a wide array of multi-player online
-games. On that site you can find [tutorials and sample
-code](http://wiki.gamegardens.com/) relating to the use of Narya in game
-development.
+Three Rings hosts a site called [Game Gardens] where the Narya library is used
+to develop a wide array of multi-player online games. On that site you can find
+[tutorials and sample code](http://wiki.gamegardens.com/) relating to the use
+of Narya in game development.
 
 Building
 --------
 
-The library is built using [Ant](http://ant.apache.org/).
+The library is built using Maven, or [Ant](http://ant.apache.org/).
 
-Invoke ant with any of the following targets:
+The Maven build uses the standard targets:
+
+    package: builds the code and creates the jars and swcs
+    install: builds and installs the artifacts into your local Maven repository
+    test: builds and runs the unit tests
+
+The Ant build uses the following targets:
 
     all: builds the distribution files and javadoc documentation
     compile: builds only the class files (dist/classes)
     javadoc: builds only the javadoc documentation (dist/docs)
     dist: builds the distribution jar files (dist/*.jar)
 
-If you wish to build the ActionScript components, you will need to supply the
-location of the Flex SDK on the command line:
+If you wish to build the ActionScript components via Ant, you will need to
+supply the location of the Flex SDK on the command line:
 
     % ant -Dflexsdk.dir=SOMEPATH dist
 
 Artifacts
 ---------
 
-Narya provides four different build artifacts, for differing purposes:
+Narya provides three different build artifacts, for differing purposes:
 
 * narya: contains the main Java library; exports dependencies only for
   libraries which are required by a running client or server.
@@ -57,25 +62,15 @@ Narya provides four different build artifacts, for differing purposes:
 * narya-tools: contains the code generation portions of Narya which one need
   integrate into their build; exports dependencies for various libraries needed
   when running code generation.
-* narya-gwt: contains `.java` source code for applications using the
-  [GWT](http://code.google.com/webtoolkit/)-based admin interface provided by
-  Narya's admin package
 
-A Maven repository containing released versions of the Narya artifacts are
-maintained here. To add a Narya dependency to a Maven project, add the
-following to your `pom.xml`:
+Narya is published to Maven Central. To add a Narya dependency to a Maven
+project, add the following to your `pom.xml`:
 
-    <repositories>
-      <repository>
-        <id>narya-repo</id>
-        <url>http://threerings.github.com/narya/maven</url>
-      </repository>
-    </repositories>
     <dependencies>
       <dependency>
         <groupId>com.threerings</groupId>
         <artifactId>narya</artifactId>
-        <version>1.8</version>
+        <version>1.11</version>
       </dependency>
     </dependencies>
 
@@ -84,16 +79,14 @@ remove the vast majority of the boilerplate above.
 
 If you prefer to download pre-built binaries, those can be had here:
 
-* [narya-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya/1.8/narya-1.8.jar)
-* [naryalib-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/naryalib/1.8/naryalib-1.8.swc)
-* [narya-tools-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya-tools/1.8/narya-tools-1.8.jar)
-* [narya-gwt-1.8.jar](http://threerings.github.com/narya/maven/com/threerings/narya-gwt/1.8/narya-gwt-1.8.jar)
+* [narya-1.11.jar](http://repo2.maven.org/maven2/com/threerings/narya/1.11/narya-1.11.jar)
+* [naryalib-1.11.swc](http://repo2.maven.org/maven2/com/threerings/naryalib/1.11/naryalib-1.11.jar)
+* [narya-tools-1.11.jar](http://repo2.maven.org/maven2/com/threerings/narya-tools/1.11/narya-tools-1.11.jar)
 
 Related Libraries
 -----------------
 
-Narya is extended by the [Nenya](http://github.com/threerings/nenya) and
-[Vilya](http://github.com/threerings/vilya) libraries which provide additional
+Narya is extended by the [Nenya] and [Vilya] libraries which provide additional
 game related functionality like 2D and 3D graphics support, animated character
 rendering and a more sophisticated virtual world framework.
 
@@ -114,3 +107,6 @@ Narya is actively developed by the scurvy dogs at
 
 [presents]: http://threerings.github.com/narya/apidocs/com/threerings/presents/package-summary.html
 [crowd]: http://threerings.github.com/narya/apidocs/com/threerings/crowd/package-summary.html
+[Game Gardens]: http://www.gamegardens.com/
+[Nenya]: http://github.com/threerings/nenya
+[Vilya]: http://github.com/threerings/vilya
