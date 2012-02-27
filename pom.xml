@@ -37,7 +37,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/threerings/narya.git</connection>
-    <developerConnection>scm:svn:svn+ssh://src.earth.threerings.net/narya/trunk</developerConnection>
+    <developerConnection>scm:git:git@github.com:threerings/narya.git</developerConnection>
     <url>http://github.com/threerings/narya/</url>
   </scm>
 
