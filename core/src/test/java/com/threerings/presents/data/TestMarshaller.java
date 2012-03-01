@@ -37,7 +37,7 @@ import com.threerings.presents.client.TestService;
  */
 @Generated(value={"com.threerings.presents.tools.GenServiceTask"},
            comments="Derived from TestService.java.")
-public class TestMarshaller extends InvocationMarshaller<ClientObject>
+public class TestMarshaller extends InvocationMarshaller<TestClientObject>
     implements TestService
 {
     /**

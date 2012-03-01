@@ -26,7 +26,7 @@ import java.util.List;
 import com.google.inject.Inject;
 
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.TestClientObject;
 import com.threerings.presents.server.ClientManager;
 
 import static com.threerings.presents.Log.log;
@@ -38,7 +38,7 @@ public class TestManager
     implements TestProvider
 {
     // from interface TestProvider
-    public void getTestOid (ClientObject caller,
+    public void getTestOid (TestClientObject caller,
         TestService.TestOidListener listener)
         throws InvocationException
     {
@@ -51,7 +51,7 @@ public class TestManager
     }
 
     // from interface TestProvider
-    public void test (ClientObject caller, String one, int two, List<Integer> three,
+    public void test (TestClientObject caller, String one, int two, List<Integer> three,
                       TestService.TestFuncListener listener)
         throws InvocationException
     {
@@ -62,7 +62,7 @@ public class TestManager
     }
 
     // from interface TestProvider
-    public void giveMeThePower (ClientObject caller, TestService.ConfirmListener listener)
+    public void giveMeThePower (TestClientObject caller, TestService.ConfirmListener listener)
     {
         log.info("Giving " + caller.who() + " the power!");
         _clmgr.getClient(caller.username).setIncomingMessageThrottle(20);

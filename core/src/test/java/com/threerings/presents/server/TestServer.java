@@ -23,8 +23,12 @@ package com.threerings.presents.server;
 
 import com.google.inject.Injector;
 
+import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.TestClientObject;
 import com.threerings.presents.data.TestMarshaller;
 import com.threerings.presents.data.TestObject;
+import com.threerings.presents.net.AuthRequest;
+import com.threerings.util.Name;
 
 public class TestServer extends PresentsServer
 {
@@ -40,6 +44,15 @@ public class TestServer extends PresentsServer
         _invmgr.registerProvider(injector.getInstance(TestManager.class),
                                  TestMarshaller.class, "test");
 
+        _clmgr.setDefaultSessionFactory(new SessionFactory() {
+            @Override public Class<? extends PresentsSession> getSessionClass (AuthRequest areq) {
+                return PresentsSession.class;
+            }
+            @Override public Class<? extends ClientResolver> getClientResolverClass (Name username) {
+                return TestClientResolver.class;
+            }
+        });
+
         // create a test object
         testobj = _omgr.registerObject(new TestObject());
         testobj.longs.add(System.currentTimeMillis());
@@ -51,5 +64,11 @@ public class TestServer extends PresentsServer
     public static void main (String[] args)
     {
         runServer(new PresentsModule(), new PresentsServerModule(TestServer.class));
+    }
+
+    protected static class TestClientResolver extends ClientResolver {
+        @Override public ClientObject createClientObject () {
+            return new TestClientObject();
+        }
     }
 }

@@ -27,7 +27,7 @@ import javax.annotation.Generated;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;
-import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.TestClientObject;
 
 /**
  * Defines the server-side of the {@link TestService}.
@@ -39,18 +39,18 @@ public interface TestProvider extends InvocationProvider
     /**
      * Handles a {@link TestService#getTestOid} request.
      */
-    void getTestOid (ClientObject caller, TestService.TestOidListener arg1)
+    void getTestOid (TestClientObject caller, TestService.TestOidListener arg1)
         throws InvocationException;
 
     /**
      * Handles a {@link TestService#giveMeThePower} request.
      */
-    void giveMeThePower (ClientObject caller, InvocationService.ConfirmListener arg1)
+    void giveMeThePower (TestClientObject caller, InvocationService.ConfirmListener arg1)
         throws InvocationException;
 
     /**
      * Handles a {@link TestService#test} request.
      */
-    void test (ClientObject caller, String arg1, int arg2, List<Integer> arg3, TestService.TestFuncListener arg4)
+    void test (TestClientObject caller, String arg1, int arg2, List<Integer> arg3, TestService.TestFuncListener arg4)
         throws InvocationException;
 }
