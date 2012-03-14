@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import com.samskivert.io.ByteArrayOutInputStream;
@@ -74,6 +75,15 @@ import static com.threerings.admin.Log.log;
 */
 public abstract class ConfigRegistry
 {
+    /** Used to un/serialize object data. See {@link #setSerializer}. */
+    public static interface Serializer {
+        /** Serializes the supplied data into a format that may be saved. */
+        String serialize (String name, Object value) throws Exception;
+
+        /** Deserializes the object contained in the specified string. */
+        Object deserialize (String value) throws Exception;
+    }
+
     /**
      * Creates a ConfigRegistry that isn't transitioning.
      */
@@ -91,6 +101,17 @@ public abstract class ConfigRegistry
     public ConfigRegistry (boolean transitioning)
     {
         _transitioning = transitioning;
+    }
+
+    /**
+     * Configures the serializer to be used when converting object data to and from its stored
+     * representation. This should be done immediately after creation and before any objects are
+     * registered.
+     */
+    public void setSerializer (Serializer serializer) {
+        Preconditions.checkState(_configs.isEmpty(),
+                                 "Must set serializer before registering config objects.");
+        _serializer = serializer;
     }
 
     /**
@@ -131,22 +152,6 @@ public abstract class ConfigRegistry
      * Creates an object record derivation that will handle the management of the specified object.
      */
     protected abstract ObjectRecord createObjectRecord (String path, DObject object);
-
-    /**
-     * Create an ObjectInputStream to read serialized config entries.
-     */
-    protected ObjectInputStream createObjectInputStream (InputStream bin)
-    {
-        return new ObjectInputStream(bin);
-    }
-
-    /**
-     * Create an ObjectOutputStream to write serialized config entries.
-     */
-    protected ObjectOutputStream createObjectOutputStream (OutputStream bin)
-    {
-        return new ObjectOutputStream(bin);
-    }
 
     /**
      * Contains all necessary info for a configuration object registration.
@@ -311,12 +316,12 @@ public abstract class ConfigRegistry
                     }
 
                     try {
-                        Object deserializedValue = deserialize(value);
+                        Object deserializedValue = _serializer.deserialize(value);
                         field.set(object, deserializedValue);
                         if (_transitioning) {
                             // Use serialize rather than serializeAttribute so we don't get
                             // ObjectAccessExceptions
-                            serialize(key, nameToKey(key), deserializedValue);
+                            setValue(nameToKey(key), _serializer.serialize(key, deserializedValue));
                         }
                     } catch (Exception e) {
                         log.warning("Failure decoding config value", "type", type, "field", field,
@@ -344,38 +349,16 @@ public abstract class ConfigRegistry
             Object value = object.getAttribute(attributeName);
 
             if (value == null || Streamer.isStreamable(value.getClass())) {
-                serialize(attributeName, key, value);
+                try {
+                    setValue(key, _serializer.serialize(attributeName, value));
+                } catch (Exception e) {
+                    log.warning("Error serializing", "name", attributeName, "value", value);
+                }
+
             } else {
                 log.info("Unable to flush config obj change", "cobj", object.getClass().getName(),
                          "key", key, "type", value.getClass().getName(), "value", value);
             }
-        }
-
-        /**
-         * Save the specified object as serialized data associated with the specified key.
-         */
-        protected void serialize (String name, String key, Object value)
-        {
-            ByteArrayOutInputStream out = new ByteArrayOutInputStream();
-            ObjectOutputStream oout = createObjectOutputStream(out);
-            try {
-                oout.writeObject(value);
-                oout.flush();
-                setValue(key, StringUtil.hexlate(out.toByteArray()));
-            } catch (IOException ioe) {
-                log.info("Error serializing value " + value);
-            }
-        }
-
-        /**
-         * Deserializes the object contained in the specified string.
-         */
-        protected Object deserialize (String value)
-            throws Exception
-        {
-            ByteArrayInputStream bin = new ByteArrayInputStream(StringUtil.unhexlate(value));
-            ObjectInputStream oin = createObjectInputStream(bin);
-            return oin.readObject();
         }
 
         /**
@@ -412,9 +395,42 @@ public abstract class ConfigRegistry
         protected abstract void setValue (String field, String[] value);
     }
 
+    protected static class DefaultSerializer implements Serializer {
+        @Override public String serialize (String name, Object value) throws Exception {
+            ByteArrayOutInputStream out = new ByteArrayOutInputStream();
+            ObjectOutputStream oout = createObjectOutputStream(out);
+            oout.writeObject(value);
+            oout.flush();
+            return StringUtil.hexlate(out.toByteArray());
+        }
+
+        @Override public Object deserialize (String value) throws Exception {
+            ByteArrayInputStream bin = new ByteArrayInputStream(StringUtil.unhexlate(value));
+            ObjectInputStream oin = createObjectInputStream(bin);
+            return oin.readObject();
+        }
+
+        /**
+         * Creates an ObjectInputStream to read serialized config entries.
+         */
+        protected ObjectInputStream createObjectInputStream (InputStream bin) {
+            return new ObjectInputStream(bin);
+        }
+
+        /**
+         * Creates an ObjectOutputStream to write serialized config entries.
+         */
+        protected ObjectOutputStream createObjectOutputStream (OutputStream bin) {
+            return new ObjectOutputStream(bin);
+        }
+    }
+
     /** A mapping from identifying key to config object. */
     protected HashMap<String, ObjectRecord> _configs = Maps.newHashMap();
 
     /** If we need to transition serialized Streamables to a new class format in init.. */
     protected boolean _transitioning;
+
+    /** Used to un/serialize object data. */
+    protected Serializer _serializer = new DefaultSerializer();
 }
