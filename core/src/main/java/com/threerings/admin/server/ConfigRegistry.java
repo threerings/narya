@@ -27,6 +27,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +35,6 @@ import java.io.OutputStream;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import com.samskivert.io.ByteArrayOutInputStream;
 import com.samskivert.util.StringUtil;
 
 import com.threerings.io.ObjectInputStream;
@@ -397,7 +397,7 @@ public abstract class ConfigRegistry
 
     protected static class DefaultSerializer implements Serializer {
         @Override public String serialize (String name, Object value) throws Exception {
-            ByteArrayOutInputStream out = new ByteArrayOutInputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectOutputStream oout = createObjectOutputStream(out);
             oout.writeObject(value);
             oout.flush();
