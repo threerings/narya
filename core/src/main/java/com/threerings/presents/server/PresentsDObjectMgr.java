@@ -1135,7 +1135,7 @@ public class PresentsDObjectMgr
     protected static final int DEFREFVEC_SIZE = 4;
 
     /**
-     * The oid of the DOject created during object manager startup that isn't actually
+     * The oid of the DObject created during object manager startup that isn't actually
      * distributed.
      */
     protected static final int DUMMY_OID = 0;
