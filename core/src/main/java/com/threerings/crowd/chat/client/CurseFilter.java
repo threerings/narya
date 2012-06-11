@@ -39,6 +39,20 @@ public abstract class CurseFilter implements ChatFilter
     public enum Mode { DROP, COMIC, VERNACULAR, UNFILTERED; }
 
     /**
+     * Return a comicy replacement of the specified length.
+     */
+    public static String comicChars (int length)
+    {
+        StringBuilder buf = new StringBuilder();
+        for (int ii=0; ii < length; ii++) {
+            buf.append(RandomUtil.pickRandom(COMIC_CHARS));
+        }
+
+        return buf.toString();
+    }
+
+
+    /**
      * Creates a curse filter. The curse words should be a string in the following format:
      *
      * <pre>
@@ -218,19 +232,6 @@ public abstract class CurseFilter implements ChatFilter
     protected String getStopWordRegexp (String word)
     {
         return "\\b" + word.replace("*", "[A-Za-z]*") + "\\b";
-    }
-
-    /**
-     * Return a comicy replacement of the specified length.
-     */
-    protected String comicChars (int length)
-    {
-        StringBuilder buf = new StringBuilder();
-        for (int ii=0; ii < length; ii++) {
-            buf.append(RandomUtil.pickRandom(COMIC_CHARS));
-        }
-
-        return buf.toString();
     }
 
     /** A matcher that will always cause a message to be dropped if it matches. */
