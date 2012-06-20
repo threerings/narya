@@ -40,6 +40,17 @@ import static com.threerings.presents.Log.log;
 public abstract class Authenticator
 {
     /**
+     * An exception that can be thrown during {@link #processAuthentication}. The results of
+     * {@link #getMessage} string will be filled in as the auth failure code.
+     */
+    public static class AuthException extends Exception
+    {
+        public AuthException (String code) {
+            super(code);
+        }
+    }
+
+    /**
      * Called by the connection management code when an authenticating connection has received its
      * authentication request from the client.
      */
@@ -104,13 +115,4 @@ public abstract class Authenticator
      */
     protected abstract void processAuthentication (AuthingConnection conn, AuthResponse rsp)
         throws Exception;
-
-    /** An exception that can be thrown during {@link #processAuthentication}. The results of
-     * {@link #getMessage} string will be filled in as the auth failure code. */
-    protected static class AuthException extends Exception
-    {
-        public AuthException (String code) {
-            super(code);
-        }
-    }
 }
