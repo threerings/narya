@@ -384,12 +384,16 @@ public class PlaceManager
             // a server-originated event
             int srcoid = event.getSourceOid();
             DObject source = (srcoid <= 0) ? null : _omgr.getObject(srcoid);
+            String method = event.getName();
             Object[] args = event.getArgs(), nargs;
-            if (!handleManagerCalls()) {
-                log.warning("Client tried to invoke a manager call!",
-                    "source", source, "args", args);
+
+            // validate that this call is allowed
+            if (!allowManagerCall(method)) {
+                log.warning("Client tried to invoke forbidden manager call!",
+                    "source", source, "method", method, "args", args);
                 return;
             }
+
             if (args == null) {
                 nargs = new Object[] { source };
             } else {
@@ -408,7 +412,7 @@ public class PlaceManager
                 }
                 _dispatcher = new DynamicListener<DSet.Entry>(this, finder);
             }
-            _dispatcher.dispatchMethod(event.getName(), nargs);
+            _dispatcher.dispatchMethod(method, nargs);
         }
     }
 
@@ -457,10 +461,11 @@ public class PlaceManager
     }
 
     /**
-     * Do we want to allow client code to invoke methods by name?
+     * Do we want to allow client code to invoke the specified method?
+     *
      * By default, we do not.
      */
-    protected boolean handleManagerCalls ()
+    protected boolean allowManagerCall (String method)
     {
         return false;
     }
