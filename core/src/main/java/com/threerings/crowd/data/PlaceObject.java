@@ -66,8 +66,8 @@ public class PlaceObject extends DObject
      * standalone/single-player mode where both client and server are running in the same VM.
      *
      * <em>Note:</em> For this to work, your manager needs to override
-     *    <code>PlaceManager.handleManagerCalls()</code> and return true. But maybe you should
-     *    consider using an InvocationService instead.
+     *    <code>PlaceManager.allowManagerCall()</code> and return true for the desired method name.
+     *    But maybe you should consider using an InvocationService instead.
      */
     public class ManagerCaller
     {
