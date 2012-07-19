@@ -64,9 +64,17 @@ public class PlaceObject extends DObject
      *
      * and to route events through the right distributed object manager if we are running in
      * standalone/single-player mode where both client and server are running in the same VM.
+     *
+     * <em>Note:</em> For this to work, your manager needs to override
+     *    <code>PlaceManager.handleManagerCalls()</code> and return true. But maybe you should
+     *    consider using an InvocationService instead.
      */
     public class ManagerCaller
     {
+        /**
+         * @deprecated this is pretty darn unsafe. Why don't you just set up a Service?
+         */
+        @Deprecated
         public void invoke (String method, Object ... args) {
             _omgr.postEvent(new ServerMessageEvent(_oid, method, args));
         }

@@ -385,6 +385,11 @@ public class PlaceManager
             int srcoid = event.getSourceOid();
             DObject source = (srcoid <= 0) ? null : _omgr.getObject(srcoid);
             Object[] args = event.getArgs(), nargs;
+            if (!handleManagerCalls()) {
+                log.warning("Client tried to invoke a manager call!",
+                    "source", source, "args", args);
+                return;
+            }
             if (args == null) {
                 nargs = new Object[] { source };
             } else {
@@ -449,6 +454,15 @@ public class PlaceManager
         toString(buf);
         buf.append("]");
         return buf.toString();
+    }
+
+    /**
+     * Do we want to allow client code to invoke methods by name?
+     * By default, we do not.
+     */
+    protected boolean handleManagerCalls ()
+    {
+        return false;
     }
 
     /**
