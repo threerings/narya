@@ -343,12 +343,14 @@ public abstract class PeerManager
         _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName,
             region, port);
-        _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
-            @Override
-            public void invokePersist () throws Exception {
-                _noderepo.updateNode(_self);
-            }
-        });
+        if (_nodeName != null) {
+            _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
+                @Override
+                public void invokePersist () throws Exception {
+                    _noderepo.updateNode(_self);
+                }
+            });
+        }
 
         // set the invocation service
         _nodeobj.setPeerService(_invmgr.registerProvider(this, PeerMarshaller.class));
