@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -359,11 +360,13 @@ public abstract class PeerManager
         _clmgr.addClientObserver(this);
 
         // and start our peer refresh interval (this lives for the lifetime of the server)
-        _omgr.newInterval(new Runnable() {
-            public void run () {
-                refreshPeers();
-            }
-        }).schedule(5000L, 60*1000L);
+        if (_nodeName != null) {
+            _omgr.newInterval(new Runnable() {
+                public void run () {
+                    refreshPeers();
+                }
+            }).schedule(5000L, 60*1000L);
+        }
 
         // give derived classes an easy way to get in on the init action
         didInit();
@@ -492,7 +495,7 @@ public abstract class PeerManager
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
             peer.nodeobj.peerService.invokeAction(flattenAction(action));
-        } else if (nodeName.equals(_nodeName)) {
+        } else if (Objects.equal(nodeName, _nodeName)) {
             invokeAction(null, flattenAction(action));
         }
     }
@@ -599,7 +602,7 @@ public abstract class PeerManager
     public <T extends DObject> void proxyRemoteObject (
         final DObjectAddress remote, final ResultListener<Integer> listener)
     {
-        if (remote.nodeName.equals(_nodeName)) {
+        if (Objects.equal(remote.nodeName, _nodeName)) {
             // Still subscribe if the DObject is local to preserve the behavior of
             // DObject.setDestroyOnLastSubscriberRemoved on the proxied object
             _omgr.subscribeToObject(remote.oid, new Subscriber<T>() {
@@ -666,7 +669,7 @@ public abstract class PeerManager
         }
 
         // If it's local, just remove the subscriber we added and bail
-        if (addr.nodeName.equals(_nodeName)) {
+        if (Objects.equal(addr.nodeName, _nodeName)) {
             bits.right.removeSubscriber(bits.left);
             return;
         }
@@ -696,7 +699,7 @@ public abstract class PeerManager
      */
     public NodeObject getPeerNodeObject (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _nodeobj;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -719,7 +722,7 @@ public abstract class PeerManager
      */
     public String getPeerPublicHostName (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.publicHostName;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -733,7 +736,7 @@ public abstract class PeerManager
      */
     public String getPeerInternalHostName (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.hostName;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -746,7 +749,7 @@ public abstract class PeerManager
      */
     public int getPeerPort (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.port;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -786,7 +789,7 @@ public abstract class PeerManager
         // wait until any pending resolution is complete
         queryLock(lock, new ChainedResultListener<String, String>(listener) {
             public void requestCompleted (String result) {
-                if (_nodeName.equals(result)) {
+                if (Objects.equal(_nodeName, result)) {
                     if (_suboids.isEmpty()) {
                         lockReleased(lock, listener);
                     } else {
@@ -815,7 +818,8 @@ public abstract class PeerManager
     {
         // make sure we're releasing it
         LockHandler handler = _locks.get(lock);
-        if (handler == null || !handler.getNodeName().equals(_nodeName) || handler.isAcquiring()) {
+        if (handler == null || !Objects.equal(handler.getNodeName(), _nodeName) ||
+                handler.isAcquiring()) {
             log.warning("Tried to reacquire lock not being released", "lock", lock,
                         "handler", handler);
             return;
@@ -923,7 +927,7 @@ public abstract class PeerManager
     {
         _suboids.remove(cloid);
         for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
-            if (handler.getNodeName().equals(_nodeName)) {
+            if (Objects.equal(handler.getNodeName(), _nodeName)) {
                 handler.clientUnsubscribed(cloid);
             }
         }
@@ -976,7 +980,7 @@ public abstract class PeerManager
     // from interface Lifecycle.ShutdownComponent
     public void shutdown ()
     {
-        if (_nodeName == null) { // never initialized
+        if (_self == null) { // never initialized
             return;
         }
 
@@ -989,12 +993,14 @@ public abstract class PeerManager
         _clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
-            @Override
-            public void invokePersist () throws Exception {
-                _noderepo.shutdownNode(_nodeName);
-            }
-        });
+        if (_nodeName != null) {
+            _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
+                @Override
+                public void invokePersist () throws Exception {
+                    _noderepo.shutdownNode(_nodeName);
+                }
+            });
+        }
 
         // shut down the peers
         for (PeerNode peer : _peers.values()) {
@@ -1006,7 +1012,7 @@ public abstract class PeerManager
     public void ratifyLockAction (ClientObject caller, NodeObject.Lock lock, boolean acquire)
     {
         LockHandler handler = _locks.get(lock);
-        if (handler != null && handler.getNodeName().equals(_nodeName)) {
+        if (handler != null && Objects.equal(handler.getNodeName(), _nodeName)) {
             handler.ratify(caller, acquire);
         } else {
             // this is not an error condition, as we may have cancelled the handler or
@@ -1122,6 +1128,10 @@ public abstract class PeerManager
      */
     protected void refreshPeers ()
     {
+        if (_nodeName == null) {
+            return;
+        }
+
         // load up information on our nodes
         _invoker.postUnit(new RepositoryUnit("refreshPeers") {
             @Override
@@ -1141,7 +1151,7 @@ public abstract class PeerManager
                 long now = System.currentTimeMillis();
                 for (Iterator<NodeRecord> it = _nodes.values().iterator(); it.hasNext(); ) {
                     NodeRecord record = it.next();
-                    if (record.nodeName.equals(_nodeName)) {
+                    if (Objects.equal(record.nodeName, _nodeName)) {
                         continue;
                     }
                     if ((now - record.lastUpdated.getTime()) > PeerNode.STALE_INTERVAL) {
@@ -1499,7 +1509,7 @@ public abstract class PeerManager
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
             peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
-        } else if (nodeName.equals(_nodeName)) {
+        } else if (Objects.equal(nodeName, _nodeName)) {
             invokeRequest(null, requestBytes, listener);
         }
     }
@@ -1771,7 +1781,10 @@ public abstract class PeerManager
         }
     };
 
-    protected String _nodeName, _sharedSecret;
+    /** The name of our node, which may be null if we are running in ad-hoc "multinoded" mode
+     * with but a single node. */
+    protected String _nodeName;
+    protected String _sharedSecret;
     protected NodeRecord _self;
     protected NodeObject _nodeobj;
     protected String _nodeNamespace;
