@@ -497,6 +497,7 @@ public abstract class PeerManager
         if (peer != null) {
             if (peer.nodeobj != null) {
                 peer.nodeobj.peerService.invokeAction(flattenAction(action));
+
             } else {
                 log.warning("Dropped NodeAction", "nodeName", nodeName, "action", action);
             }
