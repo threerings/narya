@@ -62,6 +62,7 @@ import com.threerings.presents.annotation.PeerInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
@@ -320,9 +321,9 @@ public abstract class PeerManager
         String nodeName, String sharedSecret, String hostName, String publicHostName,
         String region, int port, String nodeNamespace)
     {
-        _nodeNamespace = nodeNamespace;
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
+        _nodeNamespace = nodeNamespace;
 
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(
@@ -494,7 +495,12 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeAction(flattenAction(action));
+            if (peer.nodeobj != null) {
+                peer.nodeobj.peerService.invokeAction(flattenAction(action));
+            } else {
+                log.warning("Dropped NodeAction", "nodeName", nodeName, "action", action);
+            }
+
         } else if (Objects.equal(nodeName, _nodeName)) {
             invokeAction(null, flattenAction(action));
         }
@@ -566,7 +572,7 @@ public abstract class PeerManager
             nodes.add(_nodeobj.nodeName);
         }
         for (PeerNode peer : _peers.values()) {
-            if (applicant.isApplicable(peer.nodeobj)) {
+            if (peer.nodeobj != null && applicant.isApplicable(peer.nodeobj)) {
                 nodes.add(peer.getNodeName());
             }
         }
@@ -1508,7 +1514,14 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
+            if (peer.nodeobj != null) {
+                peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
+
+            } else {
+                log.warning("Dropped NodeRequest", "nodeName", nodeName);
+                listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
+            }
+
         } else if (Objects.equal(nodeName, _nodeName)) {
             invokeRequest(null, requestBytes, listener);
         }
