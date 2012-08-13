@@ -457,7 +457,4 @@ public class InvocationManager
      * comes in on a service we don't know about. */
     protected final Map<Integer, String> _recentRegServices =
         new LRUHashMap<Integer, String>(10000);
-
-    /** The text appended to the procedure name when generating a failure response. */
-    protected static final String FAILED_SUFFIX = "Failed";
 }
