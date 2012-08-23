@@ -321,9 +321,37 @@ public abstract class PeerManager
         String nodeName, String sharedSecret, String hostName, String publicHostName,
         String region, int port, String nodeNamespace)
     {
+        init(nodeName, sharedSecret, hostName, publicHostName, region, port, nodeNamespace, false);
+    }
+
+    /**
+     * Initializes this peer manager and initiates the process of connecting to its peer nodes.
+     * This will also reconfigure the ConnectionManager and ClientManager with peer related bits,
+     * so this should not be called until <em>after</em> the main server has set up its client
+     * factory and authenticator.
+     *
+     * @param nodeName this node's unique name.
+     * @param sharedSecret a shared secret used to allow the peers to authenticate with one
+     * another.
+     * @param hostName the DNS name of the server running this node.
+     * @param publicHostName if non-null, a separate public DNS hostname by which the node is to
+     * be known to normal clients (we may want inter-peer communication to take place over a
+     * different network than the communication between real clients and the various peer
+     * servers).
+     * @param region the region in which the node lives, which may be null.  Nodes in different
+     * regions must connect to each other through the public host name.
+     * @param port the port on which other nodes should connect to us.
+     * @param nodeNamespace The namespace for nodes to peer with. This node will connect to other
+     * nodes with the same prefix from the NODES table.
+     */
+    public void init (
+        String nodeName, String sharedSecret, String hostName, String publicHostName,
+        String region, int port, String nodeNamespace, boolean adHoc)
+    {
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
         _nodeNamespace = nodeNamespace;
+        _adHoc = adHoc;
 
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(
@@ -345,7 +373,7 @@ public abstract class PeerManager
         _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName,
             region, port);
-        if (_nodeName != null) {
+        if (!adHoc) {
             _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
                 @Override
                 public void invokePersist () throws Exception {
@@ -361,7 +389,7 @@ public abstract class PeerManager
         _clmgr.addClientObserver(this);
 
         // and start our peer refresh interval (this lives for the lifetime of the server)
-        if (_nodeName != null) {
+        if (!adHoc) {
             _omgr.newInterval(new Runnable() {
                 public void run () {
                     refreshPeers();
@@ -1000,7 +1028,7 @@ public abstract class PeerManager
         _clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        if (_nodeName != null) {
+        if (!_adHoc) {
             _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
                 @Override
                 public void invokePersist () throws Exception {
@@ -1135,7 +1163,7 @@ public abstract class PeerManager
      */
     protected void refreshPeers ()
     {
-        if (_nodeName == null) {
+        if (_adHoc) {
             return;
         }
 
@@ -1803,6 +1831,9 @@ public abstract class PeerManager
     protected NodeObject _nodeobj;
     protected String _nodeNamespace;
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
+
+    /** Are we in ad-hoc mode? (Not really connected to peers) */
+    protected boolean _adHoc;
 
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
