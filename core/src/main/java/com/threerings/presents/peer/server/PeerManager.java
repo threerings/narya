@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -61,6 +62,7 @@ import com.threerings.presents.annotation.PeerInvoker;
 import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
@@ -319,9 +321,37 @@ public abstract class PeerManager
         String nodeName, String sharedSecret, String hostName, String publicHostName,
         String region, int port, String nodeNamespace)
     {
-        _nodeNamespace = nodeNamespace;
+        init(nodeName, sharedSecret, hostName, publicHostName, region, port, nodeNamespace, false);
+    }
+
+    /**
+     * Initializes this peer manager and initiates the process of connecting to its peer nodes.
+     * This will also reconfigure the ConnectionManager and ClientManager with peer related bits,
+     * so this should not be called until <em>after</em> the main server has set up its client
+     * factory and authenticator.
+     *
+     * @param nodeName this node's unique name.
+     * @param sharedSecret a shared secret used to allow the peers to authenticate with one
+     * another.
+     * @param hostName the DNS name of the server running this node.
+     * @param publicHostName if non-null, a separate public DNS hostname by which the node is to
+     * be known to normal clients (we may want inter-peer communication to take place over a
+     * different network than the communication between real clients and the various peer
+     * servers).
+     * @param region the region in which the node lives, which may be null.  Nodes in different
+     * regions must connect to each other through the public host name.
+     * @param port the port on which other nodes should connect to us.
+     * @param nodeNamespace The namespace for nodes to peer with. This node will connect to other
+     * nodes with the same prefix from the NODES table.
+     */
+    public void init (
+        String nodeName, String sharedSecret, String hostName, String publicHostName,
+        String region, int port, String nodeNamespace, boolean adHoc)
+    {
         _nodeName = nodeName;
         _sharedSecret = sharedSecret;
+        _nodeNamespace = nodeNamespace;
+        _adHoc = adHoc;
 
         // wire ourselves into the server
         _conmgr.addChainedAuthenticator(
@@ -343,7 +373,7 @@ public abstract class PeerManager
         _self = new NodeRecord(
             _nodeName, hostName, (publicHostName == null) ? hostName : publicHostName,
             region, port);
-        if (_nodeName != null) {
+        if (!adHoc) {
             _invoker.postUnit(new WriteOnlyUnit("registerNode(" + _self + ")") {
                 @Override
                 public void invokePersist () throws Exception {
@@ -359,11 +389,13 @@ public abstract class PeerManager
         _clmgr.addClientObserver(this);
 
         // and start our peer refresh interval (this lives for the lifetime of the server)
-        _omgr.newInterval(new Runnable() {
-            public void run () {
-                refreshPeers();
-            }
-        }).schedule(5000L, 60*1000L);
+        if (!adHoc) {
+            _omgr.newInterval(new Runnable() {
+                public void run () {
+                    refreshPeers();
+                }
+            }).schedule(5000L, 60*1000L);
+        }
 
         // give derived classes an easy way to get in on the init action
         didInit();
@@ -491,8 +523,14 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeAction(flattenAction(action));
-        } else if (nodeName.equals(_nodeName)) {
+            if (peer.nodeobj != null) {
+                peer.nodeobj.peerService.invokeAction(flattenAction(action));
+
+            } else {
+                log.warning("Dropped NodeAction", "nodeName", nodeName, "action", action);
+            }
+
+        } else if (Objects.equal(nodeName, _nodeName)) {
             invokeAction(null, flattenAction(action));
         }
     }
@@ -563,7 +601,7 @@ public abstract class PeerManager
             nodes.add(_nodeobj.nodeName);
         }
         for (PeerNode peer : _peers.values()) {
-            if (applicant.isApplicable(peer.nodeobj)) {
+            if (peer.nodeobj != null && applicant.isApplicable(peer.nodeobj)) {
                 nodes.add(peer.getNodeName());
             }
         }
@@ -599,7 +637,7 @@ public abstract class PeerManager
     public <T extends DObject> void proxyRemoteObject (
         final DObjectAddress remote, final ResultListener<Integer> listener)
     {
-        if (remote.nodeName.equals(_nodeName)) {
+        if (Objects.equal(remote.nodeName, _nodeName)) {
             // Still subscribe if the DObject is local to preserve the behavior of
             // DObject.setDestroyOnLastSubscriberRemoved on the proxied object
             _omgr.subscribeToObject(remote.oid, new Subscriber<T>() {
@@ -666,7 +704,7 @@ public abstract class PeerManager
         }
 
         // If it's local, just remove the subscriber we added and bail
-        if (addr.nodeName.equals(_nodeName)) {
+        if (Objects.equal(addr.nodeName, _nodeName)) {
             bits.right.removeSubscriber(bits.left);
             return;
         }
@@ -696,7 +734,7 @@ public abstract class PeerManager
      */
     public NodeObject getPeerNodeObject (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _nodeobj;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -719,7 +757,7 @@ public abstract class PeerManager
      */
     public String getPeerPublicHostName (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.publicHostName;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -733,7 +771,7 @@ public abstract class PeerManager
      */
     public String getPeerInternalHostName (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.hostName;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -746,7 +784,7 @@ public abstract class PeerManager
      */
     public int getPeerPort (String nodeName)
     {
-        if (_nodeName.equals(nodeName)) {
+        if (Objects.equal(_nodeName, nodeName)) {
             return _self.port;
         }
         PeerNode peer = _peers.get(nodeName);
@@ -786,7 +824,7 @@ public abstract class PeerManager
         // wait until any pending resolution is complete
         queryLock(lock, new ChainedResultListener<String, String>(listener) {
             public void requestCompleted (String result) {
-                if (_nodeName.equals(result)) {
+                if (Objects.equal(_nodeName, result)) {
                     if (_suboids.isEmpty()) {
                         lockReleased(lock, listener);
                     } else {
@@ -815,7 +853,8 @@ public abstract class PeerManager
     {
         // make sure we're releasing it
         LockHandler handler = _locks.get(lock);
-        if (handler == null || !handler.getNodeName().equals(_nodeName) || handler.isAcquiring()) {
+        if (handler == null || !Objects.equal(handler.getNodeName(), _nodeName) ||
+                handler.isAcquiring()) {
             log.warning("Tried to reacquire lock not being released", "lock", lock,
                         "handler", handler);
             return;
@@ -923,7 +962,7 @@ public abstract class PeerManager
     {
         _suboids.remove(cloid);
         for (LockHandler handler : _locks.values().toArray(new LockHandler[_locks.size()])) {
-            if (handler.getNodeName().equals(_nodeName)) {
+            if (Objects.equal(handler.getNodeName(), _nodeName)) {
                 handler.clientUnsubscribed(cloid);
             }
         }
@@ -976,7 +1015,7 @@ public abstract class PeerManager
     // from interface Lifecycle.ShutdownComponent
     public void shutdown ()
     {
-        if (_nodeName == null) { // never initialized
+        if (_self == null) { // never initialized
             return;
         }
 
@@ -989,12 +1028,14 @@ public abstract class PeerManager
         _clmgr.removeClientObserver(this);
 
         // clear our record from the node table
-        _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
-            @Override
-            public void invokePersist () throws Exception {
-                _noderepo.shutdownNode(_nodeName);
-            }
-        });
+        if (!_adHoc) {
+            _invoker.postUnit(new WriteOnlyUnit("shutdownNode(" + _nodeName + ")") {
+                @Override
+                public void invokePersist () throws Exception {
+                    _noderepo.shutdownNode(_nodeName);
+                }
+            });
+        }
 
         // shut down the peers
         for (PeerNode peer : _peers.values()) {
@@ -1006,7 +1047,7 @@ public abstract class PeerManager
     public void ratifyLockAction (ClientObject caller, NodeObject.Lock lock, boolean acquire)
     {
         LockHandler handler = _locks.get(lock);
-        if (handler != null && handler.getNodeName().equals(_nodeName)) {
+        if (handler != null && Objects.equal(handler.getNodeName(), _nodeName)) {
             handler.ratify(caller, acquire);
         } else {
             // this is not an error condition, as we may have cancelled the handler or
@@ -1122,6 +1163,10 @@ public abstract class PeerManager
      */
     protected void refreshPeers ()
     {
+        if (_adHoc) {
+            return;
+        }
+
         // load up information on our nodes
         _invoker.postUnit(new RepositoryUnit("refreshPeers") {
             @Override
@@ -1141,7 +1186,7 @@ public abstract class PeerManager
                 long now = System.currentTimeMillis();
                 for (Iterator<NodeRecord> it = _nodes.values().iterator(); it.hasNext(); ) {
                     NodeRecord record = it.next();
-                    if (record.nodeName.equals(_nodeName)) {
+                    if (Objects.equal(record.nodeName, _nodeName)) {
                         continue;
                     }
                     if ((now - record.lastUpdated.getTime()) > PeerNode.STALE_INTERVAL) {
@@ -1498,8 +1543,15 @@ public abstract class PeerManager
     {
         PeerNode peer = _peers.get(nodeName);
         if (peer != null) {
-            peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
-        } else if (nodeName.equals(_nodeName)) {
+            if (peer.nodeobj != null) {
+                peer.nodeobj.peerService.invokeRequest(requestBytes, listener);
+
+            } else {
+                log.warning("Dropped NodeRequest", "nodeName", nodeName);
+                listener.requestFailed(InvocationCodes.INTERNAL_ERROR);
+            }
+
+        } else if (Objects.equal(nodeName, _nodeName)) {
             invokeRequest(null, requestBytes, listener);
         }
     }
@@ -1771,11 +1823,17 @@ public abstract class PeerManager
         }
     };
 
-    protected String _nodeName, _sharedSecret;
+    /** The name of our node, which may be null if we are running in ad-hoc "multinoded" mode
+     * with but a single node. */
+    protected String _nodeName;
+    protected String _sharedSecret;
     protected NodeRecord _self;
     protected NodeObject _nodeobj;
     protected String _nodeNamespace;
     protected Map<String,PeerNode> _peers = Maps.newHashMap();
+
+    /** Are we in ad-hoc mode? (Not really connected to peers) */
+    protected boolean _adHoc;
 
     /** The client oids of all peers subscribed to the node object. */
     protected ArrayIntSet _suboids = new ArrayIntSet();
