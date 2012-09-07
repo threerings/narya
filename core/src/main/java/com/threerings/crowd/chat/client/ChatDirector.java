@@ -1185,6 +1185,9 @@ public class ChatDirector extends BasicDirector
         public String handleCommand (SpeakService speakSvc, String command,
                                      String args, String[] history)
         {
+            // put "/help " in the history
+            history[0] = command + " ";
+
             String hcmd = "";
 
             // grab the command they want help on
@@ -1203,20 +1206,24 @@ public class ChatDirector extends BasicDirector
 
             // handle "/help help" and "/help someboguscommand"
             Map<String, CommandHandler> possibleCommands = getCommandHandlers(hcmd);
+            String usage;
             if (_handlers.get(hcmd) == this || possibleCommands.isEmpty()) {
-                return getUsage(command);
+                usage = getUsage(command);
 
             } else if (possibleCommands.size() > 1) {
-                return getUsage(command, possibleCommands);
+                usage = getUsage(command, possibleCommands);
+
+            } else {
+                // if there is only one possible command display its usage
+                Map.Entry<String, CommandHandler> entry =
+                    possibleCommands.entrySet().iterator().next();
+                usage = entry.getValue().getUsage(entry.getKey());
             }
 
-            // if there is only one possible command display its usage
-            Map.Entry<String, CommandHandler> entry =
-                possibleCommands.entrySet().iterator().next();
             // this is a little funny, but we display the feedback message by hand and return
             // SUCCESS so that the chat entry field doesn't think that we've failed and
             // preserve our command text
-            displayFeedback(null, entry.getValue().getUsage(entry.getKey()));
+            displayFeedback(null, usage);
             return ChatCodes.SUCCESS;
         }
 
