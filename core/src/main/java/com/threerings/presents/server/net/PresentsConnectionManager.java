@@ -167,7 +167,7 @@ public class PresentsConnectionManager extends ConnectionManager
      */
     public boolean setPrivateKey (String key)
     {
-        return key == null ? false : setPrivateKey(SecureUtil.stringToRSAPrivateKey(key));
+        return (key != null) && setPrivateKey(SecureUtil.stringToRSAPrivateKey(key));
     }
 
     /**
