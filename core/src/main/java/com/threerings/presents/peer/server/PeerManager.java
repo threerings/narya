@@ -357,7 +357,7 @@ public abstract class PeerManager
         _conmgr.addChainedAuthenticator(
             new ServiceAuthenticator<PeerCreds>(PeerCreds.class, PeerAuthName.class) {
             @Override protected boolean areValid (PeerCreds creds) {
-                return creds.areValid(_sharedSecret);
+                return isAuthenticPeer(creds);
             }
         });
         _clmgr.addSessionFactory(
