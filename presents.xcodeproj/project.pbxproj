@@ -522,7 +522,7 @@
 					"-fvisibility-inlines-hidden",
 				);
 				PREBINDING = NO;
-				SDKROOT = iphoneos4.2;
+				SDKROOT = iphoneos;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
 			};
