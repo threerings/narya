@@ -415,6 +415,9 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+			};
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "presents" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -523,7 +526,6 @@
 					"-fvisibility=hidden",
 					"-fvisibility-inlines-hidden",
 				);
-				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
@@ -548,7 +550,6 @@
 					"-fvisibility=hidden",
 					"-fvisibility-inlines-hidden",
 				);
-				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
@@ -584,7 +585,6 @@
 					"-fvisibility=hidden",
 					"-fvisibility-inlines-hidden",
 				);
-				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
