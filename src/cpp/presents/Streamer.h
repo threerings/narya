@@ -13,6 +13,7 @@ class ObjectInputStream;
 
 struct Streamer
 {
+    virtual ~Streamer () {}
     virtual Shared<void> createObject (ObjectInputStream& in) = 0;
     virtual void writeObject (const Shared<void>& object, ObjectOutputStream& out) = 0;
 };
