@@ -589,6 +589,7 @@
 					"-fvisibility-inlines-hidden",
 				);
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				STRIP_STYLE = debugging;
 				SYMROOT = "dist/xcode-build";
 			};
