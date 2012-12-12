@@ -21,9 +21,13 @@
 
 package com.threerings.crowd.chat.client;
 
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import com.samskivert.util.RandomUtil;
 import com.threerings.util.Name;
@@ -43,12 +47,11 @@ public abstract class CurseFilter implements ChatFilter
      */
     public static String comicChars (int length)
     {
-        StringBuilder buf = new StringBuilder();
+        char[] chars = new char[length];
         for (int ii=0; ii < length; ii++) {
-            buf.append(RandomUtil.pickRandom(COMIC_CHARS));
+            chars[ii] = RandomUtil.pickRandom(COMIC_CHARS);
         }
-
-        return buf.toString();
+        return new String(chars);
     }
 
 
@@ -202,20 +205,11 @@ public abstract class CurseFilter implements ChatFilter
      */
     protected void configureStopWords (String stopWords)
     {
-        StringTokenizer st = new StringTokenizer(stopWords);
-
-        String pattern = "";
-        while (st.hasMoreTokens()) {
-            if ("".equals(pattern)) {
-                pattern += "(";
-            } else {
-                pattern += "|";
-            }
-            pattern += getStopWordRegexp(st.nextToken());
+        List<String> patterns = Lists.newArrayList();
+        for (StringTokenizer st = new StringTokenizer(stopWords); st.hasMoreTokens(); ) {
+            patterns.add(getStopWordRegexp(st.nextToken()));
         }
-        pattern += ")";
-
-        setStopPattern(pattern);
+        setStopPattern("(" + Joiner.on('|').join(patterns) + ")");
     }
 
     /**
@@ -250,5 +244,5 @@ public abstract class CurseFilter implements ChatFilter
     protected String[] _vernacular;
 
     /** Comic replacement characters. */
-    protected static final String[] COMIC_CHARS = { "!", "@", "#", "%", "&", "*" };
+    protected static final Character[] COMIC_CHARS = { '!', '@', '#', '%', '&', '*' };
 }
