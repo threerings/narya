@@ -209,7 +209,10 @@ public abstract class CurseFilter implements ChatFilter
         for (StringTokenizer st = new StringTokenizer(stopWords); st.hasMoreTokens(); ) {
             patterns.add(getStopWordRegexp(st.nextToken()));
         }
-        setStopPattern("(" + Joiner.on('|').join(patterns) + ")");
+        String pattern = patterns.isEmpty()
+            ? ".\\A" // matches nothing
+            : "(" + Joiner.on('|').join(patterns) + ")";
+        setStopPattern(pattern);
     }
 
     /**
