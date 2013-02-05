@@ -23,7 +23,6 @@ package com.threerings.presents.server;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import com.samskivert.util.StringUtil;
@@ -65,10 +64,10 @@ public class ReportManager
     /**
      * Starts up our periodic report generation task.
      */
-    public void activatePeriodicReport ()
+    public void activatePeriodicReport (RootDObjectManager omgr)
     {
         // queue up an interval which will generate reports as long as the omgr is alive
-        _omgr.newInterval(new Runnable() {
+        omgr.newInterval(new Runnable() {
             public void run () {
                 logReport(LOG_REPORT_HEADER +
                           generateReport(DEFAULT_TYPE, System.currentTimeMillis(), true));
@@ -190,9 +189,6 @@ public class ReportManager
 
     /** Used to generate "state of server" reports. */
     protected Multimap<String, Reporter> _reporters = ArrayListMultimap.create();
-
-    /** We use the root omgr to queue up our reporting interval. */
-    @Inject protected RootDObjectManager _omgr;
 
     /** The frequency with which we generate "state of server" reports. */
     protected static final long REPORT_INTERVAL = 15 * 60 * 1000L;
