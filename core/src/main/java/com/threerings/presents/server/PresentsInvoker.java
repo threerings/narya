@@ -68,6 +68,24 @@ public class PresentsInvoker extends ReportingInvoker
         postUnit(new EmptyingUnit(onEmpty));
     }
 
+    @Override // from Thread
+    public void start ()
+    {
+        log.warning(
+                "PresentsInvoker should be started with a call to start(PresentsServer server).");
+        super.start();
+    }
+
+    /**
+     * Causes the invoker to begin execution for the PresentsServer.  We pass in the server instead
+     * of injecting to prevent potential circular dependency issues.
+     */
+    public void start (PresentsServer server)
+    {
+        _server = server;
+        super.start();
+    }
+
     @Override // from Invoker, Lifecycle.ShutdownComponent
     public void shutdown ()
     {
@@ -87,7 +105,11 @@ public class PresentsInvoker extends ReportingInvoker
     @Override // from Invoker
     protected void didShutdown ()
     {
-        _server.invokerDidShutdown();
+        if (_server == null) {
+            log.warning("Shutdown without assigned server");
+        } else {
+            _server.invokerDidShutdown();
+        }
     }
 
     /**
@@ -317,5 +339,5 @@ public class PresentsInvoker extends ReportingInvoker
     protected PresentsDObjectMgr _omgr;
 
     /** The server we're working for. */
-    @Inject protected PresentsServer _server;
+    protected PresentsServer _server;
 }

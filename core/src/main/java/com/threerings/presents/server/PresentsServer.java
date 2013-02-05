@@ -183,7 +183,7 @@ public class PresentsServer
         _omgr.setDefaultAccessController(createDefaultObjectAccessController());
 
         // start the main and auth invoker threads
-        _invoker.start();
+        ((PresentsInvoker)_invoker).start(this);
         _authInvoker.start();
         ((PresentsInvoker)_invoker).addInterdependentInvoker(_authInvoker);
 
