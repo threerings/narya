@@ -425,7 +425,7 @@ public abstract class Streamer
             // otherwise there should be a single non-zero-argument constructor, which we'll call
             // with zero-valued arguments at unstreaming time, which will then be overwritten by
             // readObject()
-            if (ctors.length > 1) {
+            if (ctors.length != 1) {
                 throw new RuntimeException(
                     "Streamable closure classes must have either a zero-argument constructor " +
                     "or a single argument-taking constructor; multiple argument-taking " +
