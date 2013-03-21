@@ -413,7 +413,8 @@ public abstract class Streamer
         protected void initConstructor ()
         {
             // if we have a zero argument constructor, we have to use that one
-            for (Constructor<?> ctor : _target.getDeclaredConstructors()) {
+            Constructor<?>[] ctors = _target.getDeclaredConstructors();
+            for (Constructor<?> ctor : ctors) {
                 if (ctor.getParameterTypes().length == 0) {
                     _ctor = ctor;
                     _ctorArgs = ArrayUtil.EMPTY_OBJECT;
@@ -424,7 +425,6 @@ public abstract class Streamer
             // otherwise there should be a single non-zero-argument constructor, which we'll call
             // with zero-valued arguments at unstreaming time, which will then be overwritten by
             // readObject()
-            Constructor<?>[] ctors = _target.getDeclaredConstructors();
             if (ctors.length > 1) {
                 throw new RuntimeException(
                     "Streamable closure classes must have either a zero-argument constructor " +
