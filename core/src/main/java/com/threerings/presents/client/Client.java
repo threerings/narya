@@ -879,9 +879,13 @@ public class Client
 
     protected void notifyObservers (final ObserverOps.Session op)
     {
-        if (_runQueue == null) {
+        // if we have no run queue, or we're already on the run queue's thread; dispatch this
+        // operation immediately on the current thread
+        if (_runQueue == null || _runQueue.isDispatchThread()) {
             _observers.apply(op);
-        } else {
+        }
+        // otherwise queue this notification up to run on the run queue thread
+        else {
             _runQueue.postRunnable(new Runnable() {
                 public void run () {
                     _observers.apply(op);
