@@ -101,7 +101,7 @@ public abstract class RebootManager
             }
         }
 
-        scheduleReboot(cal.toTime(), AUTOMATIC_INITIATOR);
+        scheduleReboot(cal.toTime(), true, AUTOMATIC_INITIATOR); // schedule exactly
         return true;
     }
 
@@ -140,34 +140,7 @@ public abstract class RebootManager
      */
     public void scheduleReboot (long rebootTime, String initiator)
     {
-        // if there's already a reboot scheduled, cancel it
-        cancelReboot();
-
-        // note our new reboot time and its initiator
-        _nextReboot = rebootTime;
-        _initiator = initiator;
-
-        // see if the reboot is happening within the time specified by the
-        // longest warning; if so, issue the appropriate warning
-        long now = System.currentTimeMillis();
-        int[] warnings = getWarnings();
-        for (int ii = warnings.length - 1; ii >= 0; ii--) {
-            long warnTime = warnings[ii] * 60 * 1000;
-            if (now + warnTime >= _nextReboot) {
-                doWarning(ii);
-                return;
-            }
-        }
-
-        // otherwise, it's further off; schedule an interval to wake up when we
-        // should issue the first pre-reboot warning
-        _rebootSoon = false;
-        long firstWarnTime = (_nextReboot - (warnings[0] * 60 * 1000)) - now;
-        (_interval = _omgr.newInterval(new Runnable() {
-            public void run () {
-                doWarning(0);
-            }
-        })).schedule(firstWarnTime);
+        scheduleReboot(rebootTime, false, initiator); // inexact: round up to the next warning
     }
 
     /**
@@ -210,6 +183,54 @@ public abstract class RebootManager
     {
         _server = server;
         _omgr = omgr;
+    }
+
+    /**
+     * Schedule a reboot.
+     *
+     * @param exact if false we round up to the next highest warning time.
+     */
+    protected void scheduleReboot (long rebootTime, boolean exact, String initiator)
+    {
+        // if there's already a reboot scheduled, cancel it
+        cancelReboot();
+
+        long now = System.currentTimeMillis();
+        rebootTime = Math.max(rebootTime, now); // don't let reboots happen in the past
+        long delay = rebootTime - now;
+        int[] warnings = getWarnings();
+        int level = -1; // assume we're not yet warning
+        for (int ii = warnings.length - 1; ii >= 0; ii--) {
+            long warnTime = warnings[ii] * (60L * 1000L);
+            if (delay <= warnTime) {
+                level = ii;
+                if (!exact) {
+                    rebootTime = now + warnTime;
+                }
+                break;
+            }
+        }
+
+        // note our new reboot time and its initiator
+        _nextReboot = rebootTime;
+        _initiator = initiator;
+        _rebootSoon = (level > -1);
+
+        // maybe issue a warning now
+        if (level > -1) {
+            int minutes = (int)((rebootTime - now) / (60L * 1000L));
+            broadcast(getRebootMessage("m.reboot_warning", minutes));
+        }
+
+        // and schedule our interval to hit the next level at the appropriate time
+        final int nextLevel = level + 1;
+        _interval = _omgr.newInterval(new Runnable() {
+            public void run () {
+                doWarning(nextLevel);
+            }
+        });
+        int nextWarning = (nextLevel == warnings.length) ? 0 : warnings[nextLevel];
+        _interval.schedule((_nextReboot - (nextWarning * 60L * 1000L)) - now);
     }
 
     /**
