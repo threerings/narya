@@ -28,7 +28,6 @@ import com.samskivert.util.HashIntMap;
 import com.samskivert.util.Interval;
 import com.samskivert.util.ObserverList;
 import com.samskivert.util.StringUtil;
-import com.samskivert.util.Calendars.Builder;
 
 import com.threerings.util.MessageBundle;
 
@@ -80,26 +79,24 @@ public abstract class RebootManager
     {
         // maybe schedule an automatic reboot based on our configuration
         int freq = getDayFrequency();
-        if (freq == -1) {
+        int hour = getRebootHour();
+        if (freq <= 0) {
             return false;
         }
 
-        Builder cal = Calendars.now().zeroTime().addHours(getRebootHour()).addDays(freq);
+        Calendars.Builder cal = Calendars.now();
+        int curHour = cal.get(Calendar.HOUR_OF_DAY);
+        cal = cal.zeroTime().addHours(hour).addDays((curHour < hour) ? (freq - 1) : freq);
 
         // maybe avoid weekends
         if (getSkipWeekends()) {
-            int dow = cal.get(Calendar.DAY_OF_WEEK);
-            switch (dow) {
+            switch (cal.get(Calendar.DAY_OF_WEEK)) {
             case Calendar.SATURDAY:
-                if (freq > 1) {
-                    cal.addDays(-1);
-                }
+                cal.addDays(2);
                 break;
 
             case Calendar.SUNDAY:
-                if (freq > 2) {
-                    cal.addDays(-2);
-                }
+                cal.addDays(1);
                 break;
             }
         }
