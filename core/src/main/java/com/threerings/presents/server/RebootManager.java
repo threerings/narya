@@ -214,23 +214,8 @@ public abstract class RebootManager
         // note our new reboot time and its initiator
         _nextReboot = rebootTime;
         _initiator = initiator;
-        _rebootSoon = (level > -1);
 
-        // maybe issue a warning now
-        if (level > -1) {
-            int minutes = (int)((rebootTime - now) / (60L * 1000L));
-            broadcast(getRebootMessage("m.reboot_warning", minutes));
-        }
-
-        // and schedule our interval to hit the next level at the appropriate time
-        final int nextLevel = level + 1;
-        _interval = _omgr.newInterval(new Runnable() {
-            public void run () {
-                doWarning(nextLevel);
-            }
-        });
-        int nextWarning = (nextLevel == warnings.length) ? 0 : warnings[nextLevel];
-        _interval.schedule((_nextReboot - (nextWarning * 60L * 1000L)) - now);
+        doWarning(level, (int)((rebootTime - now) / (60L * 1000L)));
     }
 
     /**
@@ -281,9 +266,10 @@ public abstract class RebootManager
     /**
      * Do a warning, schedule the next.
      */
-    protected void doWarning (final int level)
+    protected void doWarning (int level, int minutes)
     {
-        _rebootSoon = true;
+        _rebootSoon = (level > -1);
+
         int[] warnings = getWarnings();
         if (level == warnings.length) {
             if (checkLocks()) {
@@ -304,19 +290,21 @@ public abstract class RebootManager
         }
 
         // issue the warning
-        int minutes = warnings[level];
-        broadcast(getRebootMessage("m.reboot_warning", minutes));
-        if (level < warnings.length - 1) {
-            minutes -= warnings[level + 1];
+        if (_rebootSoon) {
+            notifyObservers(level);
+            broadcast(getRebootMessage("m.reboot_warning", minutes));
         }
 
         // schedule the next warning
-        (_interval = _omgr.newInterval(new Runnable() {
+        final int nextLevel = level + 1;
+        final int nextMinutes = (nextLevel == warnings.length) ? 0 : warnings[nextLevel];
+        _interval = _omgr.newInterval(new Runnable() {
             public void run () {
-                doWarning(level + 1);
+                doWarning(nextLevel, nextMinutes);
             }
-        })).schedule(minutes * 60 * 1000);
-        notifyObservers(level);
+        });
+        _interval.schedule(
+            Math.max(0L, _nextReboot - (nextMinutes * 60L * 1000L) - System.currentTimeMillis()));
     }
 
     /**
@@ -333,7 +321,7 @@ public abstract class RebootManager
         broadcast("m.reboot_delayed");
         (_interval = _omgr.newInterval(new Runnable() {
             public void run () {
-                doWarning(getWarnings().length);
+                doWarning(getWarnings().length, 0);
             }
         })).schedule(60 * 1000);
         return true;
@@ -344,9 +332,8 @@ public abstract class RebootManager
      */
     protected void notifyObservers (int level)
     {
-        int[] warnings = getWarnings();
-        final int warningsLeft = warnings.length - level - 1;
-        final long msLeft = 1000L * 60L * warnings[level];
+        final int warningsLeft = getWarnings().length - level - 1;
+        final long msLeft = _nextReboot - System.currentTimeMillis();
         _observers.apply(new ObserverList.ObserverOp<PendingShutdownObserver>() {
             public boolean apply (PendingShutdownObserver observer) {
                 observer.shutdownPlanned(warningsLeft, msLeft);
