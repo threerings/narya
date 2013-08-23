@@ -122,15 +122,26 @@ public abstract class RebootManager
     }
 
     /**
+     * Cancel the currently scheduled reboot, if any.
+     */
+    public void cancelReboot ()
+    {
+        if (_interval != null) {
+            _interval.cancel();
+            _interval = null;
+        }
+        _nextReboot = 0L;
+        _rebootSoon = false;
+        _initiator = null;
+    }
+
+    /**
      * Schedules a reboot for the specified time.
      */
     public void scheduleReboot (long rebootTime, String initiator)
     {
         // if there's already a reboot scheduled, cancel it
-        if (_interval != null) {
-            _interval.cancel();
-            _interval = null;
-        }
+        cancelReboot();
 
         // note our new reboot time and its initiator
         _nextReboot = rebootTime;
