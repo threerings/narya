@@ -80,6 +80,10 @@ public class PeerNode
             @Override protected Communicator createCommunicator () {
                 return PeerNode.this.createCommunicator(this);
             }
+            @Override protected boolean isFailureLoggable (FailureType type) {
+                return (type != FailureType.UNSUBSCRIBE_NOT_PROXIED) &&
+                        super.isFailureLoggable(type);
+            }
         };
         _client.addClientObserver(this);
     }

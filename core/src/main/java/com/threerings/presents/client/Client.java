@@ -971,6 +971,27 @@ public class Client
         return false;
     }
 
+    /**
+     * Should we be logging the specified failure?
+     */
+    protected boolean isFailureLoggable (FailureType type)
+    {
+        return true;
+    }
+
+    /**
+     * The types of failures that may occur in our associated classes, which may call
+     * isFailureLoggable() for use to arbitrate whether we want to log the error.
+     */
+    protected enum FailureType
+    {
+        /** An attempt was made to unsubscribe from an object that is not proxied. */
+        UNSUBSCRIBE_NOT_PROXIED,
+
+        // TODO: fill out more
+        ;
+    }
+
     /** Handles the process of switching between servers. See {@link Client#moveToServer}. */
     protected class ServerSwitcher extends ClientAdapter
     {

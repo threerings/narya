@@ -442,7 +442,7 @@ public class ClientDObjectMgr
         if (dobj != null) {
             dobj.removeSubscriber(target);
 
-        } else {
+        } else if (_client.isFailureLoggable(Client.FailureType.UNSUBSCRIBE_NOT_PROXIED)) {
             log.info("Requested to remove subscriber from non-proxied object", "oid", oid,
                      "sub", target);
         }
