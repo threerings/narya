@@ -72,9 +72,6 @@ public class ServerCommunicator extends Communicator
                     // outgoing traffic on this connection is used to prevent idleness
                     // TODO: shouldn't PongResponse handle this?
                     _lastEvent = System.currentTimeMillis();
-                    if (PING_DEBUG && msg instanceof PingRequest) { // TEMP
-                        log.info("Pinging on server comm " + msg);
-                    }
                 }
 
                 @Override public void connectFailure (IOException ioe) {
@@ -187,9 +184,6 @@ public class ServerCommunicator extends Communicator
         // now we can route all messages to the ClientDObjectMgr
         _conn.setMessageHandler(new PresentsConnection.MessageHandler() {
             public void handleMessage (Message message) {
-                if (PING_DEBUG && message instanceof PongResponse) {
-                    log.info("Got pong from server " + message);
-                }
                 processMessage(message);
             }
         });
@@ -213,7 +207,4 @@ public class ServerCommunicator extends Communicator
     protected PresentsConnection _conn;
     protected ClassLoader _loader;
     protected Exception _logonError;
-
-    // TEMP
-    protected static final boolean PING_DEBUG = Boolean.getBoolean("ping_debug");
 }
