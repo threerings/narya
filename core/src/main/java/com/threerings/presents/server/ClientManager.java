@@ -452,7 +452,7 @@ public class ClientManager
         PresentsSession session = getClient(authname);
 
         if (session != null) {
-            log.info("Resuming session", "type", type, "who", authname, "conn", conn);
+            //log.info("Resuming session", "type", type, "who", authname, "conn", conn);
             session.resumeSession(req, conn);
 
         } else {
