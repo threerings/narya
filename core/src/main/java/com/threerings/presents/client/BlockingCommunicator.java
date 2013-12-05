@@ -949,7 +949,8 @@ public class BlockingCommunicator extends Communicator
             if (_selector != null) {
                 _selector.wakeup();
             }
-            closeDatagramChannel();
+            // interrupt reading the current datagram
+            interrupt();
         }
     }
 
