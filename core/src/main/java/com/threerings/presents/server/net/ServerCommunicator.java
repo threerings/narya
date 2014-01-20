@@ -37,8 +37,6 @@ import com.threerings.presents.net.AuthResponse;
 import com.threerings.presents.net.AuthResponseData;
 import com.threerings.presents.net.LogoffRequest;
 import com.threerings.presents.net.Message;
-import com.threerings.presents.net.PingRequest;
-import com.threerings.presents.net.PongResponse;
 import com.threerings.presents.net.UpstreamMessage;
 
 import static com.threerings.presents.Log.log;
