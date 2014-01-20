@@ -396,7 +396,7 @@ public abstract class ConfigRegistry
     }
 
     protected static class DefaultSerializer implements Serializer {
-        @Override public String serialize (String name, Object value) throws Exception {
+        public String serialize (String name, Object value) throws Exception {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectOutputStream oout = createObjectOutputStream(out);
             oout.writeObject(value);
@@ -404,7 +404,7 @@ public abstract class ConfigRegistry
             return StringUtil.hexlate(out.toByteArray());
         }
 
-        @Override public Object deserialize (String value) throws Exception {
+        public Object deserialize (String value) throws Exception {
             ByteArrayInputStream bin = new ByteArrayInputStream(StringUtil.unhexlate(value));
             ObjectInputStream oin = createObjectInputStream(bin);
             return oin.readObject();
