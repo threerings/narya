@@ -413,8 +413,19 @@ public abstract class InvocationTask extends GenTask
 
     protected static String replacePath (String source, String oldstr, String newstr)
     {
-        return source.replace(oldstr.replace('/', File.separatorChar),
-                              newstr.replace('/', File.separatorChar));
+        // replace only the last occurrance of 'oldstr' with 'newstr'; if we have a path like:
+        // /client/src/foo/bar/client/FooService.java we don't want to replace the first /client
+        // just the one that immediately precedes /FooService.java
+
+        // TODO: this is error prone because we could have a project that opted not to have
+        // client/data/server subdirs and instead just had a path like:
+        // /client/src/foo/bar/FooService.java which would be improperly mangled
+
+        String oldPath = oldstr.replace('/', File.separatorChar);
+        String newPath = newstr.replace('/', File.separatorChar);
+        int oldIdx = source.lastIndexOf(oldPath);
+        return (oldIdx == -1) ? source :
+            (source.substring(0, oldIdx) + newPath + source.substring(oldIdx+oldPath.length()));
     }
 
     /** {@link InvocationListener} resolved with the proper classloader so that we can compare it
