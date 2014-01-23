@@ -145,8 +145,8 @@ public class Transport
         if (_unordered == null) {
             int length = Type.values().length;
             _unordered = new Transport[length];
-            @SuppressWarnings({ "unchecked", "rawtypes" }) HashIntMap<Transport>[] ordered =
-                new HashIntMap[length];
+            @SuppressWarnings({ "unchecked" }) HashIntMap<Transport>[] ordered =
+                (HashIntMap<Transport>[])new HashIntMap<?>[length];
             _ordered = ordered;
         }
 
