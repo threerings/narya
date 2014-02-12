@@ -25,9 +25,11 @@
     <mkdir dir="${deploy.dir}/lib"/>
     <mkdir dir="${classes.dir}"/>
     <mkdir dir="${tclasses.dir}"/>
+    <!--
     <copy todir="${classes.dir}">
       <fileset dir="core/src/main/resources" includes="**"/>
     </copy>
+    -->
     <path id="built.classpath">
       <path refid="pom.path"/>
       <pathelement location="${classes.dir}"/>
