@@ -143,13 +143,14 @@ public class ChatHistory
             msg.timestamp = System.currentTimeMillis();
         }
 
+        Entry entry = new Entry(channel, msg);
         for (Name username : usernames) {
             // add the message to this user's chat history
             List<Entry> history = getList(username);
             if (history == null) {
                 continue;
             }
-            history.add(new Entry(channel, msg));
+            history.add(entry);
 
             // if the history is big enough, potentially prune it (we always prune when asked for
             // the history, so this is just to balance memory usage with CPU expense)
