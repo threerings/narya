@@ -21,8 +21,6 @@
 
 package com.threerings.crowd.chat.data;
 
-import com.threerings.presents.dobj.DObject;
-
 import com.threerings.util.Name;
 
 /**
