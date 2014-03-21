@@ -30,6 +30,7 @@ import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.dobj.OidList;
 import com.threerings.presents.dobj.ServerMessageEvent;
 
+import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.data.SpeakObject;
 
@@ -149,8 +150,14 @@ public class PlaceObject extends DObject
     public void applyToListeners (ListenerOp op)
     {
         for (int ii = 0, ll = occupants.size(); ii < ll; ii++) {
-            op.apply(occupants.get(ii));
+            op.apply(this, occupants.get(ii));
         }
+    }
+
+    // documentation inherited
+    public String getChatIdentifier ()
+    {
+        return "default";
     }
 
     // AUTO-GENERATED: METHODS START

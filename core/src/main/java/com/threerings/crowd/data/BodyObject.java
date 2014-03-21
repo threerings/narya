@@ -127,7 +127,13 @@ public class BodyObject extends ClientObject
     // from interface SpeakObject
     public void applyToListeners (ListenerOp op)
     {
-        op.apply(getVisibleName());
+        op.apply(this, getVisibleName());
+    }
+
+    // from interface SpeakObject
+    public String getChatIdentifier ()
+    {
+        return "default";
     }
 
     /**

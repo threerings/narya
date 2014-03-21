@@ -334,7 +334,7 @@ public abstract class ChatChannelManager
         for (int bodyId : bodyIds) {
             BodyObject bobj = getBodyObject(bodyId);
             if (bobj != null && shouldDeliverSpeak(channel, message, bobj)) {
-                _chatHistory.record(channel, message, bobj.getVisibleName());
+                _chatHistory.record(channel, bobj.getChatIdentifier(), message, bobj.getVisibleName());
                 bobj.postMessage(ChatCodes.CHAT_CHANNEL_NOTIFICATION, channel, message);
             }
         }

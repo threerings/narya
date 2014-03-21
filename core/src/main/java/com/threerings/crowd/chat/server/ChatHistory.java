@@ -67,9 +67,13 @@ public class ChatHistory
         /** The message sent. */
         public final ChatMessage message;
 
-        public Entry (ChatChannel channel, ChatMessage message) {
+        /** The source of the sent message. */
+        public final String source;
+
+        public Entry (ChatChannel channel, String source, ChatMessage message) {
             this.channel = channel;
             this.message = message;
+            this.source = source;
         }
 
         public void writeObject (ObjectOutputStream out) throws IOException {
@@ -91,8 +95,8 @@ public class ChatHistory
     public ChatHistory ()
     {
         SpeakUtil.registerMessageObserver(new SpeakUtil.MessageObserver() {
-            public void messageDelivered (Name hearer, UserMessage message) {
-                record(null, message, hearer);
+            public void messageDelivered (String source, Name hearer, UserMessage message) {
+                record(null, source, message, hearer);
             }
         });
     }
@@ -136,20 +140,21 @@ public class ChatHistory
      * Records the specified channel and message to the specified users' chat histories.  If {@link
      * ChatMessage#timestamp} is not already filled in, it will be.
      */
-    public void record (ChatChannel channel, UserMessage msg, Name ...usernames)
+    public void record (ChatChannel channel, String source, UserMessage msg, Name ...usernames)
     {
         // fill in the message's time stamp if necessary
         if (msg.timestamp == 0L) {
             msg.timestamp = System.currentTimeMillis();
         }
 
-        Entry entry = new Entry(channel, msg);
+        Entry entry = new Entry(channel, source, msg);
         for (Name username : usernames) {
             // add the message to this user's chat history
             List<Entry> history = getList(username);
             if (history == null) {
                 continue;
             }
+
             history.add(entry);
 
             // if the history is big enough, potentially prune it (we always prune when asked for

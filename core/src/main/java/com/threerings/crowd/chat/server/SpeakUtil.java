@@ -51,7 +51,7 @@ public class SpeakUtil
         /**
          * Called for each player that hears a particular chat message.
          */
-        void messageDelivered (Name hearer, UserMessage message);
+        void messageDelivered (String source, Name hearer, UserMessage message);
     }
 
     /**
@@ -196,7 +196,7 @@ public class SpeakUtil
      * Notes that the specified user was privy to the specified message. If {@link
      * ChatMessage#timestamp} is not already filled in, it will be.
      */
-    protected static void noteMessage (Name username, UserMessage msg)
+    protected static void noteMessage (SpeakObject sender, Name username, UserMessage msg)
     {
         // fill in the message's time stamp if necessary
         if (msg.timestamp == 0L) {
@@ -206,7 +206,7 @@ public class SpeakUtil
         // Log.info("Noted that " + username + " heard " + msg + ".");
 
         // notify any message observers
-        _messageOp.init(username, msg);
+        _messageOp.init(sender, username, msg);
         _messageObs.apply(_messageOp);
     }
 
@@ -224,15 +224,15 @@ public class SpeakUtil
         public RootDObjectManager omgr;
         public UserMessage message;
 
-        public void apply (int bodyOid) {
+        public void apply (SpeakObject sender, int bodyOid) {
             DObject dobj = omgr.getObject(bodyOid);
             if (dobj != null && dobj instanceof BodyObject) {
-                noteMessage(((BodyObject)dobj).getVisibleName(), message);
+                noteMessage(sender, ((BodyObject)dobj).getVisibleName(), message);
             }
         }
 
-        public void apply (Name username) {
-            noteMessage(username, message);
+        public void apply (SpeakObject sender, Name username) {
+            noteMessage(sender, username, message);
         }
     }
 
@@ -240,16 +240,18 @@ public class SpeakUtil
     protected static class MessageObserverOp
         implements ObserverList.ObserverOp<MessageObserver>
     {
-        public void init (Name hearer, UserMessage message) {
+        public void init (SpeakObject sender, Name hearer, UserMessage message) {
             _hearer = hearer;
             _message = message;
+            _sender = sender;
         }
 
         public boolean apply (MessageObserver observer) {
-            observer.messageDelivered(_hearer, _message);
+            observer.messageDelivered(_sender.getChatIdentifier(), _hearer, _message);
             return true;
         }
 
+        protected SpeakObject _sender;
         protected Name _hearer;
         protected UserMessage _message;
     }

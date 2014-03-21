@@ -21,6 +21,8 @@
 
 package com.threerings.crowd.chat.data;
 
+import com.threerings.presents.dobj.DObject;
+
 import com.threerings.util.Name;
 
 /**
@@ -33,11 +35,16 @@ public interface SpeakObject
     public static interface ListenerOp
     {
         /** Call this method if you only have access to body oids. */
-        void apply (int bodyOid);
+        void apply (SpeakObject sender, int bodyOid);
 
         /** Call this method if you can provide usernames directly. */
-        void apply (Name username);
+        void apply (SpeakObject sender, Name username);
     }
+
+    /**
+     * Returns an identifier for what type of chat this speak object represents.
+     */
+    String getChatIdentifier ();
 
     /**
      * The speak service will call this every time a chat message is delivered on this speak object

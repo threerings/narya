@@ -263,7 +263,7 @@ public class ChatProvider
         SpeakUtil.sendMessage(target, message);
 
         // note that the teller "heard" what they said
-        SpeakUtil.noteMessage(message.speaker, message);
+        SpeakUtil.noteMessage(target, message.speaker, message);
     }
 
     /**
