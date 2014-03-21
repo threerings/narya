@@ -29,6 +29,7 @@ import com.threerings.presents.data.Permission;
 
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakObject;
+import com.threerings.crowd.chat.data.UserMessage;
 
 /**
  * The basic user object class for Crowd users. Bodies have a username, a location and a status.
@@ -131,9 +132,9 @@ public class BodyObject extends ClientObject
     }
 
     // from interface SpeakObject
-    public String getChatIdentifier ()
+    public String getChatIdentifier (UserMessage message)
     {
-        return "default";
+        return SpeakObject.DEFAULT_IDENTIFIER;
     }
 
     /**

@@ -33,6 +33,7 @@ import com.threerings.presents.dobj.ServerMessageEvent;
 import com.threerings.crowd.chat.data.ChatCodes;
 import com.threerings.crowd.chat.data.SpeakMarshaller;
 import com.threerings.crowd.chat.data.SpeakObject;
+import com.threerings.crowd.chat.data.UserMessage;
 
 import static com.threerings.crowd.Log.log;
 
@@ -155,9 +156,9 @@ public class PlaceObject extends DObject
     }
 
     // documentation inherited
-    public String getChatIdentifier ()
+    public String getChatIdentifier (UserMessage message)
     {
-        return "default";
+        return SpeakObject.DEFAULT_IDENTIFIER;
     }
 
     // AUTO-GENERATED: METHODS START

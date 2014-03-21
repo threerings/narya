@@ -247,7 +247,7 @@ public class SpeakUtil
         }
 
         public boolean apply (MessageObserver observer) {
-            observer.messageDelivered(_sender.getChatIdentifier(), _hearer, _message);
+            observer.messageDelivered(_sender.getChatIdentifier(_message), _hearer, _message);
             return true;
         }
 

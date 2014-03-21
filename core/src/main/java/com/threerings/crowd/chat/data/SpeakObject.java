@@ -23,12 +23,16 @@ package com.threerings.crowd.chat.data;
 
 import com.threerings.util.Name;
 
+import com.threerings.crowd.chat.data.UserMessage;
+
 /**
  * Provides a mechanism by which the speak service can identify chat listeners so as to maintain a
  * recent history of all chat traffic on the server.
  */
 public interface SpeakObject
 {
+    public static final String DEFAULT_IDENTIFIER = "default";
+
     /** Used in conjunction with {@link SpeakObject#applyToListeners}. */
     public static interface ListenerOp
     {
@@ -40,9 +44,9 @@ public interface SpeakObject
     }
 
     /**
-     * Returns an identifier for what type of chat this speak object represents.
+     * Returns an identifier for what type of chat this speak object represents based on the message.
      */
-    String getChatIdentifier ();
+    String getChatIdentifier (UserMessage message);
 
     /**
      * The speak service will call this every time a chat message is delivered on this speak object
