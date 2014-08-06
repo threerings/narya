@@ -999,7 +999,18 @@ public abstract class Streamer
      */
     protected enum EnumPolicy
     {
-        NAME, NAME_WITH_BYTE_ENUM, ORDINAL, ORDINAL_WITH_BYTE_ENUM;
+        /** Stream enums using the name of the enum constant. */
+        NAME,
+
+        /** Use bytes if the enum is a ByteEnum, otherwise use the name. This is the OLD DEFAULT. */
+        NAME_WITH_BYTE_ENUM,
+
+        /** Stream using the ordinal: a byte, short, or int; depending on the size of the enum.
+         *  I would like to change this to be the default. */
+        ORDINAL,
+
+        /** Use bytes if the enum is a ByteEnum, otherwise use the ordinal. */
+        ORDINAL_WITH_BYTE_ENUM;
 
         /**
          * Create the static enum policy by checking the com.threerings.io.enumPolicy system prop.
