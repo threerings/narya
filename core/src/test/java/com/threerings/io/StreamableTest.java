@@ -146,12 +146,12 @@ public class StreamableTest
 
         public Set<Integer> set = Sets.newHashSet(ImmutableSet.of(6, 7, 8));
         public Set<Integer> nullSet = null;
-        public HashSet<Integer> hashSet = Sets.newHashSet(ImmutableSet.of(7, 8, 9));
+        public HashSet<Integer> hashSet = Sets.newLinkedHashSet(ImmutableSet.of(7, 8, 9));
         public HashSet<Integer> nullHashSet = null;
 
         public Map<Integer, String> map = ImmutableMap.of(1, "one", 2, "two", 3, "three");
         public Map<Integer, String> nullMap = null;
-        public HashMap<String, Integer> hashMap = Maps.newHashMap(
+        public HashMap<String, Integer> hashMap = Maps.newLinkedHashMap(
             ImmutableMap.of("one", 1, "two", 2, "three", 3));
         public HashMap<String, Integer> nullHashMap = null;
 
@@ -384,35 +384,6 @@ public class StreamableTest
     }
 
     @Test
-    public void testWireFormat ()
-        throws IOException, ClassNotFoundException
-    {
-        Widget w = new Widget();
-
-        // make sure that we serialize to the expected stream of bytes
-        byte[] data = flatten(w);
-
-        // uncomment this and rerun the tests to generate an updated WIRE_DATA blob
-        // printWireData(w);
-
-        // oddly, JUnit doesn't like comparing byte arrays directly (this fails:
-        // assertEquals(WIRE_DATA, WIRE_DATA.clone())), but comparing strings is fine
-        assertEquals(StringUtil.hexlate(data), StringUtil.hexlate(WIRE_DATA));
-
-        // make sure that we unserialize a known stream of bytes to the expected object
-        assertEquals(w, unflatten(WIRE_DATA));
-    }
-
-    protected void printWireData (Object o)
-        throws IOException
-    {
-        String dstr = StringUtil.wordWrap(StringUtil.hexlate(flatten(o)), 80);
-        dstr = StringUtil.join(dstr.split("\n"), "\" +\n        \"");
-        System.out.println("    protected static final byte[] WIRE_DATA = "
-            + "StringUtil.unhexlate(\n        \"" + dstr + "\");");
-    }
-
-    @Test
     public void testPostStreamingMutation ()
         throws IOException, ClassNotFoundException
     {
@@ -543,31 +514,4 @@ public class StreamableTest
     {
         return new ObjectInputStream(new ByteArrayInputStream(data)).readObject();
     }
-
-    protected static final byte[] WIRE_DATA = StringUtil.unhexlate(
-        "ffff0027636f6d2e746872656572696e67732e696f2e53747265616d61626c655465737424576964" +
-        "676574017f00617fff7fffffff7fffffffffffffff7f7fffff7fefffffffffffff0101017f010061" +
-        "017fff017fffffff017fffffffffffffff017f7fffff017fefffffffffffff000000000000000001" +
-        "00036f6e6500ffff000d6d6f6e6b6579206275747465720000000000000000002a01000100010000" +
-        "000301000101000000037f020301000000037fff0002000301000000030061006200630100000003" +
-        "7fffffff000000020000000301000000037fffffffffffffff000000000000000200000000000000" +
-        "0301000000037f7fffff400000004040000001000000037fefffffffffffff400000000000000040" +
-        "080000000000000000000000000000fffe0027636f6d2e746872656572696e67732e696f2e537472" +
-        "65616d61626c655465737424576f636b65740f7fff400921fb54442d18fffd002a5b4c636f6d2e74" +
-        "6872656572696e67732e696f2e53747265616d61626c655465737424576f636b65743b0000000200" +
-        "020f7fff400921fb54442d1800020f7fff400921fb54442d18fffc002a5b4c636f6d2e7468726565" +
-        "72696e67732e696f2e53747265616d61626c6554657374245769636b65743b000000030001070f7f" +
-        "ff400921fb54442d1800000013000000130f7fff400921fb54442d1800000013000000130f7fff40" +
-        "0921fb54442d180000001300000013000000000000fffb002c5b4c636f6d2e746872656572696e67" +
-        "732e696f2e53747265616d61626c6554657374245761636b61626c653b00000002fffa0027636f6d" +
-        "2e746872656572696e67732e696f2e53747265616d61626c6554657374245761636b657401000966" +
-        "6f722d697a7a6c65000601000a737572652d697a7a6c6500020f7fff400921fb54442d1800020f7f" +
-        "ff400921fb54442d18010000000200020f7fff400921fb54442d1800020f7fff400921fb54442d18" +
-        "000100000003fff900116a6176612e6c616e672e496e746567657200000001000700000002000700" +
-        "00000300010000000300070000000300070000000200070000000100010000000300070000000400" +
-        "07000000050007000000060001000000030007000000060007000000070007000000080001000000" +
-        "03000700000007000700000008000700000009000100000003000700000001fff800106a6176612e" +
-        "6c616e672e537472696e6700036f6e650007000000020008000374776f0007000000030008000574" +
-        "687265650001000000030008000374776f000700000002000800036f6e6500070000000100080005" +
-        "746872656500070000000300");
 }
