@@ -51,6 +51,7 @@ import com.samskivert.util.StringUtil;
  * prefix like "something*" or a suffix like "*something".
  */
 public class ImportSet
+    implements Cloneable
 {
     /**
      * Adds the given class' name to the set of imports.
@@ -99,9 +100,15 @@ public class ImportSet
     @Override
     public ImportSet clone ()
     {
-        ImportSet newset = new ImportSet();
-        newset.addAll(this);
-        return newset;
+        try {
+            ImportSet newSet = (ImportSet)super.clone();
+            newSet._pushed = Lists.newArrayList();
+            newSet._imports = Sets.newHashSet(this._imports);
+            return newSet;
+
+        } catch (CloneNotSupportedException cnse) {
+            throw new AssertionError(cnse); // we are Cloneable
+        }
     }
 
     /**
