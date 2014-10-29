@@ -444,9 +444,9 @@ public class ImportSet
     protected HashSet<String> _imports = Sets.newHashSet();
     protected List<String> _pushed = Lists.newArrayList();
 
-    protected static Pattern _splitter = Pattern.compile("\\*");
+    protected static final Pattern _splitter = Pattern.compile("\\*");
 
-    protected static List<String> IMPORT_GROUPS = Lists.newArrayList(
+    protected static final List<String> IMPORT_GROUPS = Lists.newArrayList(
         "flash",
         "fl",
         "java",
