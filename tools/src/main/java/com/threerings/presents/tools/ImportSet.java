@@ -377,6 +377,35 @@ public class ImportSet
     }
 
     /**
+     * Find the index of the best import group to use for the specified import.
+     */
+    protected int findImportGroup (String imp)
+    {
+        int bestGroup = -1;
+        int bestPrefixLength = -1;
+        int ii = -1;
+        for (String prefix : getImportGroups()) {
+            ii++;
+            if (!imp.startsWith(prefix)) {
+                continue;
+            }
+            if (prefix.length() > bestPrefixLength) {
+                bestPrefixLength = prefix.length();
+                bestGroup = ii;
+            }
+        }
+        return bestGroup;
+    }
+
+    /**
+     * Return an iterable over the import prefixes that should be grouped together.
+     */
+    protected Iterable<String> getImportGroups ()
+    {
+        return IMPORT_GROUPS;
+    }
+
+    /**
      * Create a real regular expression from the dumbed down input.
      * @param input the dumbed down wildcard expression
      * @return the calculated regular expression
@@ -403,20 +432,6 @@ public class ImportSet
 
         pattern.append("$");
         return Pattern.compile(pattern.toString());
-    }
-
-    protected static int findImportGroup (String imp)
-    {
-        String longest = null;
-        for (String prefix : IMPORT_GROUPS) {
-            if (!imp.startsWith(prefix)) {
-                continue;
-            }
-            if (longest == null || prefix.length() > longest.length()) {
-                longest = prefix;
-            }
-        }
-        return IMPORT_GROUPS.indexOf(longest);
     }
 
     protected HashSet<String> _imports = Sets.newHashSet();
