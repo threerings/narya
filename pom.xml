@@ -191,6 +191,7 @@
           <id>deploy-local-dir</id>
           <name>Local Maven repository</name>
           <url>file://${deploy.local.dir}</url>
+          <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
       </distributionManagement>
     </profile>
