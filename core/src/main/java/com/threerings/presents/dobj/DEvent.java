@@ -38,8 +38,6 @@ public abstract class DEvent implements Streamable
 
     /**
      * Constructs a new distributed object event that pertains to the specified distributed object.
-     *
-     * @param transport a hint as to the type of transport desired for the event.
      */
     public DEvent (int targetOid)
     {

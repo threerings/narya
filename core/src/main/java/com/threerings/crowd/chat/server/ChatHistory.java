@@ -55,7 +55,7 @@ public class ChatHistory
 
     /**
      * Recorded parcel of chat for historical purposes, maintained by
-     * {@link #record(ChatChannel, UserMessage, Name...)},
+     * {@link #record(ChatChannel, String, UserMessage, Name[])},
      * {@link #get(Name)}, and {@link #clear(Name)}.
      */
     public static class Entry implements Streamable

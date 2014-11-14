@@ -68,7 +68,7 @@ public class ClientObject extends DObject
      * @return null if the user has access, a fully-qualified translatable message string
      * indicating the reason for denial of access.
      *
-     * @see PermissionPolicy
+     * @see ClientObject.PermissionPolicy
      */
     public String checkAccess (Permission perm, Object context)
     {
