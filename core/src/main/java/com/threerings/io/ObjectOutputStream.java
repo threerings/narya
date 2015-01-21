@@ -304,6 +304,7 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeUnmodifiedUTF (String str)
         throws IOException
     {
+        // byte[] bytes = str.getBytes(Charsets.UTF_8); // TODO Java 6 (Charsets is from guava)
         byte[] bytes = str.getBytes("UTF-8");
         writeShort(bytes.length);
         write(bytes);

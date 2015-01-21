@@ -318,6 +318,7 @@ public class ObjectInputStream extends DataInputStream
         byte[] bbuf = new byte[utflen];
         in.read(bbuf);
         return new String(bbuf, "UTF-8");
+        //return new String(bbuf, Charsets.UTF_8); // TODO Java 6 (Charsets is from guava)
     }
 
     @Override
