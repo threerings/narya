@@ -23,11 +23,9 @@ package com.threerings.io;
 
 import java.util.Map;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 import com.google.common.collect.Maps;
 
@@ -306,19 +304,9 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeUnmodifiedUTF (String str)
         throws IOException
     {
-        // prepare a buffer to accept the encoded UTF-8
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStreamWriter osw = new OutputStreamWriter(baos, "UTF-8");
-
-        // do the deed
-        osw.write(str);
-        osw.flush();
-
-        // now that we know how many bytes we'll need, write that number to the stream
-        writeShort(baos.size());
-
-        // then finally the bytes themselves
-        write(baos.toByteArray());
+        byte[] bytes = str.getBytes("UTF-8");
+        writeShort(bytes.length);
+        write(bytes);
     }
 
     /** Used to map classes to numeric codes and the {@link Streamer} instance used to write
