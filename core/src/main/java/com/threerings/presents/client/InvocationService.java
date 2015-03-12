@@ -28,8 +28,8 @@ import com.threerings.presents.data.ClientObject;
  * extending this interface and defining service methods, as well as response listeners (which must
  * extend {@link InvocationListener}). For example:
  *
- * <pre>
- * public interface LocationService extends InvocationService&lt;ClientObject>
+ * <pre>{@code
+ * public interface LocationService extends InvocationService<ClientObject>
  * {
  *
  *     // Used to communicate responses to moveTo() requests.
@@ -45,13 +45,13 @@ import com.threerings.presents.data.ClientObject;
  *     // @param listener the listener that will be informed of success or failure.
  *     void moveTo (int placeId, MoveListener listener);
  * }
- * </pre>
+ * }</pre>
  *
  * From this interface, a <code>LocationProvider</code> interface will be generated which should be
  * implemented by whatever server entity that will actually provide the server side of this
  * invocation service. That provider interface would look like the following:
  *
- * <pre>
+ * <pre>{@code
  * public interface LocationProvider extends InvocationProvider
  * {
  *      // Requests that this client's body be moved to the specified location.
@@ -62,7 +62,7 @@ import com.threerings.presents.data.ClientObject;
  *     void moveTo (ClientObject caller, int placeId, MoveListener listener)
  *         throws InvocationException;
  * }
- * </pre>
+ * }</pre>
  */
 public interface InvocationService<T extends ClientObject>
 {

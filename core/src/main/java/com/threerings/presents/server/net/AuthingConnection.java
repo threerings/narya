@@ -135,7 +135,7 @@ public class AuthingConnection extends PresentsConnection
 
     /**
      * Returns the username that uniquely identifies this authenticated session. This will be used
-     * to map Name -> PresentsSession in the ClientManager and used elsewhere.
+     * to map {@code Name -> PresentsSession} in the {@code ClientManager} and used elsewhere.
      */
     public Name getAuthName ()
     {

@@ -33,7 +33,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 import com.samskivert.depot.PersistenceContext;
-import com.samskivert.jdbc.StaticConnectionProvider;
+import com.samskivert.depot.StaticConnectionProvider;
 
 import com.threerings.presents.server.PresentsServer;
 

@@ -92,10 +92,6 @@ public class TabbedDSetEditor<E extends DSet.Entry> extends JPanel
             };
         }
 
-        /**
-         * Grinds through the
-         * @param entries
-         */
         public void computeGroups (Iterable<E> entries) {
             for (E entry : entries) {
                 String[] groups = computeGroups(entry);

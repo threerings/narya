@@ -49,13 +49,13 @@ import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
 /**
- * An Ant task for generating invocation service marshalling and
- * unmarshalling classes.
- * TODO: when generating the imports for exported action script files, there are just enough
- * conversions of primitive types (e.g. float -> Number), array types (e.g. int[] -> TypedArray)
- * and three rings utility types (e.g. float -> Float) to make the existing serivces work. It
- * should be possible to create a complete list of these conversions so that future services
- * can be generated without problems.
+ * An Ant task for generating invocation service marshalling and unmarshalling classes.
+ *
+ * <p>TODO: when generating the imports for exported action script files, there are just enough
+ * conversions of primitive types (e.g. {@code float -> Number}), array types (e.g. {@code int[] ->
+ * TypedArray}) and three rings utility types (e.g. {@code float -> Float}) to make the existing
+ * serivces work. It should be possible to create a complete list of these conversions so that
+ * future services can be generated without problems.
  */
 public class GenServiceTask extends InvocationTask
 {

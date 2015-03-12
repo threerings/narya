@@ -45,13 +45,13 @@ public class Resulting<T> extends Invoker.Unit
     implements ResultListener<T>,
         InvocationService.ConfirmListener, InvocationService.ResultListener
 {
-    /** A handy Object->Void function for when you wish to chain to a ResultListener<Void>. */
-    public static final Function<Object, Void> TO_VOID =
-        new Function<Object, Void>() {
-            public Void apply (Object o) {
-                return null;
-            }
-        };
+    /** A handy {@code Object -> Void} function for when you wish to chain to a
+      * {@code ResultListener<Void>}. */
+    public static final Function<Object, Void> TO_VOID = new Function<Object, Void>() {
+        public Void apply (Object o) {
+            return null;
+        }
+    };
 
     public Resulting (String name)
     {
@@ -116,8 +116,8 @@ public class Resulting<T> extends Invoker.Unit
     }
 
     /**
-     * Construct your Resulting<Integer>, overriding what you need to,
-     * then call this to adapt it.
+     * Construct your {@code Resulting<Integer>}, overriding what you need to, then call this to
+     * adapt it.
      */
     public final IntResultListener asIntResultListener ()
     {

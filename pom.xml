@@ -77,13 +77,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.9.1</version>
         <configuration>
           <quiet>true</quiet>
           <show>public</show>
+          <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
           <links>
             <link>http://samskivert.github.com/samskivert/apidocs/</link>
-            <link>http://depot.googlecode.com/svn/apidocs/</link>
+            <link>http://threerings.github.io/depot/apidocs/</link>
             <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
             <link>http://google-web-toolkit.googlecode.com/svn/javadoc/latest/</link>
             <link>http://www.jajakarta.org/ant/ant-1.6.1/docs/ja/manual/api/</link>
