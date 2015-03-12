@@ -38,7 +38,8 @@ import java.util.Map;
 import java.io.IOException;
 
 import com.google.common.base.Defaults;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -209,10 +210,10 @@ public abstract class Streamer
     /**
      * Overrideable to add more information to this class' toString() representation.
      */
-    protected Objects.ToStringHelper toStringHelper ()
+    protected ToStringHelper toStringHelper ()
     {
         // no extra details in the base class
-        return Objects.toStringHelper(this);
+        return MoreObjects.toStringHelper(this);
     }
 
     /**
@@ -487,7 +488,7 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper ()
+        protected ToStringHelper toStringHelper ()
         {
             return super.toStringHelper()
                 .add("target", _target.getName())
@@ -609,7 +610,7 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper ()
+        protected ToStringHelper toStringHelper ()
         {
             return super.toStringHelper()
                 .add("reader", _reader)
@@ -673,7 +674,7 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper ()
+        protected ToStringHelper toStringHelper ()
         {
             return super.toStringHelper()
                 .add("componentType", _componentType.getName());
@@ -748,7 +749,7 @@ public abstract class Streamer
         }
 
         @Override
-        protected Objects.ToStringHelper toStringHelper ()
+        protected ToStringHelper toStringHelper ()
         {
             return super.toStringHelper()
                 .add("delegate", _delegate);
@@ -779,7 +780,7 @@ public abstract class Streamer
         }
 
         @Override
-        public Objects.ToStringHelper toStringHelper ()
+        public ToStringHelper toStringHelper ()
         {
             return super.toStringHelper()
                 .add("eclass", _eclass.getName());

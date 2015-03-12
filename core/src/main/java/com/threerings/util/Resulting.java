@@ -22,7 +22,7 @@
 package com.threerings.util;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.IntResultListener;
@@ -219,7 +219,7 @@ public class Resulting<T> extends Invoker.Unit
                 : InvocationCodes.INTERNAL_ERROR);
 
         } else {
-            Object[] logArgs = Objects.firstNonNull(_logArgs, ArrayUtil.EMPTY_OBJECT);
+            Object[] logArgs = MoreObjects.firstNonNull(_logArgs, ArrayUtil.EMPTY_OBJECT);
             Object[] args;
             if (cause instanceof InvocationException) {
                 args = new Object[logArgs.length + 4];
@@ -233,7 +233,7 @@ public class Resulting<T> extends Invoker.Unit
             args[0] = "Resulting";
             args[1] = this;
             System.arraycopy(logArgs, 0, args, 2, logArgs.length);
-            Objects.firstNonNull(_log, log).warning("Request failed", args);
+            MoreObjects.firstNonNull(_log, log).warning("Request failed", args);
         }
     }
 
