@@ -70,7 +70,7 @@ project, add the following to your `pom.xml`:
       <dependency>
         <groupId>com.threerings</groupId>
         <artifactId>narya</artifactId>
-        <version>1.11</version>
+        <version>1.15</version>
       </dependency>
     </dependencies>
 
@@ -79,9 +79,9 @@ remove the vast majority of the boilerplate above.
 
 If you prefer to download pre-built binaries, those can be had here:
 
-* [narya-1.11.jar](http://repo2.maven.org/maven2/com/threerings/narya/1.11/narya-1.11.jar)
-* [naryalib-1.11.swc](http://repo2.maven.org/maven2/com/threerings/naryalib/1.11/naryalib-1.11.jar)
-* [narya-tools-1.11.jar](http://repo2.maven.org/maven2/com/threerings/narya-tools/1.11/narya-tools-1.11.jar)
+* [narya-1.15.jar](http://repo2.maven.org/maven2/com/threerings/narya/1.15/narya-1.15.jar)
+* [naryalib-1.15.swc](http://repo2.maven.org/maven2/com/threerings/naryalib/1.15/naryalib-1.15.jar)
+* [narya-tools-1.15.jar](http://repo2.maven.org/maven2/com/threerings/narya-tools/1.15/narya-tools-1.15.jar)
 
 Related Libraries
 -----------------
