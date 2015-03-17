@@ -13,8 +13,8 @@
 
   <repositories>
     <repository>
-      <id>ooo-public</id>
-      <url>http://ooo-maven.googlecode.com/hg/repository</url>
+      <id>tim-flash</id>
+      <url>https://raw.githubusercontent.com/tconkling/maven-repo/master</url>
     </repository>
     <repository>
       <id>flexmojos</id>
@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.osflash</groupId>
       <artifactId>signals</artifactId>
-      <version>0.8</version>
+      <version>0.9</version>
       <type>swc</type>
     </dependency>
     <dependency>
