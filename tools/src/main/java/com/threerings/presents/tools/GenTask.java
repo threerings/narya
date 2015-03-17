@@ -40,6 +40,7 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.util.ClasspathUtils;
 
@@ -75,10 +76,21 @@ public abstract class GenTask extends Task
         }
     }
 
-    /** Configures our classpath which we'll use to load service classes. */
+    /** Configures the classpath which we'll use to load service classes. */
     public void setClasspathref (Reference pathref)
     {
         _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), pathref);
+
+        // set the parent of the classloader to be the classloader used to load this task, rather
+        // than the classloader used to load Ant, so that we have access to Narya classes like
+        // TransportHint
+        ((AntClassLoader)_cloader).setParent(getClass().getClassLoader());
+    }
+
+    /** Configures the classpath which we'll use to load service classes. */
+    public void setClasspath (Path path)
+    {
+        _cloader = ClasspathUtils.getClassLoaderForPath(getProject(), path, "narya");
 
         // set the parent of the classloader to be the classloader used to load this task, rather
         // than the classloader used to load Ant, so that we have access to Narya classes like
