@@ -1,3 +1,5 @@
+sudo: false
+
 language: java
 
 jdk:
@@ -7,3 +9,11 @@ jdk:
 branches:
   only:
     - master
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+
+script:
+  - mvn -B test
+  - rm -rf $HOME/.m2/repository/com/threerings/narya*
