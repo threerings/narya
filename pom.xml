@@ -44,7 +44,6 @@
   <modules>
     <module>core</module>
     <module>tools</module>
-    <module>aslib</module>
   </modules>
 
   <build>
@@ -120,6 +119,13 @@
   </build>
 
   <profiles>
+    <!-- build with mvn -Paslib to build the ActionScript code; the Maven ActionScript plugins
+         are old and broken, so I've disabled this by default -->
+    <profile>
+      <id>aslib</id>
+      <modules><module>aslib</module></modules>
+    </profile>
+
     <profile>
       <id>eclipse</id>
       <activation>
@@ -205,6 +211,5 @@
         </snapshotRepository>
       </distributionManagement>
     </profile>
-
   </profiles>
 </project>
