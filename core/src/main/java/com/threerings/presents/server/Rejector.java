@@ -71,7 +71,7 @@ public class Rejector extends PresentsServer
     /**
      * An authenticator implementation that refuses all authentication requests.
      */
-    protected class RejectingAuthenticator extends Authenticator
+    protected static class RejectingAuthenticator extends Authenticator
     {
         @Override
         protected void processAuthentication (AuthingConnection conn, AuthResponse rsp)
