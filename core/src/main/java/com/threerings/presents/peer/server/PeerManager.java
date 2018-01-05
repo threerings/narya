@@ -765,9 +765,12 @@ public abstract class PeerManager
     }
 
     /**
-     * Returns the internal hostname to use when connecting to the specified peer or null if the
-     * peer is not currently connected to this server. Peers connect to one another via their
-     * internal hostname. Do not publish this data to clients out on the Internets.
+     * Returns the internal hostname <strike>to use when connecting to the specified peer</strike>
+     * or null if the peer is not currently connected to this server.
+     * <strike>Peers connect to one another via their internal hostname.
+     * Do not publish this data to clients out on the Internets.</strike>
+     * NOTE: <b>Peers now use the public host name for connections.</b> This method may be
+     * deprecated in the future.
      */
     public String getPeerInternalHostName (String nodeName)
     {
