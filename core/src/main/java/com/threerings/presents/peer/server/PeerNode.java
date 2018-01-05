@@ -113,10 +113,7 @@ public class PeerNode
     }
 
     /**
-     * Returns the "internal" hostname
-     * <strike>for internal clients to use when connecting to this peer</strike> which is
-     * no longer really used. NOTE: <b>Peers now use the public host name for connections.</b>
-     * This method may be deprecated in the future.
+     * Returns the hostname for internal clients to use when connecting to this peer.
      */
     public String getInternalHostName ()
     {
