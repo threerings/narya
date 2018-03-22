@@ -116,7 +116,7 @@ public class NodeRecord extends PersistentRecord
      */
     public String getPeerHostName (String region)
     {
-        return (ALWAYS_CONNECT_ON_INTERNAL || Objects.equal(this.region, region))
+        return (ALWAYS_CONNECT_INTERNAL || Objects.equal(this.region, region))
                 ? hostName
                 : publicHostName;
     }
