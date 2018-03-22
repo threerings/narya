@@ -55,6 +55,10 @@ public class NodeRecord extends PersistentRecord
      * object in a way that will result in a change to its SQL counterpart. */
     public static final int SCHEMA_VERSION = 3;
 
+    /** Allow configuration of the use of the public hostname when in different regions. */
+    public static final boolean ALWAYS_CONNECT_INTERNAL = Boolean.getBoolean(
+            "com.threerings.presents.peer.alwaysConnectInternal");
+
     /** The unique name assigned to this node. */
     @Id
     @Column(name="NODE_NAME", length=64)
@@ -112,7 +116,9 @@ public class NodeRecord extends PersistentRecord
      */
     public String getPeerHostName (String region)
     {
-        return Objects.equal(this.region, region) ? hostName : publicHostName;
+        return (ALWAYS_CONNECT_ON_INTERNAL || Objects.equal(this.region, region))
+                ? hostName
+                : publicHostName;
     }
 
     @Override
