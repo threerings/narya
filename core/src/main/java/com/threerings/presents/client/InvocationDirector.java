@@ -24,6 +24,7 @@ package com.threerings.presents.client;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
 import com.samskivert.util.HashIntMap;
@@ -97,6 +98,15 @@ public class InvocationDirector
                 _client.getClientObjectFailed(cause);
             }
         });
+    }
+
+    /**
+     * Set the maximum time to keep listeners if we haven't heard a response back.
+     */
+    public void setMaximumListenerAge (long milliseconds)
+    {
+        Preconditions.checkArgument(milliseconds > 0);
+        _listenerMaxAge = milliseconds;
     }
 
     /**
@@ -272,7 +282,7 @@ public class InvocationDirector
         if (listener == null) {
             log.warning("Received invocation response for which we have no registered listener. " +
                         "It is possible that this listener was flushed because the response did " +
-                        "not arrive within " + LISTENER_MAX_AGE + " milliseconds.",
+                        "not arrive within " + _listenerMaxAge + " milliseconds.",
                         "reqId", reqId, "methId", methodId, "args", args);
             return;
         }
@@ -362,7 +372,7 @@ public class InvocationDirector
     }
 
     /**
-     * Flushes listener mappings that are older than {@link #LISTENER_MAX_AGE} milliseconds. An
+     * Flushes listener mappings that are older than {@link #_listenerMaxAge} milliseconds. An
      * alternative to flushing listeners that did not explicitly receive a response within our
      * expiry time period is to have the server's proxy listener send a message to the client when
      * it is finalized. We then know that no server entity will subsequently use that proxy
@@ -373,7 +383,7 @@ public class InvocationDirector
     protected void flushListeners (long now)
     {
         if (_listeners.size() > 0) {
-            long then = now - LISTENER_MAX_AGE;
+            long then = now - _listenerMaxAge;
             Iterator<ListenerMarshaller> iter = _listeners.values().iterator();
             while (iter.hasNext()) {
                 ListenerMarshaller lm = iter.next();
@@ -430,9 +440,9 @@ public class InvocationDirector
     /** The last time we flushed our listeners. */
     protected long _lastFlushTime;
 
+    /** The max age of listeners. */
+    protected long _listenerMaxAge = 90 * 1000L;
+
     /** The minimum interval between listener flush attempts. */
     protected static final long LISTENER_FLUSH_INTERVAL = 15000L;
-
-    /** Listener mappings older than 90 seconds are reaped. */
-    protected static final long LISTENER_MAX_AGE = 90 * 1000L;
 }

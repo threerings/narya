@@ -86,6 +86,7 @@ public class PeerNode
             }
         };
         _client.addClientObserver(this);
+        _client.getInvocationDirector().setMaximumListenerAge(getMaximumInvocationWait());
     }
 
     /**
@@ -265,6 +266,14 @@ public class PeerNode
         log.warning("Failed to subscribe to peer's node object", "peer", _record, "cause", cause);
     }
 
+    /**
+     * Get the maximum wait for an invocation request.
+     */
+    protected long getMaximumInvocationWait ()
+    {
+        return MAX_INVOCATION_WAIT;
+    }
+
     protected Communicator createCommunicator (Client client)
     {
         return new ServerCommunicator(client, _conmgr, _omgr);
@@ -339,4 +348,7 @@ public class PeerNode
 
     /** The amount of time after which a node record can be considered out of date and invalid. */
     protected static final long STALE_INTERVAL = 5L * 60L * 1000L;
+
+    /** The default maximum time we wait for an invocation response from a peer. */
+    protected static final long MAX_INVOCATION_WAIT = 10L * 60L * 1000L;
 }
