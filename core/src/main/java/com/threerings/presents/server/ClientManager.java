@@ -512,8 +512,8 @@ public class ClientManager
             session.wasUnmapped();
 
         } else {
-            log.info("Closed unmapped connection '" + conn + "'. " +
-                     "Session probably not yet authenticated.");
+            log.debug("Closed unmapped connection '" + conn + "'. " +
+                    "Session probably not yet authenticated.");
         }
     }
 
