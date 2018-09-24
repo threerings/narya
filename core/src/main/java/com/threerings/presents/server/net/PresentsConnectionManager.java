@@ -75,6 +75,29 @@ import static com.threerings.presents.Log.log;
 public class PresentsConnectionManager extends ConnectionManager
     implements ReportManager.Reporter
 {
+    /**
+     * Used to validate outgoing connections.
+     */
+    public interface OutgoingConnectionValidator
+    {
+        /**
+         * Validate the outgoing connection.
+         */
+        public void validateOutgoing (SocketChannel sockchan)
+            throws IOException;
+
+        /**
+         * A default validator that does nothing.
+         */
+        public static final OutgoingConnectionValidator DEFAULT =
+            new OutgoingConnectionValidator() {
+                public void validateOutgoing (SocketChannel sockchan)
+                    throws IOException
+                {
+                    // nada!
+                }
+            };
+    }
 
     @Inject
     public PresentsConnectionManager (Lifecycle cycle, ReportManager repmgr)
@@ -90,6 +113,14 @@ public class PresentsConnectionManager extends ConnectionManager
     {
         ((PresentsConMgrStats)_stats).authQueueSize = _authq.size();
         return ((PresentsConMgrStats)super.getStats());
+    }
+
+    /**
+     * Set the validator that checks outgoing connections.
+     */
+    public void setOutgoingConnectionValidator (OutgoingConnectionValidator outConnValidator)
+    {
+        _outConnValidator = outConnValidator;
     }
 
     // from interface ReportManager.Reporter
@@ -360,6 +391,7 @@ public class PresentsConnectionManager extends ConnectionManager
             // start our connection process (now if we fail we need to clean things up)
             NetEventHandler handler;
             if (sockchan.connect(addr)) {
+                _outConnValidator.validateOutgoing(sockchan); // may throw
                 // it is possible even for a non-blocking socket to connect immediately, in which
                 // case we stick the connection in as its event handler immediately
                 handler = conn;
@@ -551,6 +583,7 @@ public class PresentsConnectionManager extends ConnectionManager
             SocketChannel sockchan = _conn.getChannel();
             try {
                 if (sockchan.finishConnect()) {
+                    _outConnValidator.validateOutgoing(sockchan); // may throw
                     // great, we're ready to roll, wire up the connection
                     _conn.selkey = sockchan.register(_selector, SelectionKey.OP_READ);
                     _handlers.put(_conn.selkey, _conn);
@@ -598,6 +631,8 @@ public class PresentsConnectionManager extends ConnectionManager
 
     protected FramingOutputStream _framer = new FramingOutputStream();
     protected ByteArrayOutputStream _flattener = new ByteArrayOutputStream();
+
+    protected OutgoingConnectionValidator _outConnValidator = OutgoingConnectionValidator.DEFAULT;
 
     // some dependencies
     @Inject @AuthInvoker protected Invoker _authInvoker;
