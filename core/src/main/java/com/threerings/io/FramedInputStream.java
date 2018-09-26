@@ -103,6 +103,7 @@ public class FramedInputStream extends InputStream
                 log.warning("Problem reading frame",
                         "_have", _have,
                         "_length (and old limit)", _length,
+                        "capacity", _buffer.capacity(),
                         iae);
                 throw iae;
             }
