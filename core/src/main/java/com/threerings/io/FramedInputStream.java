@@ -80,7 +80,9 @@ public class FramedInputStream extends InputStream
         throws IOException
     {
         // flush data from any previous frame from the buffer
-        if (_buffer.limit() == _length) {
+        if (_haveCompleteFrame) {
+            _haveCompleteFrame = false;
+
             // this will remove the old frame's bytes from the buffer,
             // shift our old data to the start of the buffer, position the
             // buffer appropriately for appending new data onto the end of
@@ -179,6 +181,7 @@ public class FramedInputStream extends InputStream
         // prepare the buffer such that this frame can be read
         _buffer.position(HEADER_SIZE);
         _buffer.limit(_length);
+        _haveCompleteFrame = true;
         return true;
     }
 
@@ -311,6 +314,9 @@ public class FramedInputStream extends InputStream
     /** The number of bytes total that we have in our buffer (these bytes
      * may comprise more than one frame. */
     protected int _have = 0;
+
+    /** Tracks whether we read a complete frame in our last call to {@link #readFrame}. */
+    protected boolean _haveCompleteFrame;
 
     /** The size of the frame header (a 32-bit integer). */
     protected static final int HEADER_SIZE = 4;
