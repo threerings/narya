@@ -28,6 +28,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
+import static com.threerings.NaryaLog.log;
+
 /**
  * The framed input stream reads input that was framed by a framing output
  * stream. Framing in this case simply means writing the length of the
@@ -81,6 +83,9 @@ public class FramedInputStream extends InputStream
     {
         // flush data from any previous frame from the buffer
         if (_buffer.limit() == _length) {
+            /** TODO REMOVE **/
+            try {
+            /** END: REMOVE **/
             // this will remove the old frame's bytes from the buffer,
             // shift our old data to the start of the buffer, position the
             // buffer appropriately for appending new data onto the end of
@@ -93,6 +98,15 @@ public class FramedInputStream extends InputStream
             // we may have picked up the next frame in a previous read, so
             // try decoding the length straight away
             _length = decodeLength();
+            /** TODO REMOVE **/
+            } catch (IllegalArgumentException iae) {
+                log.warning("Problem reading frame",
+                        "_have", _have,
+                        "_length (and old limit)", _length,
+                        iae);
+                throw iae;
+            }
+            /** END: REMOVE **/
         }
 
         // we may already have the next frame entirely in the buffer from
