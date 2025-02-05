@@ -46,7 +46,9 @@ public interface SpeakObject
     /**
      * Returns an identifier for what type of chat this speak object represents based on the message.
      */
-    String getChatIdentifier (UserMessage message);
+    default String getChatIdentifier (UserMessage message) {
+        return DEFAULT_IDENTIFIER;
+    }
 
     /**
      * The speak service will call this every time a chat message is delivered on this speak object
