@@ -16,7 +16,7 @@
     <dependency>
       <groupId>com.threerings</groupId>
       <artifactId>ooo-util</artifactId>
-      <version>1.5-SNAPSHOT</version>
+      <version>1.5</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject</groupId>
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>com.samskivert</groupId>
       <artifactId>depot</artifactId>
-      <version>1.8-SNAPSHOT</version>
+      <version>1.8</version>
       <optional>true</optional>
     </dependency>
     <dependency>
