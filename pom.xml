@@ -82,13 +82,6 @@
             <quiet>true</quiet>
             <show>public</show>
             <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
-            <links>
-              <link>http://samskivert.github.com/samskivert/apidocs/</link>
-              <link>http://threerings.github.io/depot/apidocs/</link>
-              <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
-              <link>http://google-web-toolkit.googlecode.com/svn/javadoc/latest/</link>
-              <link>http://www.jajakarta.org/ant/ant-1.6.1/docs/ja/manual/api/</link>
-            </links>
           </configuration>
         </plugin>
         <plugin>

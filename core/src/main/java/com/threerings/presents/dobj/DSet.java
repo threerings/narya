@@ -138,7 +138,7 @@ public class DSet<E extends DSet.Entry>
     }
 
     /**
-     * Returns <tt>true</tt> if this set contains no entries.
+     * Returns {@code true} if this set contains no entries.
      */
     public boolean isEmpty ()
     {
