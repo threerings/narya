@@ -11,13 +11,13 @@
   <description>Facilities for making networked multiplayer games.</description>
   <url>http://github.com/threerings/narya/</url>
   <issueManagement>
-    <url>http://github.com/threerings/narya/issues</url>
+    <url>https://github.com/threerings/narya/issues</url>
   </issueManagement>
 
   <licenses>
     <license>
       <name>GNU Lesser General Public License (LGPL), Version 2.1</name>
-      <url>http://www.fsf.org/licensing/licenses/lgpl.txt</url>
+      <url>https://www.fsf.org/licensing/licenses/lgpl.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -33,7 +33,7 @@
   <scm>
     <connection>scm:git:git://github.com/threerings/narya.git</connection>
     <developerConnection>scm:git:git@github.com:threerings/narya.git</developerConnection>
-    <url>http://github.com/threerings/narya/</url>
+    <url>https://github.com/threerings/narya/</url>
   </scm>
 
   <modules>
