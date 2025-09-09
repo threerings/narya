@@ -133,7 +133,7 @@ public class GenStreamableTask extends GenTask
         readbuf.append(READ_CLOSE);
         writebuf.append(WRITE_CLOSE);
 
-        SourceFile sfile = new SourceFile();
+        SourceFile sfile = new SourceFile(_indentWidth);
         try {
             sfile.readFrom(source);
         } catch (IOException ioe) {
