@@ -62,7 +62,7 @@ public class GenDObjectTask extends GenTask
         }
 
         // slurp our source file into newline separated strings
-        SourceFile sfile = new SourceFile();
+        SourceFile sfile = new SourceFile(_indentWidth);
         sfile.readFrom(source);
 
         // generate our fields section and our methods section

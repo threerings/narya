@@ -7,12 +7,14 @@ package com.threerings.presents.tools;
 
 import static com.google.common.base.Charsets.UTF_8;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +91,14 @@ public abstract class GenTask extends Task
     public void setChecking (boolean checking)
     {
         _checking = checking;
+    }
+
+    /**
+     * Configure an alternate indent width to the normal 4-space indent.
+     */
+    public void setIndentWidth (int width)
+    {
+        _indentWidth = width;
     }
 
     /**
@@ -203,6 +213,7 @@ public abstract class GenTask extends Task
     {
         Reader reader =
             new InputStreamReader(getClass().getClassLoader().getResourceAsStream(template), UTF_8);
+        reader = reindent(reader);
         return convertEols(Mustache.compiler().escapeHTML(false).compile(reader).execute(data));
     }
 
@@ -254,7 +265,32 @@ public abstract class GenTask extends Task
         return str.replace("\n", EOL);
     }
 
+    protected Reader reindent (Reader reader)
+        throws IOException
+    {
+        if (_indentWidth == STANDARD_INDENT) return reader;
+
+        StringBuilder buf = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(reader)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                int spaces = 0, len = line.length();
+                while (spaces < len && line.charAt(spaces) == ' ') spaces++;
+                if (spaces > 0) {
+                    int newSpaces = ((spaces / STANDARD_INDENT) * _indentWidth) +
+                        ((spaces % STANDARD_INDENT) % _indentWidth);
+                    for (int ii = 0; ii < newSpaces; ++ii) buf.append(' ');
+                }
+                buf.append(line, spaces, len);
+                buf.append('\n');
+            }
+        }
+        return new StringReader(buf.toString());
+    }
+
     protected static String EOL = System.getProperty("line.separator");
+
+    protected int _indentWidth = STANDARD_INDENT;
 
     /** A list of filesets that contain java source to be processed. */
     protected List<FileSet> _filesets = Lists.newArrayList();
@@ -267,4 +303,6 @@ public abstract class GenTask extends Task
 
     protected boolean _checking;
     protected Set<String> _modifiedPaths = Sets.newHashSet();
+
+    protected static final int STANDARD_INDENT = 4;
 }

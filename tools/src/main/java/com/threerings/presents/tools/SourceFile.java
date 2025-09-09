@@ -24,6 +24,11 @@ import com.samskivert.util.StringUtil;
  */
 public class SourceFile
 {
+    public SourceFile (int indent)
+    {
+        _indent = StringUtil.spaces(indent);
+    }
+
     /**
      * Reads the code from the supplied source file.
      */
@@ -132,9 +137,9 @@ public class SourceFile
             if (!StringUtil.isBlank(prev) && !prev.equals("{")) {
                 bout.newLine();
             }
-            writeln(bout, "    " + FIELDS_START);
+            writeln(bout, _indent + FIELDS_START);
             bout.write(fsection);
-            writeln(bout, "    " + FIELDS_END);
+            writeln(bout, _indent + FIELDS_END);
             if (!StringUtil.isBlank(safeGetLine(_nend))) {
                 bout.newLine();
             }
@@ -150,9 +155,9 @@ public class SourceFile
             if (!StringUtil.isBlank(safeGetLine(_mstart-1))) {
                 bout.newLine();
             }
-            writeln(bout, "    " + METHODS_START);
+            writeln(bout, _indent + METHODS_START);
             bout.write(msection);
-            writeln(bout, "    " + METHODS_END);
+            writeln(bout, _indent + METHODS_END);
             String next = safeGetLine(_mend);
             if (!StringUtil.isBlank(next) && !next.equals("}")) {
                 bout.newLine();
@@ -246,6 +251,7 @@ public class SourceFile
     }
 
     protected List<String> _lines;
+    protected String _indent;
 
     protected int _nstart = -1, _nend = -1;
     protected int _mstart = -1, _mend = -1;
