@@ -287,7 +287,8 @@ public abstract class GenTask extends Task
         if (_indentWidth == STANDARD_INDENT) return reader;
 
         StringBuilder buf = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(reader)) {
+        BufferedReader br = new BufferedReader(reader);
+        {
             String line;
             while ((line = br.readLine()) != null) {
                 int spaces = 0, len = line.length();
@@ -301,6 +302,7 @@ public abstract class GenTask extends Task
                 buf.append('\n');
             }
         }
+        br.close();
         return new StringReader(buf.toString());
     }
 
