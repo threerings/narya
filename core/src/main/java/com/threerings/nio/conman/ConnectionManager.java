@@ -83,6 +83,16 @@ public abstract class ConnectionManager extends LoopingThread
     }
 
     /**
+     * Set the largest number of bytes we'll send in a message.
+     * Messages larger than this will log, refuse to send, and then things go badly for that client.
+     * We don't presently handle this well, we may as well disconnect the player at that point.
+     */
+    public void setMaximumMessageSize (int maximumMessageSize)
+    {
+      _maxMsgSize = maximumMessageSize;
+    }
+
+    /**
      * Returns our current runtime statistics. <em>Note:</em> don't call this method <em>too</em>
      * frequently as it is synchronized and will contend with the network I/O thread.
      */
@@ -355,7 +365,7 @@ public abstract class ConnectionManager extends LoopingThread
         }
 
         // sanity check the message size
-        if (data.length > 1024 * 1024) {
+        if (data.length > _maxMsgSize) {
             log.warning("Refusing to write very large message", "conn", conn, "size", data.length);
             return true;
         }
@@ -621,6 +631,9 @@ public abstract class ConnectionManager extends LoopingThread
 
     /** Our current runtime stats. */
     protected ConMgrStats _stats = new ConMgrStats();
+
+    /** The maximum message size we'll send. */
+    protected int _maxMsgSize = 1024 * 1024;
 
     /** Used to periodically report connection manager activity when in debug mode. */
     protected long _lastDebugStamp;
