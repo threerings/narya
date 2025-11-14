@@ -7,6 +7,10 @@ package com.threerings.util;
 
 import java.awt.Point;
 
+import java.io.IOException;
+
+import com.threerings.io.ObjectInputStream;
+import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
 
 /**
@@ -30,5 +34,22 @@ public class StreamablePoint extends Point
     public StreamablePoint (Point p)
     {
         super(p);
+    }
+
+    /**
+     * Writes our custom streamable fields.
+     */
+    public void writeObject (ObjectOutputStream out) throws IOException
+    {
+        out.writeInt(x);
+        out.writeInt(y);
+    }
+
+    /**
+     * Reads our custom streamable fields.
+     */
+    public void readObject (ObjectInputStream in) throws IOException, ClassNotFoundException
+    {
+        setLocation(in.readInt(), in.readInt());
     }
 }
