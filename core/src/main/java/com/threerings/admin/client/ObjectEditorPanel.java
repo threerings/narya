@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
 import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;
@@ -89,7 +90,7 @@ public class ObjectEditorPanel extends ScrollablePanel
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
                 if (field.getModifiers() == Modifier.PUBLIC) {
-                    add(_object.getEditor(_ctx, field));
+                    add(applyTip(object, field, _object.getEditor(_ctx, field)));
                 }
             }
 
@@ -104,6 +105,31 @@ public class ObjectEditorPanel extends ScrollablePanel
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         log.warning("Unable to subscribe to config object: " + cause);
+    }
+
+    /**
+     * Looks up a {@code FIELD_NAME_TIP} static String constant on the config object and applies
+     * it as a tooltip on the editor panel.
+     */
+    protected static JPanel applyTip (ConfigObject object, Field field, JPanel editor)
+    {
+        String tipName = toUpperSnake(field.getName()) + "_TIP";
+        try {
+            Field tipField = object.getClass().getField(tipName);
+            if (tipField.getType() == String.class &&
+                    Modifier.isStatic(tipField.getModifiers())) {
+                editor.setToolTipText((String) tipField.get(null));
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // no tip constant for this field
+        }
+        return editor;
+    }
+
+    /** Converts a {@code lowerCamelCase} name to {@code UPPER_SNAKE_CASE}. */
+    private static String toUpperSnake (String name)
+    {
+        return name.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase();
     }
 
     protected PresentsContext _ctx;

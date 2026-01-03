@@ -234,10 +234,8 @@ public class ClientDObjectMgr
         _flusher.cancel();
         _flushes.clear();
         _dead.clear();
-        _client.getRunQueue().postRunnable(new Runnable() {
-            public void run () {
-                _ocache.clear();
-            }
+        _client.getRunQueue().postRunnable(() -> {
+            _ocache.clear();
         });
     }
 

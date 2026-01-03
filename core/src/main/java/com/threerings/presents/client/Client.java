@@ -870,11 +870,7 @@ public class Client
         }
         // otherwise queue this notification up to run on the run queue thread
         else {
-            _runQueue.postRunnable(new Runnable() {
-                public void run () {
-                    _observers.apply(op);
-                }
-            });
+            _runQueue.postRunnable(() -> _observers.apply(op));
         }
     }
 
@@ -894,38 +890,36 @@ public class Client
         // CLIENT_DID_LOGOFF; that may not have been invoked yet, so we don't want to clear out our
         // communicator reference immediately; instead we queue up a runnable unit to do so to
         // ensure that it won't happen until CLIENT_DID_LOGOFF was dispatched
-        _runQueue.postRunnable(new Runnable() {
-            public void run () {
-                // tell the object manager that we're no longer connected to the server
-                if (_omgr instanceof ClientDObjectMgr) {
-                    ((ClientDObjectMgr)_omgr).cleanup();
-                }
-
-                // clear out our references
-                _comm = null;
-                _bstrap = null;
-                _omgr = null;
-                _clobj = null;
-                _connectionId = _cloid = -1;
-                _standalone = false;
-
-                // and let our invocation director know we're logged off
-                _invdir.cleanup();
-
-                // if we were cleaned up due to a failure to logon, we can report the logon error
-                // now that the communicator is cleaned up; this allows a logon failure listener to
-                // immediately try another logon (hopefully with something changed like the server
-                // or port)
-                notifyObservers(new ObserverOps.Client(Client.this) {
-                    @Override protected void notify (ClientObserver obs) {
-                        if (logonError != null) {
-                            obs.clientFailedToLogon(_client, logonError);
-                        } else {
-                            obs.clientDidClear(_client);
-                        }
-                    }
-                });
+        _runQueue.postRunnable(() -> {
+            // tell the object manager that we're no longer connected to the server
+            if (_omgr instanceof ClientDObjectMgr) {
+                ((ClientDObjectMgr)_omgr).cleanup();
             }
+
+            // clear out our references
+            _comm = null;
+            _bstrap = null;
+            _omgr = null;
+            _clobj = null;
+            _connectionId = _cloid = -1;
+            _standalone = false;
+
+            // and let our invocation director know we're logged off
+            _invdir.cleanup();
+
+            // if we were cleaned up due to a failure to logon, we can report the logon error
+            // now that the communicator is cleaned up; this allows a logon failure listener to
+            // immediately try another logon (hopefully with something changed like the server
+            // or port)
+            notifyObservers(new ObserverOps.Client(Client.this) {
+                @Override protected void notify (ClientObserver obs) {
+                    if (logonError != null) {
+                        obs.clientFailedToLogon(_client, logonError);
+                    } else {
+                        obs.clientDidClear(_client);
+                    }
+                }
+            });
         });
     }
 
