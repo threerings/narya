@@ -282,6 +282,9 @@ public abstract class RebootManager
         // schedule the next warning
         final int nextLevel = level + 1;
         final int nextMinutes = (nextLevel == warnings.length) ? 0 : warnings[nextLevel];
+        if (_interval != null) {
+            _interval.cancel();
+        }
         _interval = _omgr.newInterval(new Runnable() {
             public void run () {
                 doWarning(nextLevel, nextMinutes);
@@ -303,6 +306,9 @@ public abstract class RebootManager
 
         log.info("Reboot delayed due to outstanding locks", "locks", _rebootLocks.elements());
         broadcast("m.reboot_delayed");
+        if (_interval != null) {
+            _interval.cancel();
+        }
         (_interval = _omgr.newInterval(new Runnable() {
             public void run () {
                 doWarning(getWarnings().length, 0);
