@@ -27,6 +27,15 @@ import static com.threerings.presents.Log.log;
  */
 public abstract class RebootManager
 {
+    /** An interface implemented by the server we're going to shut down. We do this to avoid having
+      * a dependency on PresentsServer directly because that tends to cause cyclic dependencies for
+      * the real servers (like ProjectX) that use Guice to inject dependencies. */
+    public static interface Rebootable {
+        /** Queues up a request to shutdown on the event thread. This method may be safely called
+          * from any thread. */
+        void queueShutdown ();
+    }
+
     /**
      * An interface for receiving notifications about pending automated shutdowns.
      */
@@ -163,7 +172,7 @@ public abstract class RebootManager
     /**
      * Provides us with our dependencies.
      */
-    protected RebootManager (PresentsServer server, RootDObjectManager omgr)
+    protected RebootManager (Rebootable server, RootDObjectManager omgr)
     {
         _server = server;
         _omgr = omgr;
@@ -333,7 +342,7 @@ public abstract class RebootManager
     }
 
     /** The server that we're going to reboot. */
-    protected PresentsServer _server;
+    protected Rebootable _server;
 
     /** Our distributed object manager. */
     protected RootDObjectManager _omgr;

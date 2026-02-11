@@ -47,7 +47,7 @@ import static com.threerings.presents.Log.log;
  * instance is initialized.
  */
 @Singleton
-public class PresentsServer
+public class PresentsServer implements RebootManager.Rebootable
 {
     /** Configures dependencies needed by the Presents services. */
     public static class PresentsModule extends AbstractModule
