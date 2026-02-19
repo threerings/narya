@@ -41,6 +41,7 @@ public class CPPType
 
     public final boolean primitive;
 
+    @SuppressWarnings("this-escape")
     public CPPType (Type javaType)
     {
         if (javaType instanceof ParameterizedType) {

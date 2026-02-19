@@ -53,6 +53,7 @@ public class GenServiceTask extends InvocationTask
         /** Contains all imports required for the parameters of the methods in this listener. */
         public ImportSet imports = new ImportSet();
 
+        @SuppressWarnings("this-escape")
         public ServiceListener (Class<?> service, Class<?> listener)
         {
             this.listener = listener;
