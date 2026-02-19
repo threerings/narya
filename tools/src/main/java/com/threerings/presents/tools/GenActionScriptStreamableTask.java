@@ -5,6 +5,8 @@
 
 package com.threerings.presents.tools;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -15,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.tools.ant.Project;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.primitives.Primitives;
 import com.google.common.collect.Lists;
@@ -60,7 +61,7 @@ public class GenActionScriptStreamableTask extends GenTask
         File outputLocation = ActionScriptUtils.createActionScriptPath(_asroot, sclass);
         String existing = null;
         if (outputLocation.exists()) {
-            existing = Files.toString(outputLocation, Charsets.UTF_8);
+            existing = Files.asCharSource(outputLocation, UTF_8).read();
         }
 
         // Generate the current version of the streamable
