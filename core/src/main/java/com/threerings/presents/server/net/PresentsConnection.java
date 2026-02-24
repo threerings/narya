@@ -235,7 +235,8 @@ public class PresentsConnection extends Connection
         } catch (IOException ioe) {
             // don't log a warning for the ever-popular "the client dropped the connection" failure
             String msg = ioe.getMessage();
-            if (msg == null || msg.indexOf("reset by peer") == -1) {
+            if (msg == null ||
+                    (msg.indexOf("reset by peer") == -1 && msg.indexOf("Connection reset") == -1) {
                 log.warning("Error reading message from socket", "channel", _channel, ioe);
             }
             // deal with the failure
