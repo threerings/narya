@@ -6,6 +6,7 @@
 package com.threerings.presents.server;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import com.samskivert.util.Calendars;
 import com.samskivert.util.HashIntMap;
@@ -63,13 +64,12 @@ public abstract class RebootManager
     {
         // maybe schedule an automatic reboot based on our configuration
         int freq = getDayFrequency();
-        int hour = getRebootHour();
-        if (freq <= 0) {
-            return false;
-        }
+        if (freq <= 0) return false;
 
-        Calendars.Builder cal = Calendars.now();
+        var tz = getRebootTimeZone();
+        var cal = tz == null ? Calendars.now() : Calendars.in(tz);
         int curHour = cal.get(Calendar.HOUR_OF_DAY);
+        int hour = getRebootHour();
         cal = cal.zeroTime().addHours(hour).addDays((curHour < hour) ? (freq - 1) : freq);
 
         // maybe avoid weekends
@@ -221,6 +221,14 @@ public abstract class RebootManager
      * Returns the desired hour at which to perform our reboot.
      */
     protected abstract int getRebootHour ();
+
+    /**
+     * Return the time zone we're using for reboot calculations, or null for current (legacy).
+     */
+    protected TimeZone getRebootTimeZone ()
+    {
+      return null;
+    }
 
     /**
      * Returns true if the reboot manager should avoid scheduling automated reboots on the
