@@ -437,7 +437,7 @@ public class DObject
 
         for (Object sub : _subs) {
             try {
-                if (sub != null && sub instanceof ProxySubscriber) {
+                if (sub instanceof ProxySubscriber) {
                     ((ProxySubscriber)sub).eventReceived(event);
                 }
             } catch (Exception e) {
