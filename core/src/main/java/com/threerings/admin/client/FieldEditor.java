@@ -23,6 +23,9 @@ import com.samskivert.swing.HGroupLayout;
 import com.threerings.presents.dobj.AttributeChangeListener;
 import com.threerings.presents.dobj.AttributeChangedEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.ElementUpdateListener;
+import com.threerings.presents.dobj.ElementUpdatedEvent;
+import com.threerings.presents.dobj.NamedEvent;
 import com.threerings.presents.util.PresentsContext;
 
 import static com.threerings.admin.Log.log;
@@ -31,7 +34,7 @@ import static com.threerings.admin.Log.log;
  * Used to display and edit a particular distributed object field.
  */
 public abstract class FieldEditor extends JPanel
-    implements AttributeChangeListener, ActionListener, FocusListener
+    implements AttributeChangeListener, ElementUpdateListener, ActionListener, FocusListener
 {
     /** The interface defining how the editor interacts with its data. */
     public interface Accessor
@@ -88,7 +91,19 @@ public abstract class FieldEditor extends JPanel
     // documentation inherited from interface
     public void attributeChanged (AttributeChangedEvent event)
     {
-        noteUpdatedExternally();
+        noteUpdatedExternally(event);
+    }
+
+    // from ElementUpdateListener
+    public void elementUpdated (ElementUpdatedEvent event)
+    {
+        noteUpdatedExternally(event);
+    }
+
+    /** Update ourselves to reflect a change if the event is regarding our field. */
+    protected void noteUpdatedExternally (NamedEvent event)
+    {
+      if (_field.getName().equals(event.getName())) noteUpdatedExternally();
     }
 
     /** Update ourselves to reflect a change from outside the editor. */
