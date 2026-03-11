@@ -251,6 +251,9 @@ public abstract class Streamer
                 if (ByteEnum.class.isAssignableFrom(target)) {
                     return new ByteEnumStreamer(target);
                 }
+                if (com.samskivert.depot.util.ByteEnum.class.isAssignableFrom(target)) {
+                    return new DepotByteEnumStreamer(target);
+                }
                 break;
 
             default:
@@ -805,6 +808,44 @@ public abstract class Streamer
             return ByteEnumUtil.fromByte(_eclass, in.readByte());
         }
     } // end: static class ByteEnumStreamer
+
+    /**
+     * Streams ByteEnums, if that's what's desired.
+     */
+    protected static class DepotByteEnumStreamer extends EnumStreamer
+    {
+        /** Constructor. */
+        protected DepotByteEnumStreamer (Class<?> target)
+        {
+            super(target);
+            @SuppressWarnings("unchecked")
+            Class<EnumReader> declass = (Class<EnumReader>)target;
+            _declass = declass;
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            out.writeByte(((com.samskivert.depot.util.ByteEnum) object).toByte());
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            return com.samskivert.depot.util.ByteEnum.Util.fromByte(_declass, in.readByte());
+        }
+
+        /** Used to coerce the type system into quietude when reading enums from the wire. */
+        protected static enum EnumReader implements com.samskivert.depot.util.ByteEnum {
+            NOT_USED;
+            public byte toByte () { return 0; }
+        }
+
+        /** Our enum class, not actually an EnumReader. */
+        protected Class<EnumReader> _declass;
+    } // end: static class DepotByteEnumStreamer
 
     /**
      * Streams enums by name.
