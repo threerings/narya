@@ -660,6 +660,7 @@ public class BlockingCommunicator extends Communicator
             InetAddress host = InetAddress.getByName(_client.getHostname());
             openChannel(host);
             _channel.configureBlocking(true);
+            _channel.socket().setKeepAlive(true);
 
             // our messages are framed (preceded by their length), so we use these helper streams
             // to manage the framing

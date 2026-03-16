@@ -17,7 +17,7 @@ public class PingRequest extends UpstreamMessage
 {
     /** The number of milliseconds of idle upstream that are allowed to elapse before the client
      * sends a ping message to the server to let it know that we're still alive. */
-    public static final long PING_INTERVAL = 60 * 1000L;
+    public static final long PING_INTERVAL = 30 * 1000L;
 
     /**
      * Zero argument constructor used when unserializing an instance.
