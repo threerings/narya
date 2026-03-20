@@ -13,7 +13,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -41,7 +41,7 @@ public class ObjectInputStream extends DataInputStream
      */
     public static void setAllowedClassPrefixes (Set<String> prefixes)
     {
-        _allowedPrefixes = ImmutableSet.copyOf(prefixes);
+        _allowedPrefixes = ImmutableList.copyOf(prefixes);
     }
 
     /**
@@ -401,7 +401,7 @@ public class ObjectInputStream extends DataInputStream
     protected int _depth;
 
     /** If set, only classes with names starting with one of these prefixes may be deserialized. */
-    protected static volatile Set<String> _allowedPrefixes;
+    protected static volatile List<String> _allowedPrefixes;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;
