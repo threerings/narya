@@ -636,7 +636,7 @@ public abstract class Streamer
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
-            int length = in.readInt();
+            int length = BasicStreamers.validateSize(in.readInt());
             if (ObjectInputStream.STREAM_DEBUG) {
                 log.info(in.hashCode() + ": Creating array '" +
                     _componentType.getName() + "[" + length + "]'.");

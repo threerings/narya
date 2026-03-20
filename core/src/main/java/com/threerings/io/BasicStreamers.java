@@ -27,6 +27,29 @@ import com.google.common.collect.Sets;
  */
 public class BasicStreamers
 {
+    /**
+     * The maximum number of elements allowed in a deserialized array, collection, or map. This
+     * prevents a malicious client from sending a huge size value to trigger an OutOfMemoryError.
+     */
+    public static final int MAX_CONTAINER_SIZE = 65536;
+
+    /**
+     * Validates that a container size read from the stream is non-negative and within bounds.
+     *
+     * @param size the size value read from the stream
+     * @return the validated size
+     * @throws IOException if the size is negative or exceeds {@link #MAX_CONTAINER_SIZE}
+     */
+    public static int validateSize (int size)
+        throws IOException
+    {
+        if (size < 0 || size > MAX_CONTAINER_SIZE) {
+            throw new IOException(
+                "Invalid container size: " + size + " (max " + MAX_CONTAINER_SIZE + ")");
+        }
+        return size;
+    }
+
     public static final Map<Class<?>, Streamer> BSTREAMERS =
         ImmutableMap.<Class<?>, Streamer>builder()
         .put(Boolean.class, new BooleanStreamer())
@@ -445,7 +468,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
-            int size = in.readInt();
+            int size = validateSize(in.readInt());
             Collection<Object> coll = createCollection(size);
             for (int ii = 0; ii < size; ii++) {
                 coll.add(in.readObject());
@@ -514,7 +537,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
-            int size = in.readInt();
+            int size = validateSize(in.readInt());
             Map<Object, Object> map = createMap(size);
             for (int ii = 0; ii < size; ii++) {
                 map.put(in.readObject(), in.readObject());
@@ -550,7 +573,7 @@ public class BasicStreamers
         public Object createObject (ObjectInputStream in)
             throws IOException, ClassNotFoundException
         {
-            int size = in.readInt();
+            int size = validateSize(in.readInt());
             Multiset<Object> set = createMultiset(size);
             for (int ii = 0; ii < size; ii++) {
                 set.add(in.readObject(), in.readInt());
@@ -586,7 +609,7 @@ public class BasicStreamers
     public static boolean[] readBooleanArray (ObjectInputStream ins)
         throws IOException
     {
-        boolean[] value = new boolean[ins.readInt()];
+        boolean[] value = new boolean[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readBoolean();
@@ -597,7 +620,7 @@ public class BasicStreamers
     public static byte[] readByteArray (ObjectInputStream ins)
         throws IOException
     {
-        byte[] value = new byte[ins.readInt()];
+        byte[] value = new byte[validateSize(ins.readInt())];
         int remain = value.length, offset = 0, read;
         while (remain > 0) {
             if ((read = ins.read(value, offset, remain)) > 0) {
@@ -613,7 +636,7 @@ public class BasicStreamers
     public static short[] readShortArray (ObjectInputStream ins)
         throws IOException
     {
-        short[] value = new short[ins.readInt()];
+        short[] value = new short[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readShort();
@@ -624,7 +647,7 @@ public class BasicStreamers
     public static char[] readCharArray (ObjectInputStream ins)
         throws IOException
     {
-        char[] value = new char[ins.readInt()];
+        char[] value = new char[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readChar();
@@ -635,7 +658,7 @@ public class BasicStreamers
     public static int[] readIntArray (ObjectInputStream ins)
         throws IOException
     {
-        int[] value = new int[ins.readInt()];
+        int[] value = new int[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readInt();
@@ -646,7 +669,7 @@ public class BasicStreamers
     public static long[] readLongArray (ObjectInputStream ins)
         throws IOException
     {
-        long[] value = new long[ins.readInt()];
+        long[] value = new long[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readLong();
@@ -657,7 +680,7 @@ public class BasicStreamers
     public static float[] readFloatArray (ObjectInputStream ins)
         throws IOException
     {
-        float[] value = new float[ins.readInt()];
+        float[] value = new float[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readFloat();
@@ -668,7 +691,7 @@ public class BasicStreamers
     public static double[] readDoubleArray (ObjectInputStream ins)
         throws IOException
     {
-        double[] value = new double[ins.readInt()];
+        double[] value = new double[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readDouble();
@@ -679,7 +702,7 @@ public class BasicStreamers
     public static Object[] readObjectArray (ObjectInputStream ins)
         throws IOException, ClassNotFoundException
     {
-        Object[] value = new Object[ins.readInt()];
+        Object[] value = new Object[validateSize(ins.readInt())];
         int ecount = value.length;
         for (int ii = 0; ii < ecount; ii++) {
             value[ii] = ins.readObject();
