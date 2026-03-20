@@ -279,28 +279,27 @@ public class ObjectInputStream extends DataInputStream
         throws IOException
     {
         for (int start = 0, end = cname.length(); start < end; ++start) {
-          char c = cname.charAt(start);
-          if (c == '[') continue; // continue the loop to step past array markers
+            char c = cname.charAt(start);
+            if (c == '[') continue; // continue the loop to step past array markers
 
-          // if it's a single character do a quick check:
-          if (start == end - 1) {
-            switch (c) {
-            case 'I': case 'Z': case 'B': case 'S': case 'C': case 'J': case 'F': case 'D': return;
-            }
-          } else {
-            // This is annoying: Something else is pre-stripping the L if not in an array?
-            if (c == 'L' && cname.endsWith(";")) {
-              ++start;
-              --end;
-            }
-            String className = cname.substring(start, end);
-            for (String prefix : _allowedPrefixes) {
-                if (className.startsWith(prefix)) {
-                    return;
+            // if it's a single character do a quick check:
+            if (start == end - 1) {
+                switch (c) {
+                case 'I': case 'Z': case 'B': case 'S': case 'C': case 'J': case 'F': case 'D':
+                  return; // valid
+                }
+            } else {
+                // This is annoying: Something else is pre-stripping the L if not in an array?
+                if (c == 'L' && cname.endsWith(";")) {
+                  ++start;
+                  --end;
+                }
+                String className = cname.substring(start, end);
+                for (String prefix : _allowedPrefixes) {
+                    if (className.startsWith(prefix)) return; // valid
                 }
             }
-          }
-          break; // if we didn't see a [, we're done processing
+            break; // if we didn't see a [, we're done processing
         }
 
         log.warning("Blocked deserialization of non-whitelisted class",
