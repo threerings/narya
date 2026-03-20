@@ -248,9 +248,19 @@ public class ObjectInputStream extends DataInputStream
     {
         // validate the class name against the whitelist before loading
         if (_allowedPrefixes != null) {
+            // strip array encoding to get the component class name
+            // e.g. "[Lcom.threerings.Foo;" -> "com.threerings.Foo"
+            String checkName = cname;
+            while (checkName.startsWith("[")) {
+                checkName = checkName.substring(1);
+            }
+            if (checkName.startsWith("L") && checkName.endsWith(";")) {
+                checkName = checkName.substring(1, checkName.length() - 1);
+            }
+
             boolean allowed = false;
             for (String prefix : _allowedPrefixes) {
-                if (cname.startsWith(prefix)) {
+                if (checkName.startsWith(prefix)) {
                     allowed = true;
                     break;
                 }
