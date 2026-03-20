@@ -91,7 +91,10 @@ public class ObjectEditorPanel extends ScrollablePanel
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
                 if (field.getModifiers() == Modifier.PUBLIC) {
-                    add(applyTip(object, field, _object.getEditor(_ctx, field)));
+                    JPanel editor = _object.getEditor(_ctx, field);
+                    add(editor);
+                    ToolTipText tipAnno = field.getAnnotation(ToolTipText.class);
+                    if (tipAnno != null) editor.setToolTipText(tipAnno.value());
                 }
             }
 
@@ -106,17 +109,6 @@ public class ObjectEditorPanel extends ScrollablePanel
     public void requestFailed (int oid, ObjectAccessException cause)
     {
         log.warning("Unable to subscribe to config object: " + cause);
-    }
-
-    /**
-     * Looks up a {@code FIELD_NAME_TIP} static String constant on the config object and applies
-     * it as a tooltip on the editor panel.
-     */
-    protected static JPanel applyTip (ConfigObject object, Field field, JPanel editor)
-    {
-        ToolTipText tipAnno = field.getAnnotation(ToolTipText.class);
-        if (tipAnno != null) editor.setToolTipText(tipAnno.value());
-        return editor;
     }
 
     protected PresentsContext _ctx;
