@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
 import com.samskivert.swing.ScrollablePanel;
 import com.samskivert.swing.VGroupLayout;
@@ -20,6 +21,7 @@ import com.threerings.presents.util.PresentsContext;
 import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.admin.data.ConfigObject;
+import com.threerings.admin.data.ToolTipText;
 
 import static com.threerings.admin.Log.log;
 
@@ -89,7 +91,10 @@ public class ObjectEditorPanel extends ScrollablePanel
                 // if the field is anything but a plain old public field,
                 // we don't want to edit it
                 if (field.getModifiers() == Modifier.PUBLIC) {
-                    add(_object.getEditor(_ctx, field));
+                    JPanel editor = _object.getEditor(_ctx, field);
+                    add(editor);
+                    ToolTipText tipAnno = field.getAnnotation(ToolTipText.class);
+                    if (tipAnno != null) editor.setToolTipText(tipAnno.value());
                 }
             }
 
