@@ -279,22 +279,26 @@ public class ObjectInputStream extends DataInputStream
         throws IOException
     {
         // strip array prefixes to get the component type descriptor
-        int start = 0;
-        while (start < cname.length() && cname.charAt(start) == '[') {
+        int start = 0, end = cname.length();
+        while (start < end && cname.charAt(start) == '[') {
             start++;
         }
-        String desc = cname.substring(start);
+        if (start < end) {
+            switch (cname.charAt(start)) {
+            default: break;
+            case 'I': case 'Z': case 'B': case 'S': case 'C': case 'J': case 'F': case 'D':
+                return; // primitive descriptors (I, Z, B, S, C, J, F, D) are always safe
 
-        // primitive descriptors (I, Z, B, S, C, J, F, D) are always safe
-        if (!desc.startsWith("L") || !desc.endsWith(";")) {
-            return;
-        }
-
-        // extract the class name from "Lcom.threerings.Foo;"
-        String className = desc.substring(1, desc.length() - 1);
-        for (String prefix : _allowedPrefixes) {
-            if (className.startsWith(prefix)) {
-                return;
+            case 'L':
+                if (cname.endsWith(";")) {
+                    // extract the class name from "Lcom.threerings.Foo;"
+                    String className = cname.substring(start + 1, end - 1);
+                    for (String prefix : _allowedPrefixes) {
+                        if (className.startsWith(prefix)) {
+                            return;
+                        }
+                    }
+                }
             }
         }
 
