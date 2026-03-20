@@ -258,7 +258,8 @@ public class ObjectInputStream extends DataInputStream
                 checkName = checkName.substring(1, checkName.length() - 1);
             }
 
-            boolean allowed = false;
+            // primitive array descriptors (I, Z, B, S, C, J, F, D) are always safe
+            boolean allowed = (checkName.length() == 1);
             for (String prefix : _allowedPrefixes) {
                 if (checkName.startsWith(prefix)) {
                     allowed = true;
