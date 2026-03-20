@@ -246,32 +246,8 @@ public class ObjectInputStream extends DataInputStream
     protected ClassMapping createClassMapping (short code, String cname)
         throws IOException, ClassNotFoundException
     {
-        // validate the class name against the whitelist before loading
         if (_allowedPrefixes != null) {
-            // strip array encoding to get the component class name
-            // e.g. "[Lcom.threerings.Foo;" -> "com.threerings.Foo"
-            String checkName = cname;
-            while (checkName.startsWith("[")) {
-                checkName = checkName.substring(1);
-            }
-            if (checkName.startsWith("L") && checkName.endsWith(";")) {
-                checkName = checkName.substring(1, checkName.length() - 1);
-            }
-
-            // primitive array descriptors (I, Z, B, S, C, J, F, D) are always safe
-            boolean allowed = (checkName.length() == 1);
-            for (String prefix : _allowedPrefixes) {
-                if (checkName.startsWith(prefix)) {
-                    allowed = true;
-                    break;
-                }
-            }
-            if (!allowed) {
-                log.warning("Blocked deserialization of non-whitelisted class",
-                    "code", code, "class", cname);
-                throw new IOException(
-                    "Deserialization of class not allowed: " + cname);
-            }
+            validateClassPrefix(code, cname);
         }
 
         // resolve the class and streamer
@@ -291,6 +267,40 @@ public class ObjectInputStream extends DataInputStream
         }
 
         return new ClassMapping(code, sclass, streamer);
+    }
+
+    /**
+     * Validates that a class name is allowed by the configured prefix whitelist. Array prefixes
+     * ({@code [}) are stripped first. Primitive type descriptors ({@code I}, {@code Z}, etc.) are
+     * always allowed. Object type descriptors ({@code Lcom.threerings.Foo;}) are checked against
+     * the whitelist.
+     */
+    protected void validateClassPrefix (short code, String cname)
+        throws IOException
+    {
+        // strip array prefixes to get the component type descriptor
+        int start = 0;
+        while (start < cname.length() && cname.charAt(start) == '[') {
+            start++;
+        }
+        String desc = cname.substring(start);
+
+        // primitive descriptors (I, Z, B, S, C, J, F, D) are always safe
+        if (!desc.startsWith("L") || !desc.endsWith(";")) {
+            return;
+        }
+
+        // extract the class name from "Lcom.threerings.Foo;"
+        String className = desc.substring(1, desc.length() - 1);
+        for (String prefix : _allowedPrefixes) {
+            if (className.startsWith(prefix)) {
+                return;
+            }
+        }
+
+        log.warning("Blocked deserialization of non-whitelisted class",
+            "code", code, "class", cname);
+        throw new IOException("Deserialization of class not allowed: " + cname);
     }
 
     /**
