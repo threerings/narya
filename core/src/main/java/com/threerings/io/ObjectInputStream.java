@@ -7,11 +7,13 @@ package com.threerings.io;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -27,6 +29,21 @@ import static com.threerings.NaryaLog.log;
  */
 public class ObjectInputStream extends DataInputStream
 {
+    /** The maximum allowed recursion depth when reading nested objects. */
+    public static final int MAX_OBJECT_DEPTH = 32;
+
+    /**
+     * Configures the set of allowed package prefixes for class deserialization. Only classes whose
+     * fully qualified names start with one of the specified prefixes will be allowed to load. This
+     * should be called once at server startup before any client connections are accepted.
+     *
+     * @param prefixes the allowed package prefixes (e.g., "com.threerings.", "com.samskivert.")
+     */
+    public static void setAllowedClassPrefixes (Set<String> prefixes)
+    {
+        _allowedPrefixes = ImmutableSet.copyOf(prefixes);
+    }
+
     /**
      * Constructs an object input stream which will read its data from the supplied source stream.
      */
@@ -63,6 +80,11 @@ public class ObjectInputStream extends DataInputStream
     public Object readObject ()
         throws IOException, ClassNotFoundException
     {
+        if (_depth >= MAX_OBJECT_DEPTH) {
+            throw new IOException("Maximum object nesting depth exceeded (" +
+                MAX_OBJECT_DEPTH + "); possible malicious input");
+        }
+        _depth++;
         try {
             // read the class mapping
             ClassMapping cmap = readClassMapping();
@@ -84,6 +106,8 @@ public class ObjectInputStream extends DataInputStream
 
         } catch (OutOfMemoryError oome) {
             throw (IOException)new IOException("Malformed object data").initCause(oome);
+        } finally {
+            _depth--;
         }
     }
 
@@ -222,6 +246,10 @@ public class ObjectInputStream extends DataInputStream
     protected ClassMapping createClassMapping (short code, String cname)
         throws IOException, ClassNotFoundException
     {
+        if (_allowedPrefixes != null) {
+            validateClassPrefix(code, cname);
+        }
+
         // resolve the class and streamer
         ClassLoader loader = (_loader != null) ? _loader :
             Thread.currentThread().getContextClassLoader();
@@ -239,6 +267,40 @@ public class ObjectInputStream extends DataInputStream
         }
 
         return new ClassMapping(code, sclass, streamer);
+    }
+
+    /**
+     * Validates that a class name is allowed by the configured prefix whitelist. Array prefixes
+     * ({@code [}) are stripped first. Primitive type descriptors ({@code I}, {@code Z}, etc.) are
+     * always allowed. Object type descriptors ({@code Lcom.threerings.Foo;}) are checked against
+     * the whitelist.
+     */
+    protected void validateClassPrefix (short code, String cname)
+        throws IOException
+    {
+        // strip array prefixes to get the component type descriptor
+        int start = 0;
+        while (start < cname.length() && cname.charAt(start) == '[') {
+            start++;
+        }
+        String desc = cname.substring(start);
+
+        // primitive descriptors (I, Z, B, S, C, J, F, D) are always safe
+        if (!desc.startsWith("L") || !desc.endsWith(";")) {
+            return;
+        }
+
+        // extract the class name from "Lcom.threerings.Foo;"
+        String className = desc.substring(1, desc.length() - 1);
+        for (String prefix : _allowedPrefixes) {
+            if (className.startsWith(prefix)) {
+                return;
+            }
+        }
+
+        log.warning("Blocked deserialization of non-whitelisted class",
+            "code", code, "class", cname);
+        throw new IOException("Deserialization of class not allowed: " + cname);
     }
 
     /**
@@ -330,6 +392,12 @@ public class ObjectInputStream extends DataInputStream
 
     /** An optional set of class name translations to use when unserializing objects. */
     protected Map<String, String> _translations;
+
+    /** Tracks the current object nesting depth to prevent stack overflow from malicious input. */
+    protected int _depth;
+
+    /** If set, only classes with names starting with one of these prefixes may be deserialized. */
+    protected static volatile Set<String> _allowedPrefixes;
 
     /** Used to activate verbose debug logging. */
     protected static final boolean STREAM_DEBUG = false;
