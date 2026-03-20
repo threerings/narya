@@ -21,6 +21,7 @@ import com.threerings.presents.util.PresentsContext;
 import com.threerings.presents.util.SafeSubscriber;
 
 import com.threerings.admin.data.ConfigObject;
+import com.threerings.admin.data.ToolTipText;
 
 import static com.threerings.admin.Log.log;
 
@@ -113,23 +114,9 @@ public class ObjectEditorPanel extends ScrollablePanel
      */
     protected static JPanel applyTip (ConfigObject object, Field field, JPanel editor)
     {
-        String tipName = toUpperSnake(field.getName()) + "_TIP";
-        try {
-            Field tipField = object.getClass().getField(tipName);
-            if (tipField.getType() == String.class &&
-                    Modifier.isStatic(tipField.getModifiers())) {
-                editor.setToolTipText((String) tipField.get(null));
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            // no tip constant for this field
-        }
+        ToolTipText tipAnno = field.getAnnotation(ToolTipText.class);
+        if (tipAnno != null) editor.setToolTipText(tipAnno.value());
         return editor;
-    }
-
-    /** Converts a {@code lowerCamelCase} name to {@code UPPER_SNAKE_CASE}. */
-    private static String toUpperSnake (String name)
-    {
-        return name.replaceAll("([a-z0-9])([A-Z])", "$1_$2").toUpperCase();
     }
 
     protected PresentsContext _ctx;
