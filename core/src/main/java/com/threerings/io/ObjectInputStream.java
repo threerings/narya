@@ -278,28 +278,29 @@ public class ObjectInputStream extends DataInputStream
     protected void validateClassPrefix (short code, String cname)
         throws IOException
     {
-        // strip array prefixes to get the component type descriptor
-        int start = 0, end = cname.length();
-        while (start < end && cname.charAt(start) == '[') {
-            start++;
-        }
-        if (start < end) {
-            switch (cname.charAt(start)) {
-            default: break;
-            case 'I': case 'Z': case 'B': case 'S': case 'C': case 'J': case 'F': case 'D':
-                return; // primitive descriptors (I, Z, B, S, C, J, F, D) are always safe
+        for (int start = 0, end = cname.length(); start < end; ++start) {
+          char c = cname.charAt(start);
+          if (c == '[') continue; // continue the loop to step past array markers
 
-            case 'L':
-                if (cname.endsWith(";")) {
-                    // extract the class name from "Lcom.threerings.Foo;"
-                    String className = cname.substring(start + 1, end - 1);
-                    for (String prefix : _allowedPrefixes) {
-                        if (className.startsWith(prefix)) {
-                            return;
-                        }
-                    }
+          // if it's a single character do a quick check:
+          if (start == end - 1) {
+            switch (c) {
+            case 'I': case 'Z': case 'B': case 'S': case 'C': case 'J': case 'F': case 'D': return;
+            }
+          } else {
+            // This is annoying: Something else is pre-stripping the L if not in an array?
+            if (c == 'L' && cname.endsWith(";")) {
+              ++start;
+              --end;
+            }
+            String className = cname.substring(start, end);
+            for (String prefix : _allowedPrefixes) {
+                if (className.startsWith(prefix)) {
+                    return;
                 }
             }
+          }
+          break; // if we didn't see a [, we're done processing
         }
 
         log.warning("Blocked deserialization of non-whitelisted class",
