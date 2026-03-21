@@ -44,24 +44,16 @@ public class ConfigField
         public Object toValue (String text)
         {
             switch(this) {
-            case INTEGER:
-                return new Integer(text);
-            case SHORT:
-                return new Short(text);
-            case BYTE:
-                return new Byte(text);
-            case LONG:
-                return new Long(text);
-            case FLOAT:
-                return new Float(text);
-            case DOUBLE:
-                return new Double(text);
-            case BOOLEAN:
-                return new Boolean(text);
-            case STRING:
-                return text;
+            case INTEGER: return Integer.valueOf(text);
+            case SHORT: return Short.valueOf(text);
+            case BYTE: return Byte.valueOf(text);
+            case LONG: return Long.valueOf(text);
+            case FLOAT: return Float.valueOf(text);
+            case DOUBLE: return Double.valueOf(text);
+            case BOOLEAN: return Boolean.valueOf(text);
+            case STRING: return text;
+            default: return null;
             }
-            return null;
         }
     }
 
