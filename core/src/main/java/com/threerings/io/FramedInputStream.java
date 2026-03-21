@@ -117,7 +117,7 @@ public class FramedInputStream extends InputStream
             // otherwise, we've filled up our buffer as a result of this
             // read, expand it and try reading some more
             ByteBuffer newbuf = ByteBuffer.allocate(_buffer.capacity() << 1);
-            newbuf.put((ByteBuffer)_buffer.flip());
+            newbuf.put(_buffer.flip());
             _buffer = newbuf;
 
             // don't let things grow without bounds

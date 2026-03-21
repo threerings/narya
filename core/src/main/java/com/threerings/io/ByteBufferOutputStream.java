@@ -91,7 +91,7 @@ public class ByteBufferOutputStream extends OutputStream
             // increase the buffer size in large increments
             ncapacity = Math.max(ocapacity << 1, ncapacity);
             ByteBuffer newbuf = ByteBuffer.allocate(ncapacity);
-            newbuf.put((ByteBuffer)_buffer.flip());
+            newbuf.put(_buffer.flip());
             _buffer = newbuf;
         }
     }
