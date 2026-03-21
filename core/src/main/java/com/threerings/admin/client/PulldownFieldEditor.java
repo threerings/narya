@@ -58,7 +58,7 @@ public class PulldownFieldEditor extends FieldEditor
     {
         super(ctx, field, obj);
 
-        add(_value = new JComboBox());
+        add(_value = new JComboBox<Choice>());
     }
 
     /**
@@ -108,7 +108,7 @@ public class PulldownFieldEditor extends FieldEditor
     protected void displayValue (Object value)
     {
         for (int ii = _value.getItemCount() - 1; ii >= 0; ii--) {
-            Choice choice = (Choice)_value.getItemAt(ii);
+            Choice choice = _value.getItemAt(ii);
             if (Objects.equal(value, choice.value)) {
                 _value.setSelectedIndex(ii);
                 return;
@@ -121,5 +121,5 @@ public class PulldownFieldEditor extends FieldEditor
     }
 
     /** Holds the value we're editing. */
-    protected JComboBox _value;
+    protected JComboBox<Choice> _value;
 }
