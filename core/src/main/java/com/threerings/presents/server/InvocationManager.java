@@ -155,13 +155,12 @@ public class InvocationManager
         // create a marshaller instance and initialize it
         T marsh;
         try {
-            marsh = mclass.newInstance();
+            marsh = mclass.getConstructor().newInstance();
             marsh.init(_invoid, invCode, _standaloneClient == null ?
                 null : _standaloneClient.getInvocationDirector());
-        } catch (IllegalAccessException ie) {
-            throw new RuntimeException(ie);
-        } catch (InstantiationException ie) {
-            throw new RuntimeException(ie);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
+                 InstantiationException ee) {
+            throw new RuntimeException(ee);
         }
 
         // register the dispatcher

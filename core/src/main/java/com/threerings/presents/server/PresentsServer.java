@@ -113,7 +113,7 @@ public class PresentsServer
                 try {
                     log.info("Invoking test module", "mod", testmod);
                     Class<?> tmclass = Class.forName(testmod);
-                    Runnable trun = (Runnable)tmclass.newInstance();
+                    Runnable trun = (Runnable)tmclass.getConstructor().newInstance();
                     trun.run();
                 } catch (Exception e) {
                     log.warning("Unable to invoke test module '" + testmod + "'.", e);

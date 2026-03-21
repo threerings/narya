@@ -461,7 +461,7 @@ public class PlaceManager
     protected PlaceObject createPlaceObject ()
     {
         try {
-            return getPlaceObjectClass().newInstance();
+            return getPlaceObjectClass().getConstructor().newInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

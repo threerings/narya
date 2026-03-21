@@ -56,7 +56,7 @@ public abstract class PlaceConfig extends SimpleStreamableObject
         log.warning("Providing backwards compatibility. PlaceConfig." +
                     "createController() should be overridden directly.");
         try {
-            return (PlaceController)cclass.newInstance();
+            return (PlaceController)cclass.getConstructor().newInstance();
         } catch (Exception e) {
             log.warning("Failed to instantiate controller class '" + cclass + "'.", e);
             return null;
