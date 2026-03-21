@@ -145,7 +145,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
             }
             public void remove () {
                 checkConcurrentModification();
-                _contents[_idx] &= ~(1 << _bit);
+                _contents[_idx] &= (byte)~(1 << _bit);
                 _size--;
                 _count--;
                 _omodcount = ++_modcount;
@@ -184,7 +184,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         int ordinal = _elementType.cast(o).ordinal();
         int idx = ordinal >> 3, mask = 1 << (ordinal & 0x07);
         if ((_contents[idx] & mask) == 0) {
-            _contents[idx] |= mask;
+            _contents[idx] |= (byte)mask;
             _size++;
             _modcount++;
             return true;
@@ -201,7 +201,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
         int ordinal = ((Enum<?>)o).ordinal();
         int idx = ordinal >> 3, mask = 1 << (ordinal & 0x07);
         if ((_contents[idx] & mask) != 0) {
-            _contents[idx] &= ~mask;
+            _contents[idx] &= (byte)~mask;
             _size--;
             _modcount++;
             return true;

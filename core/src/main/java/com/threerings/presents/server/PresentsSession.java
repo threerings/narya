@@ -373,7 +373,7 @@ public class PresentsSession
         // because we won't be closing their socket normally
         if (getConnection() != null) {
             long now = System.currentTimeMillis();
-            _connectTime += ((now - _networkStamp) / 1000);
+            _connectTime += (int)((now - _networkStamp) / 1000);
         }
     }
 
@@ -834,7 +834,7 @@ public class PresentsSession
             // if our connection is being cleared out, record the amount of time we were connected
             // to our total connected time
             if (conn == null) {
-                _connectTime += ((now - _networkStamp) / 1000);
+                _connectTime += (int)((now - _networkStamp) / 1000);
                 _messagesDropped = 0;
             }
 

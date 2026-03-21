@@ -38,7 +38,7 @@ public class ArrayMask
      */
     public void set (int index)
     {
-        _mask[index/8] |= (1 << (index%8));
+        _mask[index/8] |= (byte)(1 << (index%8));
     }
 
     /**
