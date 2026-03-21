@@ -163,7 +163,7 @@ public abstract class GenTask extends Task
         }
         log("Writing file " + outputPath, Project.MSG_VERBOSE);
 
-        new PrintWriter(dest, "UTF-8").append(output).close();
+        new PrintWriter(dest, UTF_8).append(output).close();
     }
 
     /**

@@ -5,6 +5,8 @@
 
 package com.threerings.presents.server.net;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -126,11 +128,7 @@ public class PresentsConnection extends Connection
      */
     public void setDatagramSecret (String secret)
     {
-        try {
-            _datagramSecret = secret.getBytes("UTF-8");
-        } catch (Exception e) {
-            _datagramSecret = new byte[0]; // shouldn't happen
-        }
+        _datagramSecret = secret.getBytes(UTF_8);
     }
 
     /**

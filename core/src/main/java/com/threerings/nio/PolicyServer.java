@@ -5,13 +5,13 @@
 
 package com.threerings.nio;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
-
-import com.google.common.base.Charsets;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -78,11 +78,7 @@ public class PolicyServer extends ConnectionManager
         policy.append("  <allow-access-from domain=\"*\" to-ports=\"*\"/>\n");
         policy.append("</cross-domain-policy>\n\n");
 
-        try {
-            _policy = policy.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("UTF-8 encoding missing; this vm is broken", e);
-        }
+        _policy = policy.toString().getBytes(UTF_8);
         start();
     }
 
@@ -116,7 +112,7 @@ public class PolicyServer extends ConnectionManager
                         sendPolicy(this);
                         return buf.position();
                     }
-                    log.warning("Bad policy request", "request", new String(buf.array(), Charsets.UTF_8));
+                    log.warning("Bad policy request", "request", new String(buf.array(), UTF_8));
                     _cmgr.closeConnection(this);
 
                 } catch (IOException e) {
@@ -138,7 +134,7 @@ public class PolicyServer extends ConnectionManager
 
     protected byte[] _policy;
 
-    protected static final byte[] REQUEST = "<policy-file-request/>\0".getBytes(Charsets.UTF_8);
+    protected static final byte[] REQUEST = "<policy-file-request/>\0".getBytes(UTF_8);
 
     protected static final int MASTER_PORT = 843;
 }

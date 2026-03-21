@@ -5,6 +5,8 @@
 
 package com.threerings.io;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -374,8 +376,7 @@ public class ObjectInputStream extends DataInputStream
         // read precisely that many into a buffer
         byte[] bbuf = new byte[utflen];
         in.read(bbuf);
-        return new String(bbuf, "UTF-8");
-        //return new String(bbuf, Charsets.UTF_8); // TODO Java 6 (Charsets is from guava)
+        return new String(bbuf, UTF_8);
     }
 
     @Override

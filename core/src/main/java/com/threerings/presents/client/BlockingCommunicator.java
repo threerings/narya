@@ -5,6 +5,8 @@
 
 package com.threerings.presents.client;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -823,7 +825,7 @@ public class BlockingCommunicator extends Communicator
                 shutdown();
                 return;
             }
-            _secret = _client.getCredentials().getDatagramSecret().getBytes("UTF-8");
+            _secret = _client.getCredentials().getDatagramSecret().getBytes(UTF_8);
 
             // create our various streams
             _bout = new ByteBufferOutputStream();

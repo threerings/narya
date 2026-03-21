@@ -5,6 +5,8 @@
 
 package com.threerings.io;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.util.Map;
 
 import java.io.DataOutputStream;
@@ -288,8 +290,7 @@ public class ObjectOutputStream extends DataOutputStream
     public void writeUnmodifiedUTF (String str)
         throws IOException
     {
-        // byte[] bytes = str.getBytes(Charsets.UTF_8); // TODO Java 6 (Charsets is from guava)
-        byte[] bytes = str.getBytes("UTF-8");
+        byte[] bytes = str.getBytes(UTF_8);
         writeShort(bytes.length);
         write(bytes);
     }
