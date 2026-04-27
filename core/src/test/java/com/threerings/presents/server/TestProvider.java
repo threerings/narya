@@ -7,7 +7,7 @@ package com.threerings.presents.server;
 
 import java.util.List;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.client.TestService;

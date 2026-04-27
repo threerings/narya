@@ -203,7 +203,7 @@ public class SourceFile
      */
     protected void addOrRemoveGeneratedImport (boolean add)
     {
-        final String IMPORT = "import javax.annotation.Generated;";
+        final String IMPORT = "import javax.annotation.processing.Generated;";
 
         int packageLine = -1;
         int importLine = -1;

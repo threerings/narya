@@ -5,7 +5,7 @@
 
 package com.threerings.presents.peer.data;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;

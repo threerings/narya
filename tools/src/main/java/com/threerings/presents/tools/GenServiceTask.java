@@ -231,7 +231,7 @@ public class GenServiceTask extends InvocationTask
         // import things marshaller will always need
         imports.add(sdesc.service);
         imports.add(InvocationMarshaller.class);
-        imports.add("javax.annotation.Generated");
+        imports.add("javax.annotation.processing.Generated");
 
         // We only add a type parameter for the caller ClientObject type if the service has one
         if (sdesc.callerTypeSpecified) {
@@ -512,7 +512,7 @@ public class GenServiceTask extends InvocationTask
         // import superclass and service
         imports.add(InvocationProvider.class);
         imports.add(sdesc.service);
-        imports.add("javax.annotation.Generated");
+        imports.add("javax.annotation.processing.Generated");
 
         // any method that takes a listener may throw this
         if (sdesc.hasAnyListenerArgs()) {

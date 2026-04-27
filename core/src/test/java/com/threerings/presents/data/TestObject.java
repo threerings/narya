@@ -6,7 +6,7 @@
 package com.threerings.presents.data;
 
 import java.util.ArrayList;
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.OidList;

@@ -5,7 +5,7 @@
 
 package com.threerings.crowd.data;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import com.threerings.util.Name;
 
 import com.threerings.presents.dobj.DObject;

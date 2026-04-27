@@ -5,7 +5,7 @@
 
 package com.threerings.presents.server;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.threerings.presents.client.InvocationReceiver;
 import com.threerings.presents.client.RegistrationService;

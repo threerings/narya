@@ -5,7 +5,7 @@
 
 package com.threerings.crowd.peer.data;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import com.threerings.presents.dobj.DSet;
 import com.threerings.presents.peer.data.NodeObject;
 

@@ -5,7 +5,7 @@
 
 package com.threerings.presents.peer.data;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 import com.google.common.base.Objects;
 

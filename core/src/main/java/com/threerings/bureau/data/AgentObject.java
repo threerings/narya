@@ -5,7 +5,7 @@
 
 package com.threerings.bureau.data;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 import com.threerings.presents.dobj.DObject;
 
 /**
