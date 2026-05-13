@@ -30,6 +30,8 @@ public class BasicStreamers
     /**
      * The maximum number of elements allowed in a deserialized array, collection, or map. This
      * prevents a malicious client from sending a huge size value to trigger an OutOfMemoryError.
+     * The system property "com.threerings.io.maxContainerSize" be checked at startup and if it
+     * parses as integer will be used instead of the default value of 65536.
      */
     public static final int MAX_CONTAINER_SIZE =
       Integer.getInteger("com.threerings.io.maxContainerSize", 65536);
