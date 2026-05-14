@@ -42,6 +42,15 @@ public class DSet<E extends DSet.Entry>
     implements Iterable<E>, Streamable, Cloneable
 {
     /**
+     * The default size above which we will warn. This can be overridden per-DSet if you have
+     * a special DSet class which you probably don't.
+     * Ths system property "com.threerings.presents.dobj.DSet.warnSize" and the default value is
+     * 2048.
+     */
+    public static final int DEFAULT_WARNING_SIZE =
+      Integer.getInteger("com.threerings.presents.dobj.DSet.warnSize", 2048);
+
+    /**
      * Entries of the set must implement this interface.
      */
     public static interface Entry extends Streamable
@@ -429,7 +438,7 @@ public class DSet<E extends DSet.Entry>
      */
     protected int getWarningSize ()
     {
-        return 2048;
+        return DEFAULT_WARNING_SIZE;
     }
 
     /**
