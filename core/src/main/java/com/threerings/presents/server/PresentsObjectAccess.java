@@ -43,8 +43,13 @@ public class PresentsObjectAccess
                 return true;
 
             } else {
-                // if it came from the client, it better be a non-modification event
-                return (event instanceof MessageEvent || event instanceof InvocationRequestEvent);
+                // if it came from the client, it better be an invocation request...
+                if (event instanceof InvocationRequestEvent) {
+                    return true;
+                }
+                log.warning("Client tried to send a (newly blocked in 2026) illegal event",
+                    "event", event);
+                return false;
             }
         }
     };
