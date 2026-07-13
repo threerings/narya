@@ -91,7 +91,7 @@ public class InvocationManager
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
      */
-    public <T extends InvocationMarshaller<?>> T registerProvider (
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
         return registerProvider(provider, mclass, null);
@@ -221,7 +221,7 @@ public class InvocationManager
      *
      * @param dispatcher the dispatcher to be registered.
      */
-    public <T extends InvocationMarshaller<?>> T registerDispatcher (
+    public final <T extends InvocationMarshaller<?>> T registerDispatcher (
         InvocationDispatcher<T> dispatcher)
     {
         return registerDispatcher(dispatcher, null);
@@ -230,7 +230,7 @@ public class InvocationManager
     /**
      * @deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
      */
-    @Deprecated public <T extends InvocationMarshaller<?>> T registerDispatcher (
+    @Deprecated public final <T extends InvocationMarshaller<?>> T registerDispatcher (
         InvocationDispatcher<T> dispatcher, boolean bootstrap)
     {
         return registerDispatcher(dispatcher, null);
