@@ -572,7 +572,7 @@ public class PlaceManager
     protected <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        T marsh = _invmgr.registerProvider(prov, mclass);
+        T marsh = _invmgr.registerProvider(prov, mclass, _plobj);
         _marshallers.add(marsh);
         return marsh;
     }
