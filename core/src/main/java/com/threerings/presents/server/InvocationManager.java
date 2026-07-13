@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -86,15 +87,51 @@ public class InvocationManager
     }
 
     /**
+     * Utility: Is the client subscribed to this object?
+     */
+    public boolean isSubscribed (ClientObject client, DObject dobj)
+    {
+        var session = _clmgr.getClient(client.username);
+        return session != null && session.isSubscribed(dobj);
+    }
+
+    @Deprecated
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
+        InvocationProvider provider, Class<T> mclass)
+    {
+        return registerProvider(provider, mclass, null, clobj -> true);
+    }
+
+    /**
      * Registers the supplied invocation service provider.
      *
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
      */
     public final <T extends InvocationMarshaller<?>> T registerProvider (
-        InvocationProvider provider, Class<T> mclass)
+        InvocationProvider provider, Class<T> mclass, DObject requiredSubscription)
     {
-        return registerProvider(provider, mclass, null);
+        return registerProvider(provider, mclass,
+          clobj -> isSubscribed(clobj, requiredSubscription));
+    }
+
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     */
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
+        InvocationProvider provider, Class<T> mclass, Predicate<ClientObject> isAllowed)
+    {
+      return registerProvider(provider, mclass, null, isAllowed);
+    }
+
+    @Deprecated
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
+        final InvocationProvider provider, Class<T> mclass, String group)
+    {
+      return registerProvider(provider, mclass, group, clobj -> true);
     }
 
     /**
@@ -108,7 +145,8 @@ public class InvocationManager
      * and have different types of clients specify the list of groups they need.
      */
     public <T extends InvocationMarshaller<?>> T registerProvider (
-        final InvocationProvider provider, Class<T> mclass, String group)
+        final InvocationProvider provider, Class<T> mclass, String group,
+        final Predicate<ClientObject> isAllowed)
     {
         _omgr.requireEventThread(); // sanity check
 
@@ -165,6 +203,10 @@ public class InvocationManager
 
         // register the dispatcher
         _dispatchers.put(invCode, new Dispatcher() {
+            public boolean isAllowed (ClientObject caller) {
+                return isAllowed.test(caller);
+            }
+
             public InvocationProvider getProvider () {
                 return provider;
             }
@@ -353,6 +395,13 @@ public class InvocationManager
             return;
         }
 
+        if (!disp.isAllowed(source)) {
+            log.info("Received invocation request but client not (or no longer) allowed",
+                     "code", invCode, "methId", methodId, "args", args,
+                     "marsh", _recentRegServices.get(Integer.valueOf(invCode)));
+            return;
+        }
+
         // scan the args, initializing any listeners and keeping track of the "primary" listener
         ListenerMarshaller rlist = null;
         int acount = args.length;
@@ -413,6 +462,7 @@ public class InvocationManager
     }
 
     protected interface Dispatcher {
+        public boolean isAllowed (ClientObject source);
         public InvocationProvider getProvider ();
         public void dispatchRequest (ClientObject source, int methodId, Object[] args)
             throws InvocationException;
@@ -426,6 +476,9 @@ public class InvocationManager
 
     /** A reference to the standalone client, if any. */
     @Inject(optional=true) protected Client _standaloneClient;
+
+    /** The ClientManager. */
+    @Inject protected ClientManager _clmgr;
 
     /** The distributed object manager we're working with. */
     protected PresentsDObjectMgr _omgr;

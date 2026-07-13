@@ -320,6 +320,15 @@ public class PresentsSession
     }
 
     /**
+     * Is this client subscribed to the specified object?
+     */
+    public boolean isSubscribed (DObject dobj)
+    {
+        // probably we should synchronize
+        return _subscrips.containsKey(dobj.getOid());
+    }
+
+    /**
      * Forcibly terminates a client's session. This must be called from the dobjmgr thread.
      */
     @EventThread
