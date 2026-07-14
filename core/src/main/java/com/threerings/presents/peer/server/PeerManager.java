@@ -370,7 +370,7 @@ public abstract class PeerManager
         }
 
         // set the invocation service
-        _nodeobj.setPeerService(_invmgr.registerProvider(this, PeerMarshaller.class));
+        _nodeobj.setPeerService(_invmgr.registerProvider(this, PeerMarshaller.class, _nodeobj));
 
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
