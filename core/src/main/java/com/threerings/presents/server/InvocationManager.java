@@ -395,13 +395,6 @@ public class InvocationManager
             return;
         }
 
-        if (!disp.isAllowed(source)) {
-            log.info("Received invocation request but client not (or no longer) allowed",
-                     "code", invCode, "methId", methodId, "args", args,
-                     "marsh", _recentRegServices.get(Integer.valueOf(invCode)));
-            return;
-        }
-
         // scan the args, initializing any listeners and keeping track of the "primary" listener
         ListenerMarshaller rlist = null;
         int acount = args.length;
@@ -418,6 +411,15 @@ public class InvocationManager
                     rlist = list;
                 }
             }
+        }
+
+        // try the top-level check..
+        if (!disp.isAllowed(source)) {
+            log.info("Received invocation request but client not (or no longer) allowed",
+                     "code", invCode, "methId", methodId, "args", args,
+                     "marsh", _recentRegServices.get(Integer.valueOf(invCode)));
+            if (rlist != null) rlist.requestFailed(InvocationCodes.E_INTERNAL_ERROR);
+            return;
         }
 
         log.debug("Dispatching invreq", "caller", source.who(), "provider", disp.getProvider(),
