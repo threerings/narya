@@ -12,8 +12,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationManager;
 
-import com.threerings.crowd.data.BodyObject;
-
 import com.threerings.admin.client.AdminService;
 import com.threerings.admin.data.AdminCodes;
 import com.threerings.admin.data.AdminMarshaller;
@@ -27,8 +25,7 @@ public class AdminManager
 {
     @Inject public AdminManager (InvocationManager invmgr)
     {
-        invmgr.registerProvider(this, AdminMarshaller.class, AdminCodes.ADMIN_GROUP,
-            this::isAdmin);
+        invmgr.registerProvider(this, AdminMarshaller.class, AdminCodes.ADMIN_GROUP);
     }
 
     // from interface AdminProvider
@@ -45,11 +42,6 @@ public class AdminManager
             oids[ii] = _registry.getObject(keys[ii]).getOid();
         }
         listener.gotConfigInfo(keys, oids);
-    }
-
-    protected boolean isAdmin (ClientObject clobj)
-    {
-        return clobj instanceof BodyObject && ((BodyObject)clobj).getTokens().isAdmin();
     }
 
     @Inject protected ConfigRegistry _registry;
