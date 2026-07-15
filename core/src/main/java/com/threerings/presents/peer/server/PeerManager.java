@@ -1250,12 +1250,6 @@ public abstract class PeerManager
         return NodeObjectAccess.DEFAULT;
     }
 
-    @Deprecated
-    protected boolean canCallService (ClientObject clobj)
-    {
-      return isPeer(clobj);
-    }
-
     /**
      * A simplified check for node object service requests.
      */
