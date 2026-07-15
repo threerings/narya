@@ -569,10 +569,17 @@ public class PlaceManager
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
-    protected <T extends InvocationMarshaller<?>> T addProvider (
+    protected final <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        T marsh = _invmgr.registerProvider(prov, mclass, _plobj);
+        return addProvider(prov, mclass, false);
+    }
+
+    protected <T extends InvocationMarshaller<?>> T addProvider (
+        InvocationProvider prov, Class<T> mclass, boolean validateSubscriber)
+    {
+        T marsh = validateSubscriber ? _invmgr.registerProvider(prov, mclass, _plobj)
+          : _invmgr.registerProvider(prov, mclass);
         _marshallers.add(marsh);
         return marsh;
     }

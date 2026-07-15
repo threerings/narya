@@ -95,7 +95,12 @@ public class InvocationManager
         return session != null && session.isSubscribed(dobj);
     }
 
-    @Deprecated
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     */
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
@@ -127,7 +132,12 @@ public class InvocationManager
       return registerProvider(provider, mclass, null, isAllowed);
     }
 
-    @Deprecated
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     */
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         final InvocationProvider provider, Class<T> mclass, String group)
     {
