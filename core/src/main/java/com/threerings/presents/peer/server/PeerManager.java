@@ -58,6 +58,7 @@ import com.threerings.presents.peer.data.ClientInfo;
 import com.threerings.presents.peer.data.DObjectAddress;
 import com.threerings.presents.peer.data.NodeObject;
 import com.threerings.presents.peer.data.PeerAuthName;
+import com.threerings.presents.peer.data.PeerClientObject;
 import com.threerings.presents.peer.data.PeerMarshaller;
 import com.threerings.presents.peer.net.PeerCreds;
 import com.threerings.presents.peer.server.persist.NodeRecord;
@@ -370,7 +371,8 @@ public abstract class PeerManager
         }
 
         // set the invocation service
-        _nodeobj.setPeerService(_invmgr.registerProvider(this, PeerMarshaller.class, _nodeobj));
+        _nodeobj.setPeerService(
+            _invmgr.registerProvider(this, PeerMarshaller.class, this::canCallService));
 
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
@@ -1246,6 +1248,14 @@ public abstract class PeerManager
     protected AccessController createNodeObjectAccess ()
     {
         return NodeObjectAccess.DEFAULT;
+    }
+
+    /**
+     * A simplified check for node object service requests.
+     */
+    protected boolean canCallService (ClientObject clobj)
+    {
+        return clobj instanceof PeerClientObject;
     }
 
     /**
