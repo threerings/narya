@@ -47,6 +47,7 @@ import com.threerings.presents.client.Client;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.ObjectAccessException;
 import com.threerings.presents.dobj.Subscriber;
@@ -349,7 +350,9 @@ public abstract class PeerManager
                                              PeerAuthName.class, PeerClientResolver.class));
 
         // create our node object
-        _nodeobj = _omgr.registerObject(createNodeObject());
+        NodeObject nodeObj = createNodeObject();
+        nodeObj.setAccessController(createNodeObjectAccess());
+        _nodeobj = _omgr.registerObject(nodeObj);
         _nodeobj.setNodeName(nodeName);
         _nodeobj.setBootStamp(System.currentTimeMillis());
 
@@ -1235,6 +1238,14 @@ public abstract class PeerManager
     protected NodeObject createNodeObject ()
     {
         return new NodeObject();
+    }
+
+    /**
+     * Creaate the access controller for our node object.
+     */
+    protected AccessController createNodeObjectAccess ()
+    {
+        return NodeObjectAccess.DEFAULT;
     }
 
     /**
