@@ -372,7 +372,7 @@ public abstract class PeerManager
 
         // set the invocation service
         _nodeobj.setPeerService(
-            _invmgr.registerProvider(this, PeerMarshaller.class, this::canCallService));
+            _invmgr.registerProvider(this, PeerMarshaller.class, this::isPeer));
 
         // register ourselves as a client observer
         _clmgr.addClientObserver(this);
@@ -1250,10 +1250,16 @@ public abstract class PeerManager
         return NodeObjectAccess.DEFAULT;
     }
 
+    @Deprecated
+    protected boolean canCallService (ClientObject clobj)
+    {
+      return isPeer(clobj);
+    }
+
     /**
      * A simplified check for node object service requests.
      */
-    protected boolean canCallService (ClientObject clobj)
+    protected boolean isPeer (ClientObject clobj)
     {
         return clobj instanceof PeerClientObject;
     }

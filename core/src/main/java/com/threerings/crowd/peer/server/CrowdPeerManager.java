@@ -141,7 +141,7 @@ public abstract class CrowdPeerManager extends PeerManager
         // register and initialize our invocation service
         CrowdNodeObject cnobj = (CrowdNodeObject)_nodeobj;
         cnobj.setCrowdPeerService(
-            _invmgr.registerProvider(this, CrowdPeerMarshaller.class, this::canCallService));
+            _invmgr.registerProvider(this, CrowdPeerMarshaller.class, this::isPeer));
 
         // register ourselves as a chat forwarder
         _chatprov.setChatForwarder(this);
