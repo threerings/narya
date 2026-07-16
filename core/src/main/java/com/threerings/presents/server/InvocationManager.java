@@ -212,7 +212,7 @@ public class InvocationManager
         }
 
         // register the dispatcher
-        _dispatchers.put(invCode, new Dispatcher() {
+        _dispatchers.put(invCode, customizeDispatcher(mclass, new Dispatcher() {
             public boolean isAllowed (ClientObject caller) {
                 return isAllowed.test(caller);
             }
@@ -254,7 +254,7 @@ public class InvocationManager
                     }
                 }
             }
-        });
+        }));
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) {
@@ -379,6 +379,12 @@ public class InvocationManager
             dispatchRequest(ire.getSourceOid(), ire.getInvCode(),
                             ire.getMethodId(), ire.getArgs(), ire.getTransport());
         }
+    }
+
+    protected Dispatcher customizeDispatcher (
+      Class<? extends InvocationMarshaller<?>> mclass, Dispatcher disp)
+    {
+      return disp;
     }
 
     /**
