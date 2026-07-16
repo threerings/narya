@@ -248,6 +248,14 @@ public abstract class PeerManager
     }
 
     /**
+     * A simplified check for node object service requests.
+     */
+    public boolean isPeer (ClientObject clobj)
+    {
+        return clobj instanceof PeerClientObject;
+    }
+
+    /**
      * Initializes this peer manager to connect to all other nodes in the NODES table. See
      * {@link #init(String, String, String, String, int, String)} for the behavior of the method
      * and the meaning of its parameters.
@@ -1248,14 +1256,6 @@ public abstract class PeerManager
     protected AccessController createNodeObjectAccess ()
     {
         return NodeObjectAccess.DEFAULT;
-    }
-
-    /**
-     * A simplified check for node object service requests.
-     */
-    protected boolean isPeer (ClientObject clobj)
-    {
-        return clobj instanceof PeerClientObject;
     }
 
     /**
