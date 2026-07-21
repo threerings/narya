@@ -57,6 +57,14 @@ public class InvocationRequestEvent extends DEvent
     }
 
     @Override
+    public boolean isPrivate ()
+    {
+        // requests are for the server hosting the target object only: invocation codes and
+        // caller oids are node-local, and the args are nobody else's business
+        return true;
+    }
+
+    @Override
     public boolean applyToObject (DObject target)
         throws ObjectAccessException
     {

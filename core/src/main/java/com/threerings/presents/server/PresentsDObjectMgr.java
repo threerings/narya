@@ -652,9 +652,11 @@ public class PresentsDObjectMgr
             } else {
                 DEvent event = (DEvent)unit;
 
-                // if this event is on a proxied object, forward it to the owning manager
+                // if this event is on a proxied object, forward it to the owning manager.
+                // Invocation requests are exempt: invocation codes and caller oids are
+                // node-local, so they dispatch to providers registered on this node's proxy.
                 ProxyReference proxy = _proxies.get(event.getTargetOid());
-                if (proxy != null) {
+                if (proxy != null && !(event instanceof InvocationRequestEvent)) {
                     // rewrite the oid into the originating manager's id space
                     event.setTargetOid(proxy.origObjectId);
                     // then pass it on to the originating manager to handle

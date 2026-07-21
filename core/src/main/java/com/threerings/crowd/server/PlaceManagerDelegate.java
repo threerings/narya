@@ -96,9 +96,16 @@ public class PlaceManagerDelegate
     }
 
     /**
-     * Registers an invocation provider and notes the registration such that it will be
-     * automatically cleared when our parent manager shuts down.
+     * Registers an invocation provider that will only be accessible to subscribers of this
+     * placeObject.
      */
+    protected <T extends InvocationMarshaller<?>> T addLocalProvider (
+        InvocationProvider prov, Class<T> mclass)
+    {
+        return _plmgr.addLocalProvider(prov, mclass);
+    }
+
+    @Deprecated
     protected <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {

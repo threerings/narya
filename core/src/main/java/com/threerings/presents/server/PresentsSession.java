@@ -1216,6 +1216,15 @@ public class PresentsSession
                 log.info("Dropping event that arrived after client disconnected " + fevt + ".");
                 return;
             }
+            int targetOid = fevt.getTargetOid();
+            if (targetOid != client._invmgr.getOid() && // not the global service object,
+                !client._subscrips.containsKey(targetOid)) { // nor a subscribed object
+
+                // drop quietly
+                log.debug("Dropping event on unsubscribed object",
+                    "who", clobj.who(), "event", fevt);
+                return;
+            }
 
             // fill in the proper source oid
             fevt.setSourceOid(clobj.getOid());

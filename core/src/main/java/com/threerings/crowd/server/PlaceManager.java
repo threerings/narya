@@ -249,7 +249,8 @@ public class PlaceManager
         // we usually want to create and register a speaker service instance that clients can use
         // to speak in this place
         if (shouldCreateSpeakService()) {
-            plobj.setSpeakService(addProvider(createSpeakHandler(plobj), SpeakMarshaller.class));
+            plobj.setSpeakService(
+                addLocalProvider(createSpeakHandler(plobj), SpeakMarshaller.class));
         }
 
         // we'll need to hear about place object events
@@ -569,17 +570,30 @@ public class PlaceManager
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
      */
+    protected final <T extends InvocationMarshaller<?>> T addLocalProvider (
+        InvocationProvider prov, Class<T> mclass)
+    {
+        return _invmgr.registerProvider(_plobj, prov, mclass);
+    }
+
+    @Deprecated
+    protected final <T extends InvocationMarshaller<?>> T addProvider (
+        java.util.function.Consumer<T> setField, InvocationProvider prov, Class<T> mclass)
+    {
+      var marsh = addLocalProvider(prov, mclass);
+      setField.accept(marsh);
+      return marsh;
+    }
+
+    /**
+     * Registers an invocation provider and notes the registration such that it will be
+     * automatically cleared when this manager shuts down.
+     */
+    @Deprecated // don't register globally?
     protected final <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        return addProvider(prov, mclass, false);
-    }
-
-    protected <T extends InvocationMarshaller<?>> T addProvider (
-        InvocationProvider prov, Class<T> mclass, boolean validateSubscriber)
-    {
-        T marsh = validateSubscriber ? _invmgr.registerProvider(prov, mclass, _plobj)
-          : _invmgr.registerProvider(prov, mclass);
+        T marsh = _invmgr.registerProvider(prov, mclass);
         _marshallers.add(marsh);
         return marsh;
     }
