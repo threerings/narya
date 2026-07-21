@@ -576,15 +576,6 @@ public class PlaceManager
         return _invmgr.registerProvider(_plobj, prov, mclass);
     }
 
-    @Deprecated
-    protected final <T extends InvocationMarshaller<?>> T addProvider (
-        java.util.function.Consumer<T> setField, InvocationProvider prov, Class<T> mclass)
-    {
-      var marsh = addLocalProvider(prov, mclass);
-      setField.accept(marsh);
-      return marsh;
-    }
-
     /**
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when this manager shuts down.

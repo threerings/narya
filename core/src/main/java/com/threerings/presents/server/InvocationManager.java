@@ -112,38 +112,10 @@ public class InvocationManager
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
      */
-    @Deprecated // QUICK MIGRATION
-    public final <T extends InvocationMarshaller<?>> T registerProvider (
-        InvocationProvider provider, Class<T> mclass,
-        java.util.function.Predicate<ClientObject> isAllowed)
-    {
-        log.warning("Deprecated. isAllowed is ignored.");
-        return registerProvider(provider, mclass);
-    }
-
-    /**
-     * Registers the supplied invocation service provider.
-     *
-     * @param provider the provider to be registered.
-     * @param mclass the class of the invocation marshaller generated for the service.
-     */
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
         return registerProvider(provider, mclass, (String)null, (DObject)null);
-    }
-
-    /**
-     * Registers the supplied invocation service provider.
-     *
-     * @param provider the provider to be registered.
-     * @param mclass the class of the invocation marshaller generated for the service.
-     */
-    @Deprecated // QUICK MIGRATION
-    public final <T extends InvocationMarshaller<?>> T registerProvider (
-        InvocationProvider provider, Class<T> mclass, DObject requiredSubscription)
-    {
-        return registerProvider(requiredSubscription, provider, mclass);
     }
 
     /**
@@ -498,7 +470,6 @@ public class InvocationManager
     }
 
     protected interface Dispatcher {
-        @Deprecated public default boolean isAllowed (ClientObject source) { return true; }
         public InvocationProvider getProvider ();
         public void dispatchRequest (ClientObject source, int methodId, Object[] args)
             throws InvocationException;
