@@ -224,8 +224,8 @@ public class InvocationManager
                     throw new RuntimeException(ie); // should never happen
                 } catch (InvocationTargetException ite) {
                     Throwable cause = ite.getCause();
-                    if (cause instanceof InvocationException) {
-                        throw (InvocationException)cause;
+                    if (cause instanceof InvocationException ieCause) {
+                        throw ieCause;
                     } else {
                         log.warning("Invocation service method failure",
                                     "provider", StringUtil.shortClassName(provider.getClass()),
@@ -356,15 +356,16 @@ public class InvocationManager
     }
 
     /**
-     * Get the class that is being used to dispatch the specified invocation code, for
+     * Get the class that is being used to dispatch the specified invocation, for
      * informational purposes.
      *
      * @return the Class, or null if no dispatcher is registered with
      * the specified code.
      */
-    public Class<?> getDispatcherClass (int invCode)
+    public Class<?> getDispatcherClass (InvocationRequestEvent ire)
     {
-        Object dispatcher = _dispatchers.get(invCode);
+        // TODO: use InvOid!
+        Object dispatcher = _dispatchers.get(ire.getInvCode());
         return (dispatcher == null) ? null : dispatcher.getClass();
     }
 
@@ -373,8 +374,7 @@ public class InvocationManager
     {
         log.debug("Event received", "event", event);
 
-        if (event instanceof InvocationRequestEvent) {
-            InvocationRequestEvent ire = (InvocationRequestEvent)event;
+        if (event instanceof InvocationRequestEvent ire) {
             dispatchRequest(ire.getSourceOid(), ire.getInvCode(),
                             _dispatchers.get(ire.getInvCode()),
                             ire.getMethodId(), ire.getArgs(), ire.getTransport());
@@ -415,8 +415,7 @@ public class InvocationManager
         int acount = args.length;
         for (int ii = 0; ii < acount; ii++) {
             Object arg = args[ii];
-            if (arg instanceof ListenerMarshaller) {
-                ListenerMarshaller list = (ListenerMarshaller)arg;
+            if (arg instanceof ListenerMarshaller list) {
                 list.callerOid = clientOid;
                 list.omgr = _omgr;
                 list.transport = transport;

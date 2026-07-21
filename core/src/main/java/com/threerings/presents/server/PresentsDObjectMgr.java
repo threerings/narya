@@ -691,12 +691,10 @@ public class PresentsDObjectMgr
             String cname;
             // do some jiggery pokery to get more fine grained profiling details on certain
             // "popular" unit types
-            if (unit instanceof Interval.RunBuddy) {
-                cname = StringUtil.shortClassName(
-                    ((Interval.RunBuddy)unit).getIntervalClassName());
-            } else if (unit instanceof InvocationRequestEvent) {
-                InvocationRequestEvent ire = (InvocationRequestEvent)unit;
-                Class<?> c = _invmgr.getDispatcherClass(ire.getInvCode());
+            if (unit instanceof Interval.RunBuddy bud) {
+                cname = StringUtil.shortClassName(bud.getIntervalClassName());
+            } else if (unit instanceof InvocationRequestEvent ire) {
+                Class<?> c = _invmgr.getDispatcherClass(ire);
                 cname = (c == null) ? "dobj.InvocationRequestEvent:(no longer registered)" :
                     StringUtil.shortClassName(c) + ":" + ire.getMethodId();
             } else {
