@@ -149,6 +149,15 @@ public class PresentsDObjectMgr
     }
 
     /**
+     * Returns the access controller assigned to newly registered objects that don't specify their
+     * own, or null if none has been configured.
+     */
+    public AccessController getDefaultAccessController ()
+    {
+        return _defaultController;
+    }
+
+    /**
      * Registers an object managed by another distributed object manager (probably on another
      * server). The local server will assign the object a proxy oid, and any events that come in on
      * this object will be rewritten from their proxy oid to their original id before forwarding on
