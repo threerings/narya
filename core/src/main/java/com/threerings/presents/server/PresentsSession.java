@@ -670,8 +670,6 @@ public class PresentsSession
     @EventThread
     protected void sessionWillStart ()
     {
-        // configure a specific access controller for the client object
-        _clobj.setAccessController(PresentsObjectAccess.CLIENT);
     }
 
     /**

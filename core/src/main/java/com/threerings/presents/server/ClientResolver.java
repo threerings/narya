@@ -16,6 +16,7 @@ import com.threerings.util.Name;
 
 import com.threerings.presents.annotation.MainInvoker;
 import com.threerings.presents.data.ClientObject;
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.RootDObjectManager;
 
 import static com.threerings.presents.Log.log;
@@ -60,6 +61,14 @@ public class ClientResolver extends Invoker.Unit
     public ClientObject createClientObject ()
     {
         return new ClientObject();
+    }
+
+    /**
+     * Get the access controller to use on the created client object.
+     */
+    public AccessController getClientAccessController ()
+    {
+        return PresentsObjectAccess.CLIENT;
     }
 
     /**

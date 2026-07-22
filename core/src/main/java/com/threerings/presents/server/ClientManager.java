@@ -317,6 +317,7 @@ public class ClientManager
             _omgr.postRunnable(new Runnable() {
                 public void run () {
                     ClientObject clobj = fclr.createClientObject();
+                    clobj.setAccessController(fclr.getClientAccessController());
                     clobj.setLocal(ClientLocal.class, fclr.createLocalAttribute());
                     fclr.objectAvailable(_omgr.registerObject(clobj));
                 }
