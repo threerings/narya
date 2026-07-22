@@ -613,6 +613,12 @@ public abstract class PeerManager
         invokeNodeRequest(nodeName, flattenRequest(request), listener);
     }
 
+    @Deprecated
+    public <T extends DObject> void proxyRemoteObject (
+        String nodeName, int remoteOid, ResultListener<Integer> listener)
+    {
+        proxyRemoteObject(nodeName, remoteOid, null, listener);
+    }
 
     /**
      * Initiates a proxy on an object that is managed by the specified peer. The object will be
@@ -624,14 +630,16 @@ public abstract class PeerManager
      * releasing the proxy when it knows that there are no longer any local subscribers to the
      * object.
      */
+    @Deprecated
     public <T extends DObject> void proxyRemoteObject (
-        String nodeName, final int remoteOid, final ResultListener<Integer> listener)
+        String nodeName, int remoteOid, AccessController access, ResultListener<Integer> listener)
     {
-        proxyRemoteObject(new DObjectAddress(nodeName, remoteOid), listener);
+        proxyRemoteObject(new DObjectAddress(nodeName, remoteOid), access, listener);
     }
 
     public <T extends DObject> void proxyRemoteObject (
-        final DObjectAddress remote, final ResultListener<Integer> listener)
+        final DObjectAddress remote, final AccessController access,
+        final ResultListener<Integer> listener)
     {
         if (Objects.equal(remote.nodeName, _nodeName)) {
             // Still subscribe if the DObject is local to preserve the behavior of
@@ -667,6 +675,7 @@ public abstract class PeerManager
                 // make a note of this proxy mapping
                 _proxies.put(remote, new Tuple<Subscriber<?>, DObject>(this, object));
                 // map the object into our local oid space
+                if (access != null) object.setAccessController(access);
                 _omgr.registerProxyObject(object, peer.getDObjectManager());
                 // then tell the caller about the (now remapped) oid
                 listener.requestCompleted(object.getOid());
