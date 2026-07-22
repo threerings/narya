@@ -10,8 +10,10 @@ import java.lang.reflect.Modifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -232,8 +234,11 @@ public class PresentsDObjectMgr
         object.setOid(oid);
         object.setManager(this);
 
-        // set the default access controller if a controller hasn't already been specified
+        // set the default access controller if a controller hasn't already been specified.
+        // Registering without an explicit controller is legitimate for public objects, but it's
+        // also how access-control oversights slip in, so we surface each such class once.
         if (object.getAccessController() == null) {
+            noteDefaultedController(object);
             object.setAccessController(_defaultController);
         }
 
@@ -243,6 +248,18 @@ public class PresentsDObjectMgr
 //         log.info("Registered object", "obj", object);
 
         return object;
+    }
+
+    /**
+     * Logs the first time each class is registered without an explicit access controller, so that
+     * audits can spot object types silently relying on the permissive default.
+     */
+    protected void noteDefaultedController (DObject object)
+    {
+        if (_defaultedControllerClasses.add(object.getClass())) {
+            log.info("Registered object with no explicit access controller; using default",
+                     "class", object.getClass().getName());
+        }
     }
 
     // from interface RootDObjectManager
@@ -1080,6 +1097,9 @@ public class PresentsDObjectMgr
 
     /** The default access controller to use when creating distributed objects. */
     protected AccessController _defaultController;
+
+    /** Classes already reported by {@link #noteDefaultedController}, so we log each just once. */
+    protected final Set<Class<?>> _defaultedControllerClasses = Sets.newConcurrentHashSet();
 
     /** Maintains proxy information for any proxied distributed objects. */
     protected IntMap<ProxyReference> _proxies = IntMaps.newHashIntMap();
