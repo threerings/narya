@@ -63,8 +63,8 @@ public class PresentsObjectAccess
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             // if the subscriber is a client, ensure that they are this same user
-            if (sub instanceof ProxySubscriber) {
-                ClientObject clobj = ((ProxySubscriber)sub).getClientObject();
+            if (sub instanceof ProxySubscriber proxySub) {
+                ClientObject clobj = proxySub.getClientObject();
                 if (clobj != object) {
                     log.warning("Refusing ClientObject subscription request",
                                 "obj", ((ClientObject)object).who(), "sub", clobj.who());
@@ -83,8 +83,8 @@ public class PresentsObjectAccess
             }
 
             // the client is only allowed to modify the RECEIVERS field
-            return ((event instanceof NamedEvent) &&
-                    ((NamedEvent)event).getName().equals(ClientObject.RECEIVERS));
+            return event instanceof NamedEvent namedEvent &&
+                   namedEvent.getName().equals(ClientObject.RECEIVERS);
         }
     };
 }

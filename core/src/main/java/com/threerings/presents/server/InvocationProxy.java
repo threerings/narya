@@ -123,8 +123,8 @@ public class InvocationProxy
       // first locate the "primary listener"
       InvocationService.InvocationListener listener = null;
       for (Object o : args) {
-        if (o instanceof InvocationService.InvocationListener) {
-          listener = (InvocationService.InvocationListener)o;
+        if (o instanceof InvocationService.InvocationListener il) {
+          listener = il;
           break;
         }
       }

@@ -645,9 +645,9 @@ public class PresentsDObjectMgr
         }
 
         try {
-            if (unit instanceof Runnable) {
+            if (unit instanceof Runnable rr) {
                 // if this is a runnable, it's just an executable unit that should be invoked
-                ((Runnable)unit).run();
+                rr.run();
 
             } else {
                 DEvent event = (DEvent)unit;
@@ -662,8 +662,8 @@ public class PresentsDObjectMgr
                     // then pass it on to the originating manager to handle
                     proxy.origManager.postEvent(event);
 
-                } else if (event instanceof CompoundEvent) {
-                    processCompoundEvent((CompoundEvent)event);
+                } else if (event instanceof CompoundEvent ce) {
+                    processCompoundEvent(ce);
 
                 } else {
                     processEvent(event);

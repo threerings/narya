@@ -203,8 +203,8 @@ public class ClientManager
     public void addClientObserver (ClientObserver observer)
     {
         _clobservers.add(observer);
-        if (observer instanceof DetailedClientObserver) {
-            _dclobservers.add((DetailedClientObserver)observer);
+        if (observer instanceof DetailedClientObserver dco) {
+            _dclobservers.add(dco);
         }
     }
 
@@ -214,8 +214,8 @@ public class ClientManager
     public void removeClientObserver (ClientObserver observer)
     {
         _clobservers.remove(observer);
-        if (observer instanceof DetailedClientObserver) {
-            _dclobservers.remove((DetailedClientObserver)observer);
+        if (observer instanceof DetailedClientObserver dco) {
+            _dclobservers.remove(dco);
         }
     }
 

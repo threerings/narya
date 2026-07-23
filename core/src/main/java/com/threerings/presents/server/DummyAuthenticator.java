@@ -30,8 +30,8 @@ public class DummyAuthenticator extends Authenticator
 
         // we need to provide some sort of authentication username
         Credentials creds = conn.getAuthRequest().getCredentials();
-        if (creds instanceof UsernamePasswordCreds) {
-            conn.setAuthName(((UsernamePasswordCreds)creds).getUsername());
+        if (creds instanceof UsernamePasswordCreds upcreds) {
+            conn.setAuthName(upcreds.getUsername());
         } else {
             conn.setAuthName(new Name(conn.getInetAddress().getHostAddress()));
         }
