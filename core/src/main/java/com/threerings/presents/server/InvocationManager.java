@@ -188,9 +188,9 @@ public class InvocationManager
         }
 
         if (dobj == null) dobj = _invobj;
-        var listener = _objectListeners.computeIfAbsent(dobj, _ -> new EventRequestListener());
+        var listener = _objectListeners.computeIfAbsent(dobj, EventRequestListener::new);
         // get the next invocation code
-        final int invCode = ++listener.lastCode;
+        final int invCode = listener.getNextCode();
         final int invOid = dobj.getOid();
 
         // create a marshaller instance and initialize it
@@ -245,13 +245,10 @@ public class InvocationManager
         });
 
         // add it to our listener
-        if (listener.dispatchers.isEmpty()) dobj.addListener(listener);
-        listener.dispatchers.put(invCode, dispatcher);
+        listener.addDispatcher(invCode, dobj, dispatcher);
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) _bootlists.put(group, marsh);
-
-        _recentRegServices.put(new InvKey(invOid, invCode), marsh.getClass().getName());
 
         log.debug("Registered service", "oid", invOid, "code", invCode, "marsh", marsh);
         return marsh;
@@ -271,28 +268,16 @@ public class InvocationManager
         }
 
         int invOid = marsh.getInvocationOid();
-        int invCode = marsh.getInvocationCode();
         DObject dobj;
         if (invOid == _invobj.getOid()) dobj = _invobj;
         else {
             dobj = _omgr.getObject(invOid);
-            if (dobj == null) return; // nothing to do
+            if (dobj == null) return; // nothing to do (TODO: log?)
         }
         var listener = _objectListeners.get(dobj);
-        if (listener == null) {
-            log.warning("Requested to remove unregistered marshaller?", "marsh", marsh,
-                        new Exception());
-            return;
-        }
-        var disp = listener.dispatchers.remove(invCode);
-        if (disp == null) {
-            log.warning("Requested to remove unregistered marshaller?", "marsh", marsh,
-                        new Exception());
-            return;
-        }
-        if (listener.dispatchers.isEmpty()) {
-            dobj.removeListener(listener);
-            // but keep the mapping around so we assign new higher invCodes for that object...
+        if (listener == null || !listener.clearDispatcher(marsh, dobj)) {
+          log.warning("Requested to remove unregistered marshaller?",
+              "marsh", marsh, new Exception());
         }
     }
 
@@ -319,14 +304,17 @@ public class InvocationManager
     {
         var listener = _objectListeners.get(_omgr.getObject(ire.getTargetOid()));
         if (listener != null) {
-            var dispatcher = listener.dispatchers.get(ire.getInvCode());
+            var dispatcher = listener.getDispatcher(ire.getInvCode());
             if (dispatcher != null) return dispatcher.getClass();
         }
         return null;
     }
 
+    /**
+     * Allow subclasses to modify behavior.
+     */
     protected Dispatcher customizeDispatcher (
-      Class<? extends InvocationMarshaller<?>> mclass, Dispatcher disp)
+        Class<? extends InvocationMarshaller<?>> mclass, Dispatcher disp)
     {
         return disp;
     }
@@ -348,13 +336,6 @@ public class InvocationManager
         if (source == null) {
             log.info("Client no longer around for invocation request", "clientOid", clientOid,
                      "code", invCode, "methId", methodId, "args", args);
-            return;
-        }
-
-        if (disp == null) {
-            log.info("Received invocation request but dispatcher registration was already cleared",
-                     "code", invCode, "methId", methodId, "args", args,
-                     "marsh", _recentRegServices.get(new InvKey(invOid, invCode)));
             return;
         }
 
@@ -398,8 +379,9 @@ public class InvocationManager
             }
 
         } catch (Throwable t) {
-            log.warning("Dispatcher choked", "provider", disp.getProvider(), "caller", source.who(),
-                        "methId", methodId, "args", args, t);
+            log.warning("Dispatcher choked",
+                "provider", disp.getProvider(), "caller", source.who(),
+                "methId", methodId, "args", args, t);
 
             // avoid logging an error when the listener notices that it's been ignored.
             if (rlist != null) {
@@ -417,18 +399,63 @@ public class InvocationManager
     protected class EventRequestListener
         implements EventListener
     {
-        /** The last code issued for this listener. */
-        public int lastCode;
+        public EventRequestListener (DObject dobj)
+        {
+            _recents = new LRUHashMap<>(dobj == _invobj ? 10000 : 20);
+        }
 
-        /** A table of invocation dispatchers each mapped by a unique code. */
-        public final IntMap<Dispatcher> dispatchers = IntMaps.newHashIntMap();
+        public int getNextCode ()
+        {
+          return ++_lastCode;
+        }
+
+        public void addDispatcher (int invCode, DObject dobj, Dispatcher dispatcher)
+        {
+            if (_dispatchers.isEmpty()) dobj.addListener(this);
+            _dispatchers.put(invCode, dispatcher);
+        }
+
+        public Dispatcher getDispatcher (int invCode)
+        {
+            return _dispatchers.get(invCode);
+        }
+
+        public boolean clearDispatcher (InvocationMarshaller<?> marsh, DObject dobj)
+        {
+            int invCode = marsh.getInvocationCode();
+            var disp = _dispatchers.remove(invCode);
+            if (disp == null) return false;
+            // we removed it. Stop listening if it was the last one. (But we stay in the Weak map)
+            if (_dispatchers.isEmpty()) {
+                dobj.removeListener(this);
+            }
+            _recents.put(invCode, marsh.getClass().getName());
+            return true;
+        }
 
         // from EventListener
         public void eventReceived (DEvent event) {
             if (event instanceof InvocationRequestEvent ire) {
-                dispatchRequest(ire, dispatchers.get(ire.getInvCode()));
+                var dispatcher = _dispatchers.get(ire.getInvCode());
+                if (dispatcher != null) dispatchRequest(ire, dispatcher);
+                else {
+                    log.info("Received invocation request but dispatcher registration was " +
+                        "already cleared",
+                        "code", ire.getInvCode(), "methId", ire.getMethodId(),
+                        "args", ire.getArgs(), "marsh", _recents.get(ire.getInvCode()));
+                }
             }
         }
+
+        /** The last code issued for this listener. */
+        protected int _lastCode;
+
+        /** A table of invocation dispatchers each mapped by a unique code. */
+        protected final IntMap<Dispatcher> _dispatchers = IntMaps.newHashIntMap();
+
+        /** Tracks recently registered services so that we can complain informatively
+         * if a request comes in on a service we don't know about. */
+        protected final Map<Integer, String> _recents;
     }
 
     protected final Map<DObject, EventRequestListener> _objectListeners = new WeakHashMap<>();
@@ -448,10 +475,4 @@ public class InvocationManager
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
     protected final Multimap<String, InvocationMarshaller<?>> _bootlists =
       ArrayListMultimap.create();
-
-    private static record InvKey (int invOid, int invCode) {}
-
-    /** Tracks recently registered services so that we can complain informatively if a request
-     * comes in on a service we don't know about. */
-    protected final Map<InvKey, String> _recentRegServices = new LRUHashMap<>(10000);
 }
