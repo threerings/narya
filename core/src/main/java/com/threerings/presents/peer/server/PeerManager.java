@@ -630,7 +630,6 @@ public abstract class PeerManager
      * releasing the proxy when it knows that there are no longer any local subscribers to the
      * object.
      */
-    @Deprecated
     public <T extends DObject> void proxyRemoteObject (
         String nodeName, int remoteOid, AccessController access, ResultListener<Integer> listener)
     {
