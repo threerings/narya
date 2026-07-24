@@ -148,14 +148,14 @@ public class PresentsDObjectMgr
         }
     }
 
-    /**
-     * Returns the access controller assigned to newly registered objects that don't specify their
-     * own, or null if none has been configured.
-     */
-    public AccessController getDefaultAccessController ()
-    {
-        return _defaultController;
-    }
+//    /**
+//     * Returns the access controller assigned to newly registered objects that don't specify their
+//     * own, or null if none has been configured.
+//     */
+//    public AccessController getDefaultAccessController ()
+//    {
+//        return _defaultController;
+//    }
 
     /**
      * Registers an object managed by another distributed object manager (probably on another

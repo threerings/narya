@@ -143,11 +143,11 @@ public class InvocationManager
 
         if (dobj != null) {
           if (dobj.getOid() == 0) throw new RuntimeException("Dobj not set yet");
-          if (dobj.getAccessController() == _omgr.getDefaultAccessController()) {
-              log.warning("Registering a service on an object with the permissive default " +
-                  "access controller; any client that can subscribe can invoke it",
-                  "dobj", dobj.getClass().getSimpleName(), "marsh", mclass.getSimpleName());
-          }
+//          if (dobj.getAccessController() == _omgr.getDefaultAccessController()) {
+//              log.warning("Registering a service on an object with the permissive default " +
+//                  "access controller; any client that can subscribe can invoke it",
+//                  "dobj", dobj.getClass().getSimpleName(), "marsh", mclass.getSimpleName());
+//          }
         }
 
         // find the invocation provider interface class (defaulting to the concrete class to cope
