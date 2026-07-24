@@ -1108,7 +1108,7 @@ public class PresentsDObjectMgr
     protected AccessController _defaultController;
 
     /** Classes already reported by {@link #noteDefaultedController}, so we log each just once. */
-    protected final Set<Class<?>> _defaultedControllerClasses = Sets.newConcurrentHashSet();
+    protected final Set<Class<?>> _defaultedControllerClasses = Sets.newHashSet();
 
     /** Maintains proxy information for any proxied distributed objects. */
     protected IntMap<ProxyReference> _proxies = IntMaps.newHashIntMap();
