@@ -264,64 +264,6 @@ public class InvocationManager
     }
 
     /**
-     * Registers the supplied invocation dispatcher, returning a marshaller that can be used to
-     * send requests to the provider for whom the dispatcher is proxying.
-     *
-     * @param dispatcher the dispatcher to be registered.
-     */
-    public final <T extends InvocationMarshaller<?>> T registerDispatcher (
-        InvocationDispatcher<T> dispatcher)
-    {
-        return registerDispatcher(dispatcher, null);
-    }
-
-    /**
-     * @deprecated use {@link #registerDispatcher(InvocationDispatcher)}.
-     */
-    @Deprecated public final <T extends InvocationMarshaller<?>> T registerDispatcher (
-        InvocationDispatcher<T> dispatcher, boolean bootstrap)
-    {
-        return registerDispatcher(dispatcher, null);
-    }
-
-    /**
-     * Registers the supplied invocation dispatcher, returning a marshaller that can be used to
-     * send requests to the provider for whom the dispatcher is proxying.
-     *
-     * @param dispatcher the dispatcher to be registered.
-     * @param group the bootstrap group in which this marshaller is to be registered, or null if it
-     * is not a bootstrap service. <em>Do not:</em> register a dispatcher with multiple boot
-     * groups. You must collect shared dispatchers into as fine grained a set of groups as
-     * necessary and have different types of clients specify the list of groups they need.
-     */
-    public <T extends InvocationMarshaller<?>> T registerDispatcher (
-        InvocationDispatcher<T> dispatcher, String group)
-    {
-        _omgr.requireEventThread(); // sanity check
-
-        // get the next invocation code
-        int invCode = nextInvCode();
-
-        // create the marshaller and initialize it
-        T marsh = dispatcher.createMarshaller();
-        marsh.init(_invoid, invCode, _standaloneClient == null ?
-            null : _standaloneClient.getInvocationDirector());
-
-        // register the dispatcher
-        _dispatchers.put(invCode, dispatcher);
-
-        // if it's a bootstrap service, slap it in the list
-        if (group != null) {
-            _bootlists.put(group, marsh);
-        }
-
-        _recentRegServices.put(Integer.valueOf(invCode), marsh.getClass().getName());
-
-        log.debug("Registered service", "code", invCode, "marsh", marsh);
-        return marsh;
-    }
-
-    /**
      * Clears out a dispatcher registration. This should be called to free up resources when an
      * invocation service is no longer going to be used.
      */

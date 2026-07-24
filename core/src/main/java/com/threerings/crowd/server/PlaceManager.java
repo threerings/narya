@@ -35,7 +35,6 @@ import com.threerings.presents.dobj.ObjectRemovedEvent;
 import com.threerings.presents.dobj.OidListListener;
 import com.threerings.presents.dobj.RootDObjectManager;
 import com.threerings.presents.dobj.SetAdapter;
-import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -587,17 +586,6 @@ public class PlaceManager
         InvocationProvider prov, Class<T> mclass)
     {
         T marsh = _invmgr.registerProvider(prov, mclass);
-        _marshallers.add(marsh);
-        return marsh;
-    }
-
-    /**
-     * Registers an invocation dispatcher and notes the registration such that it will be
-     * automatically cleared when this manager shuts down.
-     */
-    protected <T extends InvocationMarshaller<?>> T addDispatcher (InvocationDispatcher<T> disp)
-    {
-        T marsh = _invmgr.registerDispatcher(disp);
         _marshallers.add(marsh);
         return marsh;
     }

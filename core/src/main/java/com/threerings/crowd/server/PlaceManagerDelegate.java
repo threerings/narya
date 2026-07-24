@@ -7,7 +7,6 @@ package com.threerings.crowd.server;
 
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.dobj.RootDObjectManager;
-import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationManager;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -110,15 +109,6 @@ public class PlaceManagerDelegate
         InvocationProvider prov, Class<T> mclass)
     {
         return _plmgr.addProvider(prov, mclass);
-    }
-
-    /**
-     * Registers an invocation dispatcher and notes the registration such that it will be
-     * automatically cleared when our parent manager shuts down.
-     */
-    protected <T extends InvocationMarshaller<?>> T addDispatcher (InvocationDispatcher<T> disp)
-    {
-        return _plmgr.addDispatcher(disp);
     }
 
     /** A reference to the manager for which we are delegating. */

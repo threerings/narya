@@ -28,7 +28,6 @@ import com.threerings.util.ActionScript;
 import com.threerings.presents.client.InvocationService;
 import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationMarshaller;
-import com.threerings.presents.server.InvocationDispatcher;
 import com.threerings.presents.server.InvocationException;
 import com.threerings.presents.server.InvocationProvider;
 
@@ -457,7 +456,6 @@ public class GenServiceTask extends InvocationTask
         imports.add(sdesc.callerType);
 
         // add some classes required for all dispatchers
-        imports.add(InvocationDispatcher.class);
         imports.add(InvocationException.class);
 
         // import classes contained in arrays
