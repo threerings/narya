@@ -26,7 +26,7 @@ public class PresentsObjectAccess
      * Our default access controller. Disallows modification of any object but allows anyone to
      * subscribe.
      */
-    public static AccessController DEFAULT = new AccessController()
+    public static final AccessController DEFAULT = new AccessController()
     {
         // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> subscriber)
@@ -57,7 +57,7 @@ public class PresentsObjectAccess
     /**
      * Provides access control for client objects.
      */
-    public static AccessController CLIENT = new AccessController()
+    public static final AccessController CLIENT = new AccessController()
     {
         // documentation inherited from interface
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
