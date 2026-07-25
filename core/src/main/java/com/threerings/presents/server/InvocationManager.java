@@ -31,10 +31,12 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
+import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
 import com.threerings.presents.dobj.InvocationRequestEvent;
+import com.threerings.presents.dobj.Subscriber;
 import com.threerings.presents.net.Transport;
 
 import static com.threerings.presents.Log.log;
@@ -70,7 +72,16 @@ public class InvocationManager
         _omgr._invmgr = this;
 
         // create the object on which we'll listen for invocation requests
-        _invobj = _omgr.registerObject(new DObject());
+        var obj = new DObject();
+        obj.setAccessController(new AccessController() {
+          public boolean allowSubscribe (DObject object, Subscriber<?> subscriber) {
+            return false;
+          }
+          public boolean allowDispatch (DObject object, DEvent event) {
+            return event instanceof InvocationRequestEvent;
+          }
+        });
+        _invobj = _omgr.registerObject(obj);
 
         log.debug("Created invocation service object", "oid", getOid());
     }
