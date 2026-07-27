@@ -61,10 +61,22 @@ import static com.threerings.presents.Log.log;
 @Singleton
 public class InvocationManager
 {
+    @FunctionalInterface
+    public interface ServiceAccessController
+    {
+        /**
+         * May the client make a request, presently?
+         *
+         * This is optionally used if you want to provide a blanket check for all the methods
+         * that a provider provides.
+         */
+        public boolean isAllowed (ClientObject clobj);
+    }
+
     /**
      * Constructs an invocation manager which will use the supplied distributed object manager to
-     * operate its invocation services. Generally only one invocation manager should be operational
-     * in a particular system.
+     * operate its invocation services.
+     * Generally only one invocation manager should be operational in a particular system.
      */
     @Inject public InvocationManager (PresentsDObjectMgr omgr)
     {
@@ -81,9 +93,11 @@ public class InvocationManager
             return event instanceof InvocationRequestEvent;
           }
         });
-        _invobj = _omgr.registerObject(obj);
+        _omgr.registerObject(obj);
+        _invoid = obj.getOid();
+        obj.addListener((EventListener)this::eventReceived);
 
-        log.debug("Created invocation service object", "oid", getOid());
+        log.debug("Created invocation service object", "oid", _invoid);
     }
 
     /**
@@ -91,7 +105,7 @@ public class InvocationManager
      */
     public int getOid ()
     {
-        return _invobj.getOid();
+        return _invoid;
     }
 
     /**
@@ -103,28 +117,25 @@ public class InvocationManager
         return session != null && session.isSubscribed(dobj);
     }
 
-    /**
-     * Registers the supplied invocation service provider.
-     *
-     * @param provider the provider to be registered.
-     * @param mclass the class of the invocation marshaller generated for the service.
-     */
+    // Transition method
+    @Deprecated
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         DObject dobject, InvocationProvider provider, Class<T> mclass)
     {
-        return registerProvider(provider, mclass, null, dobject);
+        return registerProvider(provider, mclass, dobject);
     }
 
     /**
-     * Registers the supplied invocation service provider.
+     * Registers the supplied invocation service provider with a default access check.
      *
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
      */
+    // TODO: @Deprecated?
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
-        return registerProvider(provider, mclass, (String)null, (DObject)null);
+        return registerProvider(provider, mclass, _ -> true);
     }
 
     /**
@@ -132,34 +143,53 @@ public class InvocationManager
      *
      * @param provider the provider to be registered.
      * @param mclass the class of the invocation marshaller generated for the service.
-     * @param group the bootstrap group in which this marshaller is to be registered, or null if it
-     * is not a bootstrap service. <em>Do not:</em> register a marshaller with multiple boot
-     * groups. You must collect shared marshaller into as fine grained a set of groups as necessary
-     * and have different types of clients specify the list of groups they need.
+     * @param subscribed create a ServiceAccessController that simply checks the that the
+     * client is a present subscriber of this object.
+     */
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
+        InvocationProvider provider, Class<T> mclass, DObject subscribed)
+    {
+        return registerProvider(provider, mclass, clobj -> isSubscribed(clobj, subscribed));
+    }
+
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     * @param access an access controller for all methods in the provider.
+     */
+    public final <T extends InvocationMarshaller<?>> T registerProvider (
+        InvocationProvider provider, Class<T> mclass, ServiceAccessController access)
+    {
+        return registerProvider(provider, mclass, null, access);
+    }
+
+    /**
+     * Registers the supplied invocation service provider.
+     *
+     * @param provider the provider to be registered.
+     * @param mclass the class of the invocation marshaller generated for the service.
+     * @param group the bootstrap group in which this marshaller is to be registered,
+     * or null if it is not a bootstrap service. <em>Do not:</em> register a marshaller
+     * with multiple boot groups. You must collect shared marshaller into as fine grained
+     * a set of groups as necessary and have different types of clients specify the list
+     * of groups they need.
      */
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         final InvocationProvider provider, Class<T> mclass, String group)
     {
-        return registerProvider(provider, mclass, group, null);
+        return registerProvider(provider, mclass, group, _ -> true);
     }
 
     /**
-     * Register a provider either locally on the provied dobj or globally, and if globally
-     * optionally in a group.
+     * Register a provider, optionally in a group.
      */
     protected <T extends InvocationMarshaller<?>> T registerProvider (
-        final InvocationProvider provider, Class<T> mclass, String group, DObject dobj)
+        final InvocationProvider provider, Class<T> mclass, String group,
+        ServiceAccessController access)
     {
         _omgr.requireEventThread(); // sanity check
-
-        if (dobj != null) {
-          if (dobj.getOid() == 0) throw new RuntimeException("Dobj not set yet");
-//          if (dobj.getAccessController() == _omgr.getDefaultAccessController()) {
-//              log.warning("Registering a service on an object with the permissive default " +
-//                  "access controller; any client that can subscribe can invoke it",
-//                  "dobj", dobj.getClass().getSimpleName(), "marsh", mclass.getSimpleName());
-//          }
-        }
 
         // find the invocation provider interface class (defaulting to the concrete class to cope
         // with legacy non-interface based providers)
@@ -198,24 +228,25 @@ public class InvocationManager
             }
         }
 
-        if (dobj == null) dobj = _invobj;
-        var listener = _objectListeners.computeIfAbsent(dobj, EventRequestListener::new);
         // get the next invocation code
-        final int invCode = listener.getNextCode();
-        final int invOid = dobj.getOid();
+        final int invCode = ++_lastCode;
 
         // create a marshaller instance and initialize it
         T marsh;
         try {
             marsh = mclass.getConstructor().newInstance();
-            marsh.init(invOid, invCode,
+            marsh.init(_invoid, invCode,
                 _standaloneClient == null ? null : _standaloneClient.getInvocationDirector());
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                  InstantiationException ee) {
             throw new RuntimeException(ee);
         }
 
-        final Dispatcher dispatcher = customizeDispatcher(mclass, new Dispatcher() {
+        _dispatchers.put(invCode, customizeDispatcher(mclass, new Dispatcher() {
+            public boolean isAllowed (ClientObject caller) {
+                return access.isAllowed(caller);
+            }
+
             public InvocationProvider getProvider () {
                 return provider;
             }
@@ -253,23 +284,26 @@ public class InvocationManager
                     }
                 }
             }
-        });
-
-        // add it to our listener
-        listener.addDispatcher(invCode, dobj, dispatcher);
+        }));
 
         // if it's a bootstrap service, slap it in the list
         if (group != null) _bootlists.put(group, marsh);
 
-        log.debug("Registered service", "oid", invOid, "code", invCode, "marsh", marsh);
+        log.debug("Registered service", "code", invCode, "marsh", marsh);
         return marsh;
     }
 
+    // @Deprecated? Old name.
+    public void clearDispatcher (InvocationMarshaller<?> marsh)
+    {
+        clearProvider(marsh);
+    }
+
     /**
-     * Clears out a dispatcher registration. This should be called to free up resources when an
+     * Clears out a provider registration. This should be called to free up resources when an
      * invocation service is no longer going to be used.
      */
-    public void clearDispatcher (InvocationMarshaller<?> marsh)
+    public void clearProvider (InvocationMarshaller<?> marsh)
     {
         _omgr.requireEventThread(); // sanity check
 
@@ -278,18 +312,14 @@ public class InvocationManager
             return;
         }
 
-        int invOid = marsh.getInvocationOid();
-        DObject dobj;
-        if (invOid == _invobj.getOid()) dobj = _invobj;
-        else {
-            dobj = _omgr.getObject(invOid);
-            if (dobj == null) return; // nothing to do (TODO: log?)
+        int invCode = marsh.getInvocationCode();
+        var dispatcher = _dispatchers.remove(invCode);
+        if (dispatcher == null) {
+            log.warning("Requested to remove unregistered marshaller?",
+                "marsh", marsh, new Exception());
+            return;
         }
-        var listener = _objectListeners.get(dobj);
-        if (listener == null || !listener.clearDispatcher(marsh, dobj)) {
-          log.warning("Requested to remove unregistered marshaller?",
-              "marsh", marsh, new Exception());
-        }
+        _recentRemServices.put(invCode, marsh.getClass().getName());
     }
 
     /**
@@ -313,12 +343,8 @@ public class InvocationManager
      */
     public Class<?> getDispatcherClass (InvocationRequestEvent ire)
     {
-        var listener = _objectListeners.get(_omgr.getObject(ire.getTargetOid()));
-        if (listener != null) {
-            var dispatcher = listener.getDispatcher(ire.getInvCode());
-            if (dispatcher != null) return dispatcher.getClass();
-        }
-        return null;
+        var dispatcher = _dispatchers.get(ire.getInvCode());
+        return dispatcher != null ? dispatcher.getClass() : null;
     }
 
     /**
@@ -331,13 +357,14 @@ public class InvocationManager
     }
 
     /**
-     * Called when we receive an invocation request message. Dispatches the request to the
-     * appropriate invocation provider via the registered invocation dispatcher.
+     * Conforms to EventListener.eventReceived, but we don't implement the interface.
      */
-    protected void dispatchRequest (InvocationRequestEvent ire, Dispatcher disp)
+    protected void eventReceived (DEvent event)
     {
+        log.debug("Event received", "event", event);
+        // TODO: just cast it? What else can it be?
+        if (!(event instanceof InvocationRequestEvent ire)) return;
         int clientOid = ire.getSourceOid();
-        int invOid = ire.getTargetOid();
         int invCode = ire.getInvCode();
         int methodId = ire.getMethodId();
         Object[] args = ire.getArgs();
@@ -349,6 +376,16 @@ public class InvocationManager
                      "code", invCode, "methId", methodId, "args", args);
             return;
         }
+
+        // look up the dispatcher
+        Dispatcher disp = _dispatchers.get(invCode);
+        if (disp == null) {
+            log.info("Received invocation request but provider registration is already cleared",
+                     "code", invCode, "methId", methodId, "args", args,
+                     "marsh", _recentRemServices.get(Integer.valueOf(invCode)));
+            return;
+        }
+
 
         // scan the args, initializing any listeners and keeping track of the "primary" listener
         ListenerMarshaller rlist = null;
@@ -365,6 +402,15 @@ public class InvocationManager
                     rlist = list;
                 }
             }
+        }
+
+        // try the top-level check
+        if (!disp.isAllowed(source)) {
+            log.info("Received invocation request but client not (or no longer) allowed",
+                       "code", invCode, "methId", methodId, "args", args,
+                       "provider", disp.getProvider());
+            if (rlist != null) rlist.requestFailed(InvocationCodes.E_INTERNAL_ERROR);
+            return;
         }
 
         log.debug("Dispatching invreq", "caller", source.who(), "provider", disp.getProvider(),
@@ -402,88 +448,35 @@ public class InvocationManager
     }
 
     protected interface Dispatcher {
+        public boolean isAllowed (ClientObject source);
         public InvocationProvider getProvider ();
         public void dispatchRequest (ClientObject source, int methodId, Object[] args)
             throws InvocationException;
     }
 
-    protected class EventRequestListener
-        implements EventListener
-    {
-        public EventRequestListener (DObject dobj)
-        {
-            _recents = new LRUHashMap<>(dobj == _invobj ? 10000 : 20);
-        }
+    /** The object id on which we receive global invocation service requests. */
+    protected final int _invoid;
 
-        public int getNextCode ()
-        {
-          return ++_lastCode;
-        }
-
-        public void addDispatcher (int invCode, DObject dobj, Dispatcher dispatcher)
-        {
-            if (_dispatchers.isEmpty()) dobj.addListener(this);
-            _dispatchers.put(invCode, dispatcher);
-        }
-
-        public Dispatcher getDispatcher (int invCode)
-        {
-            return _dispatchers.get(invCode);
-        }
-
-        public boolean clearDispatcher (InvocationMarshaller<?> marsh, DObject dobj)
-        {
-            int invCode = marsh.getInvocationCode();
-            var disp = _dispatchers.remove(invCode);
-            if (disp == null) return false;
-            // we removed it. Stop listening if it was the last one. (But we stay in the Weak map)
-            if (_dispatchers.isEmpty()) {
-                dobj.removeListener(this);
-            }
-            _recents.put(invCode, marsh.getClass().getName());
-            return true;
-        }
-
-        // from EventListener
-        public void eventReceived (DEvent event) {
-            if (event instanceof InvocationRequestEvent ire) {
-                var dispatcher = _dispatchers.get(ire.getInvCode());
-                if (dispatcher != null) dispatchRequest(ire, dispatcher);
-                else {
-                    log.info("Received invocation request but dispatcher registration was " +
-                        "already cleared",
-                        "code", ire.getInvCode(), "methId", ire.getMethodId(),
-                        "args", ire.getArgs(), "marsh", _recents.get(ire.getInvCode()));
-                }
-            }
-        }
-
-        /** The last code issued for this listener. */
-        protected int _lastCode;
-
-        /** A table of invocation dispatchers each mapped by a unique code. */
-        protected final IntMap<Dispatcher> _dispatchers = IntMaps.newHashIntMap();
-
-        /** Tracks recently registered services so that we can complain informatively
-         * if a request comes in on a service we don't know about. */
-        protected final Map<Integer, String> _recents;
-    }
-
-    protected final Map<DObject, EventRequestListener> _objectListeners = new WeakHashMap<>();
-
-    /** The object on which we receive global invocation service requests. */
-    protected final DObject _invobj;
-
-    /** A reference to the standalone client, if any. */
-    @Inject(optional=true) protected Client _standaloneClient;
+    /** The last code we assigned to a provider. */
+    protected int _lastCode;
 
     /** The ClientManager. */
     @Inject protected ClientManager _clmgr;
 
+    /** A reference to the standalone client, if any. */
+    @Inject(optional=true) protected Client _standaloneClient;
+
     /** The distributed object manager we're working with. */
     protected PresentsDObjectMgr _omgr;
+
+    /** A table of invocation dispatchers each mapped by a unique code. */
+    protected final IntMap<Dispatcher> _dispatchers = IntMaps.newHashIntMap();
 
     /** Maps bootstrap group to lists of services to be provided to clients at boot time. */
     protected final Multimap<String, InvocationMarshaller<?>> _bootlists =
       ArrayListMultimap.create();
+
+    /** Tracks recently removed services so that we can complain informatively if a request
+     * comes in on a service we don't know about. */
+    protected final Map<Integer, String> _recentRemServices = new LRUHashMap<>(10000);
 }
