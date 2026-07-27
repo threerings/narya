@@ -224,11 +224,6 @@ public class InvocationMarshaller<T extends ClientObject>
         _invOid = invOid;
     }
 
-    public int getInvocationOid ()
-    {
-      return _invOid;
-    }
-
     /**
      * Returns the code assigned to this marshaller.
      */
