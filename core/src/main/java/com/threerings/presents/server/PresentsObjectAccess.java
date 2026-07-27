@@ -9,8 +9,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
-import com.threerings.presents.dobj.InvocationRequestEvent;
-import com.threerings.presents.dobj.MessageEvent;
 import com.threerings.presents.dobj.NamedEvent;
 import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.dobj.Subscriber;
@@ -39,18 +37,7 @@ public class PresentsObjectAccess
         public boolean allowDispatch (DObject object, DEvent event)
         {
             // if the event came from the server, it's cool
-            if (event.getSourceOid() == -1) {
-                return true;
-
-            } else {
-                // if it came from the client, it better be an invocation request...
-                if (event instanceof InvocationRequestEvent) {
-                    return true;
-                }
-                log.warning("Client tried to send a (newly blocked in 2026) illegal event",
-                    "event", event);
-                return false;
-            }
+            return event.getSourceOid() == -1;
         }
     };
 
