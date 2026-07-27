@@ -344,7 +344,7 @@ public class InvocationManager
     public Class<?> getDispatcherClass (InvocationRequestEvent ire)
     {
         var dispatcher = _dispatchers.get(ire.getInvCode());
-        return dispatcher != null ? dispatcher.getClass() : null;
+        return dispatcher != null ? dispatcher.getProvider().getClass() : null;
     }
 
     /**
