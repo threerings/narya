@@ -462,20 +462,7 @@ public class PlaceManager
      */
     protected PlaceObject createPlaceObject ()
     {
-        try {
-            return getPlaceObjectClass().getConstructor().newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * @deprecated Use {@link #createPlaceObject}.
-     */
-    @Deprecated
-    protected Class<? extends PlaceObject> getPlaceObjectClass ()
-    {
-        return PlaceObject.class;
+        return new PlaceObject();
     }
 
     /**

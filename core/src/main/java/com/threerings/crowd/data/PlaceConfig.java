@@ -31,37 +31,9 @@ import static com.threerings.crowd.Log.log;
 public abstract class PlaceConfig extends SimpleStreamableObject
 {
     /**
-     * Returns the class that should be used to create a controller for this
-     * place. The controller class must derive from {@link PlaceController}.
-     *
-     * @deprecated Override {@link #createController} directly.
-     */
-    @Deprecated
-    public Class<?> getControllerClass ()
-    {
-        return null;
-    }
-
-    /**
      * Create the controller that should be used for this place.
      */
-    public PlaceController createController ()
-    {
-        Class<?> cclass = getControllerClass();
-        if (cclass == null) {
-            throw new RuntimeException(
-                "PlaceConfig.createController() must be overridden.");
-        }
-
-        log.warning("Providing backwards compatibility. PlaceConfig." +
-                    "createController() should be overridden directly.");
-        try {
-            return (PlaceController)cclass.getConstructor().newInstance();
-        } catch (Exception e) {
-            log.warning("Failed to instantiate controller class '" + cclass + "'.", e);
-            return null;
-        }
-    }
+    public abstract PlaceController createController ();
 
     /**
      * Returns the name of the class that should be used to create a manager

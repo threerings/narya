@@ -279,20 +279,6 @@ public class InvocationMarshaller<T extends ClientObject>
         _invdir.sendRequest(_invOid, _invCode, methodId, args, transport);
     }
 
-    /** @deprecated use client-argument-free version. */
-    @Deprecated
-    protected void sendRequest (Client client, int methodId, Object[] args)
-    {
-        sendRequest(client, methodId, args, Transport.DEFAULT);
-    }
-
-    /** @deprecated use client-argument-free version. */
-    @Deprecated
-    protected void sendRequest (Client client, int methodId, Object[] args, Transport transport)
-    {
-        client.getInvocationDirector().sendRequest(_invOid, _invCode, methodId, args, transport);
-    }
-
     /** The oid of the invocation object, where invocation service requests are sent. */
     protected int _invOid;
 

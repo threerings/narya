@@ -614,13 +614,6 @@ public abstract class PeerManager
         invokeNodeRequest(nodeName, flattenRequest(request), listener);
     }
 
-    @Deprecated
-    public <T extends DObject> void proxyRemoteObject (
-        String nodeName, int remoteOid, ResultListener<Integer> listener)
-    {
-        proxyRemoteObject(nodeName, remoteOid, null, listener);
-    }
-
     /**
      * Initiates a proxy on an object that is managed by the specified peer. The object will be
      * proxied into this server's distributed object space and its local oid reported back to the

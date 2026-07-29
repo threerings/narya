@@ -108,17 +108,6 @@ public abstract class PlaceController extends Controller
      */
     protected PlaceView createPlaceView (CrowdContext ctx)
     {
-        return createPlaceView();
-    }
-
-    /**
-     * Obsolete but retained for runtime compatibility with the old and busted.
-     *
-     * @deprecated Use {@link #createPlaceView(CrowdContext)}.
-     */
-    @Deprecated
-    protected PlaceView createPlaceView ()
-    {
         return null;
     }
 

@@ -197,19 +197,6 @@ public class DSet<E extends DSet.Entry>
      * Returns an iterator over the entries of this set. It does not support modification (nor
      * iteration while modifications are being made to the set). It should not be kept around as it
      * can quickly become out of date.
-     *
-     * @deprecated
-     */
-    @Deprecated
-    public Iterator<E> entries ()
-    {
-        return iterator();
-    }
-
-    /**
-     * Returns an iterator over the entries of this set. It does not support modification (nor
-     * iteration while modifications are being made to the set). It should not be kept around as it
-     * can quickly become out of date.
      */
     public Iterator<E> iterator ()
     {
@@ -280,26 +267,6 @@ public class DSet<E extends DSet.Entry>
         ArrayList<E> list = new ArrayList<E>(size());
         for (E elem : this) list.add(elem);
         return list;
-    }
-
-    /** @deprecated use {@link #clone} or {@link #toArrayList}. */
-    @Deprecated
-    public E[] toArray (E[] array)
-    {
-        if (array == null) {
-            @SuppressWarnings("unchecked") E[] copy = (E[])new Entry[size()];
-            array = copy;
-        }
-        System.arraycopy(_entries, 0, array, 0, array.length);
-        return array;
-    }
-
-    /** @deprecated use {@link #clone} or {@link #toArrayList}. */
-    @Deprecated
-    public Object[] toArray (Object[] array)
-    {
-        @SuppressWarnings("unchecked") E[] casted = (E[])array;
-        return toArray(casted);
     }
 
     /**
@@ -439,17 +406,6 @@ public class DSet<E extends DSet.Entry>
     protected int getWarningSize ()
     {
         return DEFAULT_WARNING_SIZE;
-    }
-
-    /**
-     * Generates a shallow copy of this object in a type safe manner.
-     *
-     * @deprecated clone() works just fine now.
-     */
-    @Deprecated
-    public DSet<E> typedClone ()
-    {
-        return clone();
     }
 
     /**
