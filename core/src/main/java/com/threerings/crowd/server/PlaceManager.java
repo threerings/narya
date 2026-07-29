@@ -251,7 +251,7 @@ public class PlaceManager
         // to speak in this place
         if (shouldCreateSpeakService()) {
             plobj.setSpeakService(
-                addLocalProvider(createSpeakHandler(plobj), SpeakMarshaller.class));
+                addProvider(createSpeakHandler(plobj), SpeakMarshaller.class, true));
         }
 
         // we'll need to hear about place object events
@@ -567,10 +567,7 @@ public class PlaceManager
         cancelShutdowner();
     }
 
-    /**
-     * Registers an invocation provider and notes the registration such that it will be
-     * automatically cleared when this manager shuts down.
-     */
+    @Deprecated // fast migration off of this...
     protected final <T extends InvocationMarshaller<?>> T addLocalProvider (
         InvocationProvider prov, Class<T> mclass)
     {
@@ -587,7 +584,29 @@ public class PlaceManager
     protected final <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        T marsh = _invmgr.registerProvider(prov, mclass);
+        return addProvider(prov, mclass, false);
+    }
+
+    /**
+     * Registers an invocation provider and notes the registration such that it will be
+     * automatically cleared when this manager shuts down.
+     */
+    protected final <T extends InvocationMarshaller<?>> T addProvider (
+        InvocationProvider prov, Class<T> mclass, boolean requireSubscribe)
+    {
+        return addProvider(prov, mclass,
+            requireSubscribe ? cli -> _invmgr.isSubscribed(cli, _plobj) : _ -> true);
+    }
+
+    /**
+     * Registers an invocation provider and notes the registration such that it will be
+     * automatically cleared when this manager shuts down.
+     */
+    protected final <T extends InvocationMarshaller<?>> T addProvider (
+        InvocationProvider prov, Class<T> mclass,
+        InvocationManager.ServiceAccessController access)
+    {
+        T marsh = _invmgr.registerProvider(prov, mclass, access);
         _marshallers.add(marsh);
         return marsh;
     }

@@ -94,21 +94,29 @@ public class PlaceManagerDelegate
         return _plmgr.where();
     }
 
-    /**
-     * Registers an invocation provider that will only be accessible to subscribers of this
-     * placeObject.
-     */
-    protected <T extends InvocationMarshaller<?>> T addLocalProvider (
+    @Deprecated // fast migration
+    protected final <T extends InvocationMarshaller<?>> T addLocalProvider (
         InvocationProvider prov, Class<T> mclass)
     {
         return _plmgr.addLocalProvider(prov, mclass);
     }
 
+    // ?? TODO: keep this around?
     @Deprecated
-    protected <T extends InvocationMarshaller<?>> T addProvider (
+    protected final <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        return _plmgr.addProvider(prov, mclass);
+        return addProvider(prov, mclass, _ -> true);
+    }
+
+    /**
+     * Registers an invocation provider.
+     */
+    protected <T extends InvocationMarshaller<?>> T addProvider (
+        InvocationProvider prov, Class<T> mclass,
+        InvocationManager.ServiceAccessController access)
+    {
+        return _plmgr.addProvider(prov, mclass, access);
     }
 
     /** A reference to the manager for which we are delegating. */
