@@ -403,7 +403,7 @@ public class StreamableTest
         assertEquals(tup, otup);
     }
 
-    //@Test(expected=IOException.class)
+    @Test(expected=IOException.class)
     public void testUnlabledClosureFail ()
         throws IOException, ClassNotFoundException
     {
@@ -421,7 +421,7 @@ public class StreamableTest
         assertEquals(act.act(), react.act());
     }
 
-    //@Test(expected=IOException.class)
+    @Test(expected=IOException.class)
     public void testClosure ()
         throws IOException, ClassNotFoundException
     {
@@ -443,7 +443,7 @@ public class StreamableTest
     // unfortunately we can't warn you if you do something naughty in your closure, but since we
     // flatten and unflatten closures even when running on the local peer, the programmer should
     // find about about funny business early enough
-    @Test(expected=Exception.class)
+    @Test(expected=IOException.class)
     public void testNaughtyClosureFail ()
         throws IOException, ClassNotFoundException
     {
