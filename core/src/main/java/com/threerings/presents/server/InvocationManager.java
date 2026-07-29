@@ -100,6 +100,12 @@ public class InvocationManager
         log.debug("Created invocation service object", "oid", _invoid);
     }
 
+    // TEMP? Guice fails to inject this on some servers. Let's manually init it.
+    public void setClientManager (ClientManager clmgr)
+    {
+        _clmgr = clmgr;
+    }
+
     /**
      * Returns the object id of the invocation services object.
      */
@@ -113,6 +119,11 @@ public class InvocationManager
      */
     public boolean isSubscribed (ClientObject client, DObject dobj)
     {
+        if (_clmgr == null) {
+            log.warning("Subscription validation unavailable until after the clmgr is set!" +
+                " Returning false...");
+            return false;
+        }
         var session = _clmgr.getClient(client.username);
         return session != null && session.isSubscribed(dobj);
     }
@@ -461,7 +472,7 @@ public class InvocationManager
     protected int _lastCode;
 
     /** The ClientManager. */
-    @Inject protected ClientManager _clmgr;
+    protected ClientManager _clmgr;
 
     /** A reference to the standalone client, if any. */
     @Inject(optional=true) protected Client _standaloneClient;
