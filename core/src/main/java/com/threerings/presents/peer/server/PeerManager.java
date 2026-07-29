@@ -1026,7 +1026,7 @@ public abstract class PeerManager
 
         // clear out our invocation service
         if (_nodeobj != null) {
-            _invmgr.clearDispatcher(_nodeobj.peerService);
+            _invmgr.clearProvider(_nodeobj.peerService);
         }
 
         // clear out our client observer registration

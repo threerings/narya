@@ -552,7 +552,7 @@ public class PlaceManager
 
         // clear out our invocation service registrations
         for (InvocationMarshaller<?> marsh : _marshallers) {
-            _invmgr.clearDispatcher(marsh);
+            _invmgr.clearProvider(marsh);
         }
 
         // let our delegates know that we've shut down

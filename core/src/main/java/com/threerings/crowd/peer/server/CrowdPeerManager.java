@@ -103,7 +103,7 @@ public abstract class CrowdPeerManager extends PeerManager
 
         // unregister our invocation service
         if (_nodeobj != null) {
-            _invmgr.clearDispatcher(((CrowdNodeObject)_nodeobj).crowdPeerService);
+            _invmgr.clearProvider(((CrowdNodeObject)_nodeobj).crowdPeerService);
         }
 
         // clear our chat forwarder registration
