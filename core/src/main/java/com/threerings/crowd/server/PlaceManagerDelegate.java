@@ -94,13 +94,6 @@ public class PlaceManagerDelegate
         return _plmgr.where();
     }
 
-    @Deprecated // fast migration
-    protected final <T extends InvocationMarshaller<?>> T addLocalProvider (
-        InvocationProvider prov, Class<T> mclass)
-    {
-        return _plmgr.addLocalProvider(prov, mclass);
-    }
-
     // ?? TODO: keep this around?
     @Deprecated
     protected final <T extends InvocationMarshaller<?>> T addProvider (

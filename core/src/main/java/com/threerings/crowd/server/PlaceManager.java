@@ -554,15 +554,6 @@ public class PlaceManager
         cancelShutdowner();
     }
 
-    @Deprecated // fast migration off of this...
-    protected final <T extends InvocationMarshaller<?>> T addLocalProvider (
-        InvocationProvider prov, Class<T> mclass)
-    {
-        T marsh = _invmgr.registerProvider(prov, mclass, _plobj);
-        _marshallers.add(marsh);
-        return marsh;
-    }
-
     /**
      * Registers an invocation provider and notes the registration such that it will be
      * automatically cleared when this manager shuts down.
