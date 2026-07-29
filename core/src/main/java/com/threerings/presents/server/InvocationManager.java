@@ -128,14 +128,6 @@ public class InvocationManager
         return session != null && session.isSubscribed(dobj);
     }
 
-    // Transition method
-    @Deprecated
-    public final <T extends InvocationMarshaller<?>> T registerProvider (
-        DObject dobject, InvocationProvider provider, Class<T> mclass)
-    {
-        return registerProvider(provider, mclass, dobject);
-    }
-
     /**
      * Registers the supplied invocation service provider with a default access check.
      *
@@ -305,7 +297,7 @@ public class InvocationManager
     }
 
     // @Deprecated? Old name.
-    public void clearDispatcher (InvocationMarshaller<?> marsh)
+    public final void clearDispatcher (InvocationMarshaller<?> marsh)
     {
         clearProvider(marsh);
     }
