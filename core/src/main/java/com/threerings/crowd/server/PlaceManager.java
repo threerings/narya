@@ -190,7 +190,7 @@ public class PlaceManager
             didInit();
         } catch (Throwable t) {
             String where;
-            try { where = where(); } catch (Exception _) { where = "<unknown>"; }
+            try { where = where(); } catch (Exception e) { where = "<unknown>"; }
             log.warning("Manager choked in didInit()", "where", where, t);
         }
     }
