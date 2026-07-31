@@ -16,7 +16,7 @@
     <dependency>
       <groupId>com.threerings</groupId>
       <artifactId>ooo-util</artifactId>
-      <version>1.5</version>
+      <version>1.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.google.inject</groupId>
