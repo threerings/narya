@@ -9,6 +9,7 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
+import com.threerings.presents.dobj.InvocationRequestEvent;
 import com.threerings.presents.dobj.NamedEvent;
 import com.threerings.presents.dobj.ProxySubscriber;
 import com.threerings.presents.dobj.Subscriber;
@@ -18,35 +19,20 @@ import static com.threerings.presents.Log.log;
 /**
  * Defines the various object access controllers used by the Presents server.
  */
-public class PresentsObjectAccess
+public enum PresentsObjectAccess implements AccessController
 {
-    /**
-     * Our default access controller. Disallows modification of any object but allows anyone to
-     * subscribe.
-     */
-    public static final AccessController DEFAULT = new AccessController()
-    {
-        // documentation inherited from interface
+    /** Anyone may subscribe, but only the server may dispatch events. */
+    DEFAULT {
+        // from AccessController
         public boolean allowSubscribe (DObject object, Subscriber<?> subscriber)
         {
-            // allow anyone to subscribe
             return true;
         }
+    },
 
-        // documentation inherited from interface
-        public boolean allowDispatch (DObject object, DEvent event)
-        {
-            // if the event came from the server, it's cool
-            return event.getSourceOid() == -1;
-        }
-    };
-
-    /**
-     * Provides access control for client objects.
-     */
-    public static final AccessController CLIENT = new AccessController()
-    {
-        // documentation inherited from interface
+    /** Provides access control for client objects. */
+    CLIENT {
+        // from AccessController
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
             // if the subscriber is a client, ensure that they are this same user
@@ -61,17 +47,28 @@ public class PresentsObjectAccess
             return true;
         }
 
-        // documentation inherited from interface
+        @Override
         public boolean allowDispatch (DObject object, DEvent event)
         {
-            // if the event came from the server, it's cool
-            if (event.getSourceOid() == -1) {
-                return true;
-            }
-
-            // the client is only allowed to modify the RECEIVERS field
-            return event instanceof NamedEvent namedEvent &&
-                   namedEvent.getName().equals(ClientObject.RECEIVERS);
+            if (super.allowDispatch(object, event)) return true;
+            // the client is only allowed to modify its own RECEIVERS field
+            return event.getSourceOid() == object.getOid() &&
+                    event instanceof NamedEvent namedEvent &&
+                    ClientObject.RECEIVERS.equals(namedEvent.getName());
         }
-    };
+    },
+
+    /** Handles the invocation service access. */
+    INVOCATION {
+        @Override
+        public boolean allowDispatch (DObject object, DEvent event)
+        {
+            return event instanceof InvocationRequestEvent;
+        }
+    },
+
+    /** Allows nobody to subscribe. */
+    PRIVATE,
+
+    ; // end of enum constants
 }

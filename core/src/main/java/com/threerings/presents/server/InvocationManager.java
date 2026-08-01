@@ -31,7 +31,6 @@ import com.threerings.presents.data.ClientObject;
 import com.threerings.presents.data.InvocationCodes;
 import com.threerings.presents.data.InvocationMarshaller;
 import com.threerings.presents.data.InvocationMarshaller.ListenerMarshaller;
-import com.threerings.presents.dobj.AccessController;
 import com.threerings.presents.dobj.DEvent;
 import com.threerings.presents.dobj.DObject;
 import com.threerings.presents.dobj.EventListener;
@@ -85,14 +84,7 @@ public class InvocationManager
 
         // create the object on which we'll listen for invocation requests
         var obj = new DObject();
-        obj.setAccessController(new AccessController() {
-          public boolean allowSubscribe (DObject object, Subscriber<?> subscriber) {
-            return false;
-          }
-          public boolean allowDispatch (DObject object, DEvent event) {
-            return event instanceof InvocationRequestEvent;
-          }
-        });
+        obj.setAccessController(PresentsObjectAccess.INVOCATION);
         _omgr.registerObject(obj);
         _invoid = obj.getOid();
         obj.addListener((EventListener)this::eventReceived);
