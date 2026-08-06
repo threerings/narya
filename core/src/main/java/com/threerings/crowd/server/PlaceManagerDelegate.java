@@ -99,7 +99,7 @@ public class PlaceManagerDelegate
     protected final <T extends InvocationMarshaller<?>> T addProvider (
         InvocationProvider prov, Class<T> mclass)
     {
-        return addProvider(prov, mclass, _ -> true);
+        return addProvider(prov, mclass, clobj -> true);
     }
 
     /**

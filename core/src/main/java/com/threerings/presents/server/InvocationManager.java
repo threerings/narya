@@ -130,7 +130,7 @@ public class InvocationManager
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         InvocationProvider provider, Class<T> mclass)
     {
-        return registerProvider(provider, mclass, _ -> true);
+        return registerProvider(provider, mclass, clobj -> true);
     }
 
     /**
@@ -174,7 +174,7 @@ public class InvocationManager
     public final <T extends InvocationMarshaller<?>> T registerProvider (
         final InvocationProvider provider, Class<T> mclass, String group)
     {
-        return registerProvider(provider, mclass, group, _ -> true);
+        return registerProvider(provider, mclass, group, clobj -> true);
     }
 
     /**

@@ -190,7 +190,7 @@ public class PlaceManager
             didInit();
         } catch (Throwable t) {
             String where;
-            try { where = where(); } catch (Exception _) { where = "<unknown>"; }
+            try { where = where(); } catch (Exception e2) { where = "<unknown>"; }
             log.warning("Manager choked in didInit()", "where", where, t);
         }
     }
@@ -573,7 +573,7 @@ public class PlaceManager
         InvocationProvider prov, Class<T> mclass, boolean requireSubscribe)
     {
         return addProvider(prov, mclass,
-            requireSubscribe ? cli -> _invmgr.isSubscribed(cli, _plobj) : _ -> true);
+            requireSubscribe ? clobj -> _invmgr.isSubscribed(clobj, _plobj) : clobj -> true);
     }
 
     /**
