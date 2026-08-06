@@ -403,7 +403,12 @@ public class StreamableTest
         assertEquals(tup, otup);
     }
 
-    @Test(expected=IOException.class)
+    // unlike testClosure/testNaughtyClosureFail below, this failure is not sensitive to the
+    // compiler's --release target: it's tripped by field-type analysis in
+    // FieldMarshaller.getFieldMarshaller (this$0 is of type StreamableTest, which isn't
+    // Streamable), not by whether javac inserts a null check on the enclosing-instance
+    // constructor parameter.
+    @Test(expected=RuntimeException.class)
     public void testUnlabledClosureFail ()
         throws IOException, ClassNotFoundException
     {
@@ -413,7 +418,9 @@ public class StreamableTest
         Action act = new Action() {
             @Override
             public String act () {
-                return "bang!";
+                // must actually reach out to the enclosing instance, otherwise a sufficiently
+                // clever compiler can elide the (unused) enclosing instance reference entirely
+                return "bang! " + unsafeOuterCall();
             }
         };
         Action react = (Action)unflatten(flatten(act));
@@ -421,7 +428,17 @@ public class StreamableTest
         assertEquals(act.act(), react.act());
     }
 
-    @Test(expected=IOException.class)
+    // NOTE: whether this test needs expected=IOException.class depends on the compiler's
+    // --release target. javac's codegen for the synthetic enclosing-instance constructor
+    // parameter of a local/anonymous class changed across releases: under --release 21 (current)
+    // the parameter is stored/passed with no null check, so unflatten() happily constructs this
+    // closure with a bogus null enclosing instance and the round-trip below succeeds; under
+    // --release 25 javac inserts an Objects.requireNonNull() check on that parameter, so the
+    // bogus null passed by Streamer.initConstructor() throws NPE, wrapped by
+    // Streamer.createObject() into an IOException, and the round-trip below never happens. If we
+    // bump the release and this test starts failing with an unexpected IOException, that's why:
+    // re-add expected=IOException.class here.
+    @Test
     public void testClosure ()
         throws IOException, ClassNotFoundException
     {
@@ -443,7 +460,16 @@ public class StreamableTest
     // unfortunately we can't warn you if you do something naughty in your closure, but since we
     // flatten and unflatten closures even when running on the local peer, the programmer should
     // find about about funny business early enough
-    @Test(expected=IOException.class)
+    //
+    // NOTE: same --release sensitivity as testClosure above. Under --release 21 the enclosing
+    // instance reference this$0 is nulled out (rather than being caught by a compiler-inserted
+    // null check) and unflatten() succeeds, so the naughty closure fails only once act() is
+    // called and dereferences the null this$0 -- hence expected=NullPointerException.class here.
+    // Under --release 25 the bogus null blows up inside Streamer.createObject() during
+    // unflatten() itself, wrapped as an IOException, before act() is ever invoked. If we bump the
+    // release and this test starts failing with an unexpected IOException, switch this back to
+    // expected=IOException.class.
+    @Test(expected=NullPointerException.class)
     public void testNaughtyClosureFail ()
         throws IOException, ClassNotFoundException
     {
