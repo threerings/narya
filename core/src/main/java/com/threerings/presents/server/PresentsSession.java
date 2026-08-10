@@ -270,7 +270,7 @@ public class PresentsSession
                 _clmgr.releaseClientObject(_clobj.username);
 
                 // update our internal fields
-                _clobj = clobj;
+                setClientObject(clobj);
 
                 // call down to any derived classes
                 clientObjectDidChange(_clobj);
@@ -367,7 +367,7 @@ public class PresentsSession
         _clmgr.clearSession(this);
 
         // clear out the client object so that we know the session is over
-        _clobj = null;
+        setClientObject(null);
     }
 
     /**
@@ -390,7 +390,7 @@ public class PresentsSession
     public void clientResolved (Name username, ClientObject clobj)
     {
         // we'll be keeping this bad boy
-        _clobj = clobj;
+        setClientObject(clobj);
 
         // if our connection was closed while we were resolving our client object, then just
         // abandon ship
@@ -478,6 +478,36 @@ public class PresentsSession
      */
     protected void clientObjectDidChange (ClientObject newClobj)
     {
+    }
+
+    /**
+     * Sets the client object that this session currently owns, maintaining the {@link
+     * ClientLocal#session} back reference on both the outgoing and incoming objects. All
+     * assignments to {@link #_clobj} must go through here so that a client object can always be
+     * mapped back to the session that owns it.
+     *
+     * @param clobj the client object now owned by this session, or null if the session is over.
+     */
+    protected void setClientObject (ClientObject clobj)
+    {
+        setLocalSession(_clobj, null);
+        _clobj = clobj;
+        setLocalSession(_clobj, this);
+    }
+
+    /**
+     * Points the supplied client object's {@link ClientLocal#session} at the supplied session,
+     * tolerating a null client object and a client object with no local attribute.
+     *
+     * @param clobj the client object to update; ignored if null.
+     * @param session the owning session, or null to clear the reference.
+     */
+    protected static void setLocalSession (ClientObject clobj, PresentsSession session)
+    {
+        ClientLocal local = (clobj == null) ? null : clobj.getLocal(ClientLocal.class);
+        if (local != null) {
+            local.session = session;
+        }
     }
 
     /**

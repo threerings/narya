@@ -92,12 +92,6 @@ public class InvocationManager
         log.debug("Created invocation service object", "oid", _invoid);
     }
 
-    // TEMP? Guice fails to inject this on some servers. Let's manually init it.
-    public void setClientManager (ClientManager clmgr)
-    {
-        _clmgr = clmgr;
-    }
-
     /**
      * Returns the object id of the invocation services object.
      */
@@ -108,15 +102,22 @@ public class InvocationManager
 
     /**
      * Utility: Is the client subscribed to this object?
+     *
+     * <p> Note that we resolve the session via {@link ClientLocal#session} rather than by looking
+     * the client's username up in the {@link ClientManager}. Those tables are keyed on the name a
+     * session <em>authenticated</em> with, which need not be the username of its current client
+     * object: {@link PresentsSession#setUsername} swaps in a new client object without changing
+     * the session's auth name. A name-based lookup therefore returns null for any such session,
+     * which would silently deny every request it makes to a subscription-checked service.
+     *
+     * @param client the client object of the caller to check.
+     * @param dobj the object the caller must be subscribed to.
+     * @return true if the caller's session is subscribed to <code>dobj</code>.
      */
     public boolean isSubscribed (ClientObject client, DObject dobj)
     {
-        if (_clmgr == null) {
-            log.warning("Subscription validation unavailable until after the clmgr is set!" +
-                " Returning false...");
-            return false;
-        }
-        var session = _clmgr.getClient(client.username);
+        ClientLocal local = client.getLocal(ClientLocal.class);
+        PresentsSession session = (local == null) ? null : local.session;
         return session != null && session.isSubscribed(dobj);
     }
 
@@ -454,9 +455,6 @@ public class InvocationManager
 
     /** The last code we assigned to a provider. */
     protected int _lastCode;
-
-    /** The ClientManager. */
-    protected ClientManager _clmgr;
 
     /** A reference to the standalone client, if any. */
     @Inject(optional=true) protected Client _standaloneClient;

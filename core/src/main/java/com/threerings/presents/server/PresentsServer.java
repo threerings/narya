@@ -149,9 +149,6 @@ public class PresentsServer
         log.info("Starting up", "server", getClass().getSimpleName(), "os", si.osToString(),
             "jvm", si.jvmToString());
 
-        // Guice fails to inject this on some production systems, do it manually.
-        _invmgr.setClientManager(_clmgr);
-
         registerSignalHandlers(injector);
 
         // configure the dobject manager with our access controller

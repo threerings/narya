@@ -20,4 +20,16 @@ public class ClientLocal extends SimpleStreamableObject
 {
     /** A shared secret key used for encrypting data. */
     public byte[] secret;
+
+    /**
+     * The session that currently owns this client object, or null if it is not owned by a session
+     * on this server. Maintained by {@link PresentsSession}; this is the only reliable way to get
+     * from a {@link ClientObject} back to its session, as a session's {@link
+     * PresentsSession#getAuthName} need not match its client object's username (see {@link
+     * PresentsSession#setUsername}).
+     *
+     * <p> Transient because a session is meaningful only on the server hosting it; a client object
+     * passed to a peer arrives with no session.
+     */
+    public transient PresentsSession session;
 }
