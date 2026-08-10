@@ -117,8 +117,7 @@ public class InvocationManager
     public boolean isSubscribed (ClientObject client, DObject dobj)
     {
         ClientLocal local = client.getLocal(ClientLocal.class);
-        PresentsSession session = (local == null) ? null : local.session;
-        return session != null && session.isSubscribed(dobj);
+        return local != null && local.session != null && local.session.isSubscribed(dobj);
     }
 
     /**

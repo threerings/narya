@@ -504,9 +504,12 @@ public class PresentsSession
      */
     protected static void setLocalSession (ClientObject clobj, PresentsSession session)
     {
-        ClientLocal local = (clobj == null) ? null : clobj.getLocal(ClientLocal.class);
+        if (clobj == null) return;
+        var local = clobj.getLocal(ClientLocal.class);
         if (local != null) {
             local.session = session;
+        } else {
+            log.warning("ClientObject does not have a ClientLocal?", "who", clobj);
         }
     }
 
