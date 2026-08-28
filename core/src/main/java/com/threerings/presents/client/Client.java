@@ -760,27 +760,32 @@ public class Client
         }
 
         long now = RunAnywhere.currentTimeMillis();
+
+        // Keep the connection alive: if we haven't sent anything in a while, ping the server so it
+        // doesn't drop us for inactivity. This is deliberately independent of the clock sync
+        // below; a sync still awaiting its pong must never be able to suppress our liveness ping.
+        if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
+            _comm.postMessage(new PingRequest());
+        }
+
+        // Periodically (re)sync our clock delta with the server.
         if (_dcalc != null) {
-            // if our current calculator is done, clear it out
             if (_dcalc.isDone()) {
                 if (debugLogMessages()) {
                     log.info("Time offset from server: " + _serverDelta + "ms.");
                 }
                 _dcalc = null;
             } else if (_dcalc.shouldSendPing()) {
-                // otherwise, send another ping
                 PingRequest req = new PingRequest();
                 _comm.postMessage(req);
                 _dcalc.sentPing(req);
+                _lastSyncPing = now;
+            } else if (now - _lastSyncPing > PingRequest.PING_INTERVAL) {
+                // the pong for our outstanding sync ping never arrived; abandon this sync so a
+                // dropped packet can't leave us wedged mid-sync (a fresh sync starts later)
+                _dcalc = null;
             }
-
-        } else if (now - _comm.getLastWrite() > PingRequest.PING_INTERVAL) {
-            // if we haven't sent anything over the network in a while, we ping the server to let
-            // it know that we're still alive
-            _comm.postMessage(new PingRequest());
-
         } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
-            // resync our clock with the server
             establishClockDelta(now);
         }
     }
@@ -799,6 +804,7 @@ public class Client
             _comm.postMessage(req);
             _dcalc.sentPing(req);
             _lastSync = now;
+            _lastSyncPing = now;
         }
     }
 
@@ -1117,6 +1123,10 @@ public class Client
 
     /** The last time at which we synced our clock with the server. */
     protected long _lastSync;
+
+    /** When we sent the clock-sync ping we're currently awaiting a pong for; lets {@link #tick}
+     * abandon a sync whose pong never arrives instead of wedging on it. */
+    protected long _lastSyncPing;
 
     /** Our tick interval id. */
     protected Interval _tickInterval;
