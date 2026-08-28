@@ -781,8 +781,13 @@ public class Client
                 _dcalc.sentPing(req);
                 _lastSyncPing = now;
             } else if (now - _lastSyncPing > PingRequest.PING_INTERVAL) {
-                // the pong for our outstanding sync ping never arrived; abandon this sync so a
-                // dropped packet can't leave us wedged mid-sync (a fresh sync starts later)
+                // The pong for our outstanding sync ping never arrived; abandon this sync so a
+                // dropped packet can't leave us wedged mid-sync (a fresh sync starts later).
+                // Before this fix, being stuck here silenced the keepalive entirely and the server
+                // eventually dropped us as idle; log it so we can see in the field how often it
+                // happens now that the keepalive above runs regardless.
+                log.warning("Clock sync stalled; abandoning it so the keepalive keeps running.",
+                            "outstandingFor", (now - _lastSyncPing) + "ms");
                 _dcalc = null;
             }
         } else if (now - _lastSync > CLOCK_SYNC_INTERVAL) {
