@@ -9,6 +9,7 @@ import static com.threerings.NaryaLog.log;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -135,9 +136,31 @@ public abstract class Connection implements NetEventHandler
         }
         if (!isClosed()) {
             log.info("Disconnecting non-communicative client",
-                     "conn", this, "idle", (System.currentTimeMillis() - _lastEvent) + "ms");
+                     "conn", this, "idle", (System.currentTimeMillis() - _lastEvent) + "ms",
+                     "recvProbe", probeReceiveQueue());
         }
         return true;
+    }
+
+    /**
+     * Diagnostic for the "non-communicative client" case: we're about to reap this connection for
+     * having sent us nothing in a while, so a non-blocking read tells us <em>why</em> -- did the
+     * client's data genuinely stop arriving (a network/path problem), or did it arrive and we
+     * simply never read it (a server-side servicing problem)? Safe to consume here because the
+     * connection is about to be closed regardless.
+     */
+    protected String probeReceiveQueue ()
+    {
+        try {
+            int got = _channel.read(ByteBuffer.allocate(4096));
+            if (got > 0) {
+                return got + " bytes were waiting UNREAD -- server-side (we stopped reading it)";
+            }
+            return (got < 0) ? "EOF -- client closed cleanly"
+                             : "nothing waiting -- client's data isn't reaching us (network)";
+        } catch (IOException ioe) {
+            return "probe read failed: " + ioe;
+        }
     }
 
     // from interface NetEventHandler
