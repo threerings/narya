@@ -18,6 +18,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.IOException;
 
@@ -29,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import com.samskivert.util.ArrayUtil;
 import com.samskivert.util.ByteEnum;
@@ -380,8 +382,7 @@ public abstract class Streamer
                     if (in.available() > 0) {
                         fm.readField(field, object, in);
                     } else {
-                        log.info("Streamed instance missing field (probably newly added)",
-                                 "class", _target.getName(), "field", field.getName());
+                        noteMissingField(_target, field);
                     }
                 } catch (Exception e) {
                     String errmsg = "Failure reading streamable field [class=" + _target.getName() +
@@ -992,6 +993,23 @@ public abstract class Streamer
     } // end: static class IntOrdEnumStreamer
 
     /**
+     * Reports that a streamed instance ended before the supplied field, which means the data was
+     * written before the field was added to the class. This is expected and handled (the field
+     * keeps its default value), but it can be true of every persisted instance of the class, so
+     * the message is only logged the first time each field is seen missing.
+     *
+     * @param target the class being unstreamed.
+     * @param field the field that the stream had no data for.
+     */
+    protected static void noteMissingField (Class<?> target, Field field)
+    {
+        if (_missingFields.add(target.getName() + "." + field.getName())) {
+            log.info("Streamed instance missing field (probably newly added)",
+                     "class", target.getName(), "field", field.getName());
+        }
+    }
+
+    /**
      * Initializes static state if necessary.
      */
     protected synchronized static void maybeInit ()
@@ -1003,6 +1021,9 @@ public abstract class Streamer
 
     /** Contains the mapping from class names to configured streamer instances. */
     protected static Map<Class<?>, Streamer> _streamers;
+
+    /** Class-and-field names already reported by {@link #noteMissingField}. */
+    protected static final Set<String> _missingFields = Sets.newConcurrentHashSet();
 
     /** Should we sort fields in streamable classes? */
     protected static final boolean SORT_FIELDS =
