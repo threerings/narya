@@ -11,8 +11,6 @@ import java.net.InetSocketAddress;
 
 import java.io.IOException;
 
-import java.nio.channels.SocketChannel;
-
 import com.samskivert.util.IntListUtil;
 import com.samskivert.util.Interval;
 
@@ -71,7 +69,9 @@ public class ClientCommunicator extends BlockingCommunicator
                 synchronized (this) {
                     clearPPI(true);
                     _prefPortInterval = new PrefPortInterval(pportKey, port, nextPort);
-                    _channel = SocketChannel.open(addr);
+                }
+                connectChannel(addr); // blocks, so not under our monitor (see connectChannel)
+                synchronized (this) {
                     _prefPortInterval.schedule(PREF_PORT_DELAY);
                 }
                 break;

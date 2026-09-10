@@ -100,8 +100,15 @@ public class BlockingCommunicator extends Communicator
     @Override // from Communicator
     public synchronized void logoff ()
     {
-        // if our socket is already closed, we've already taken care of this business
+        _logoffRequested = true;
+
+        // if our socket is already closed, we've already taken care of this business...
         if (_channel == null) {
+            // ...unless the reader hasn't opened it yet (resolving the host);
+            // it will check _logoffRequested and bail out.
+            if (_reader != null) {
+                _reader.shutdown();
+            }
             return;
         }
 
@@ -133,6 +140,13 @@ public class BlockingCommunicator extends Communicator
         }
         if (_datagramReader != null) {
             _datagramReader.shutdown();
+        }
+
+        // with no writer we're still connecting or authenticating: nobody will deliver the logoff
+        // request and the reader is blocked in connect() or read(); closing the channel wakes it
+        // so that it can finish up (see Reader.willStart)
+        if (_writer == null) {
+            closeChannel();
         }
     }
 
@@ -166,12 +180,6 @@ public class BlockingCommunicator extends Communicator
         if (_oin != null) {
             _oin.setClassLoader(loader);
         }
-    }
-
-    @Override // from Communicator
-    public synchronized long getLastWrite ()
-    {
-        return _lastWrite;
     }
 
     @Override // from Communicator
@@ -557,8 +565,44 @@ public class BlockingCommunicator extends Communicator
         // the default implementation just connects to the first port and does no cycling
         int port = _client.getPorts()[0];
         log.info("Connecting", "host", host, "port", port);
-        synchronized (BlockingCommunicator.this) {
-            _channel = SocketChannel.open(new InetSocketAddress(host, port));
+        connectChannel(new InetSocketAddress(host, port));
+    }
+
+    /**
+     * Opens {@link #_channel} and connects it to the supplied address, blocking until the
+     * connection is established or fails. On failure the channel is closed and cleared.
+     *
+     * <p>The connect itself deliberately runs <em>without</em> holding our monitor: a connect to a
+     * server that isn't answering (listening but not accepting, say) can block for over a minute,
+     * and anything else waiting on our monitor meanwhile, {@link #logoff} in particular, would
+     * stall with it. The channel is published before connecting so that {@link #logoff} can close
+     * it to abort the attempt.
+     */
+    protected void connectChannel (InetSocketAddress addr)
+        throws IOException
+    {
+        SocketChannel channel = SocketChannel.open();
+        synchronized (this) {
+            if (_logoffRequested) {
+                channel.close();
+                throw new IOException("Logoff requested before connecting.");
+            }
+            _channel = channel;
+        }
+        try {
+            channel.connect(addr);
+        } catch (IOException ioe) {
+            synchronized (this) {
+                if (_channel == channel) {
+                    _channel = null;
+                }
+            }
+            try {
+                channel.close();
+            } catch (IOException cioe) {
+                log.debug("Failed to close unconnected channel.", "error", cioe);
+            }
+            throw ioe;
         }
     }
 
@@ -642,9 +686,14 @@ public class BlockingCommunicator extends Communicator
 
 
             } catch (Exception e) {
-                log.debug("Logon failed: " + e);
-                // once we're shutdown we'll report this error
-                _logonError = e;
+                if (_logoffRequested) {
+                    // logoff() closed our channel (or asked us not to open one); not a failure
+                    log.debug("Logon aborted by logoff.", "error", e);
+                } else {
+                    log.debug("Logon failed: " + e);
+                    // once we're shutdown we'll report this error
+                    _logonError = e;
+                }
                 // terminate our communicator thread
                 shutdown();
             }
@@ -1009,6 +1058,9 @@ public class BlockingCommunicator extends Communicator
 
     protected SocketChannel _channel;
     protected Queue<UpstreamMessage> _msgq = new Queue<UpstreamMessage>();
+
+    /** Set by {@link #logoff}; tells a reader still connecting or authing to give up quietly. */
+    protected volatile boolean _logoffRequested;
 
     protected Selector _selector;
     protected DatagramChannel _datagramChannel;

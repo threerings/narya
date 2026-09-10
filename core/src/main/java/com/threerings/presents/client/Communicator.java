@@ -73,7 +73,7 @@ public abstract class Communicator
     /**
      * Makes a note of the time at which we last communicated with the server.
      */
-    protected synchronized void updateWriteStamp ()
+    protected void updateWriteStamp ()
     {
         _lastWrite = RunAnywhere.currentTimeMillis();
     }
@@ -136,5 +136,7 @@ public abstract class Communicator
 
     protected Client _client;
     protected ClientDObjectMgr _omgr;
-    protected long _lastWrite;
+
+    /** Volatile not synchronized on our monitor, Client thread should never have to wait. */
+    protected volatile long _lastWrite;
 }
