@@ -44,6 +44,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- javac -Xlint categories. projectx builds us with -Djavac.lint=none to hide our warnings
+         when working up there; build in this directory to see them. -->
+    <javac.lint>all,-serial,-path</javac.lint>
   </properties>
 
   <build>
@@ -57,12 +60,9 @@
           <configuration>
             <release>21</release>
             <fork>true</fork>
-            <showDeprecation>true</showDeprecation>
             <showWarnings>true</showWarnings>
             <compilerArgs>
-              <arg>-Xlint</arg>
-              <arg>-Xlint:-serial</arg>
-              <arg>-Xlint:-path</arg>
+              <arg>-Xlint:${javac.lint}</arg>
               <arg>-Xmaxwarns</arg>
               <arg>9999</arg>
             </compilerArgs>
