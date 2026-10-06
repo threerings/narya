@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import com.samskivert.util.ArrayUtil;
 
+import com.threerings.io.BasicStreamers;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
@@ -456,10 +457,11 @@ public class DSet<E extends DSet.Entry>
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        _size = in.readInt();
-        // ensure our capacity is a power of 2 (for consistency)
+        _size = BasicStreamers.validateSize(in.readInt());
+        // ensure our capacity is a power of 2 (for consistency); the cap keeps the shift from
+        // overflowing to a non-positive value (and spinning) when the size limit is disabled
         int capacity = INITIAL_CAPACITY;
-        while (capacity < _size) {
+        while (capacity < _size && capacity < (1 << 30)) {
             capacity <<= 1;
         }
         @SuppressWarnings("unchecked") E[] entries = (E[])new Entry[capacity];

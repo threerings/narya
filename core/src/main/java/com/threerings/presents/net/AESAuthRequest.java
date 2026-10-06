@@ -13,6 +13,7 @@ import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
 
+import com.threerings.io.BasicStreamers;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 
@@ -137,8 +138,8 @@ public class AESAuthRequest extends AuthRequest
         throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        _contents = new byte[in.readInt()];
-        in.read(_contents);
+        _contents = new byte[BasicStreamers.validateSize(in.readInt())];
+        in.readFully(_contents);
     }
 
     /** Our encryption key. */

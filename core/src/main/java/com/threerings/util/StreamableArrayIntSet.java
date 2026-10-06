@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import com.samskivert.util.ArrayIntSet;
 
+import com.threerings.io.BasicStreamers;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
@@ -55,7 +56,7 @@ public class StreamableArrayIntSet extends ArrayIntSet
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        _size = in.readInt();
+        _size = BasicStreamers.validateSize(in.readInt());
         _values = new int[Math.max(_size, DEFAULT_CAPACITY)];
         for (int ii = 0; ii < _size; ii++) {
             _values[ii] = in.readInt();

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import com.samskivert.util.HashIntMap;
 
+import com.threerings.io.BasicStreamers;
 import com.threerings.io.ObjectInputStream;
 import com.threerings.io.ObjectOutputStream;
 import com.threerings.io.Streamable;
@@ -59,7 +60,7 @@ public class StreamableHashIntMap<V> extends HashIntMap<V>
     public void readObject (ObjectInputStream in)
         throws IOException, ClassNotFoundException
     {
-        int ecount = in.readInt();
+        int ecount = BasicStreamers.validateSize(in.readInt());
         ensureCapacity(ecount);
         for (int ii = 0; ii < ecount; ii++) {
             int key = in.readInt();
