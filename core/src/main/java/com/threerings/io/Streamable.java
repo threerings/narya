@@ -30,6 +30,12 @@ package com.threerings.io;
  * primitive types will be passed the appropriate zero value, and all reference types will be
  * passed null. This latter approach can even be used by classes with final fields, as the
  * zero/null values will be overwritten during unstreaming.</p>
+ *
+ * <p>A streamable record is streamed by its components, in declaration order: each is written from
+ * its accessor and read back as an argument to the record's canonical constructor. The record must
+ * be public, and it cannot have custom {@code writeObject} or {@code readObject} methods.
+ * Components appended to a record after a stream was written are passed to it as zero/null, which
+ * a compact constructor can replace with a better default.</p>
  */
 public interface Streamable
 {

@@ -283,7 +283,7 @@ public abstract class Streamer
             }
         }
 
-        // create Streamers for other types
+        // look for custom reader and writer methods
         Method reader = null;
         Method writer = null;
         try {
@@ -297,13 +297,168 @@ public abstract class Streamer
             // nothing to worry about, we just don't have one
         }
 
-        // if there is no reader and no writer, we can do a simpler thing
+        // create Streamers for record types; a record is read whole by its canonical constructor,
+        // so it can't customize its streaming
+        if (Record.class.isAssignableFrom(target)) {
+            if (!target.isRecord()) {
+                // its Record attribute was stripped, most likely by an obfuscator
+                throw new IllegalArgumentException(
+                    "Cannot stream record that lacks its component metadata: " + target.getName());
+            }
+            if ((reader != null) || (writer != null)) {
+                throw new IllegalArgumentException(
+                    "Cannot stream record with a custom reader or writer: " + target.getName());
+            }
+            return new RecordStreamer(target);
+        }
+
+        // create Streamers for other types; if there is no reader and no writer, we can do a
+        // simpler thing
         if ((reader == null) && (writer == null)) {
             return new ClassStreamer(target);
         } else {
             return new CustomClassStreamer(target, reader, writer);
         }
     }
+
+    /**
+     * A streamer for records, which uses only their public API: each component is written from its
+     * accessor and read back as an argument to the canonical constructor. Like an enum, a record is
+     * read entirely by {@link #createObject}.
+     */
+    protected static class RecordStreamer extends Streamer
+    {
+        /** Constructor. */
+        protected RecordStreamer (Class<?> target)
+        {
+            if (!Modifier.isPublic(target.getModifiers())) {
+                throw new IllegalArgumentException(
+                    "Cannot stream non-public record: " + target.getName());
+            }
+            _target = target;
+
+            // TODO: honor SORT_FIELDS by streaming the components in name order, as ClassStreamer
+            // does with fields
+            // TODO: support @NotStreamable components (passing zero/null for them), which needs
+            // RECORD_COMPONENT in its @Target; for now the annotation is silently ignored
+            var comps = target.getRecordComponents();
+            var length = comps.length;
+            Class<?>[] paramTypes = new Class<?>[length];
+            _accessors = new Method[length];
+            _marshallers = new FieldMarshaller[length];
+            for (var ii = 0; ii < length; ++ii) {
+                paramTypes[ii] = comps[ii].getType();
+                _accessors[ii] = comps[ii].getAccessor();
+                if (_accessors[ii] == null) {
+                    // possible if an obfuscator stripped it as unused
+                    throw new RuntimeException("Record component lacks an accessor [class=" +
+                        target.getName() + ", component=" + comps[ii].getName() + "]");
+                }
+                _marshallers[ii] = FieldMarshaller.getComponentMarshaller(comps[ii]);
+                if (_marshallers[ii] == null) {
+                    String errmsg = "Unable to marshall record component [class=" +
+                        target.getName() + ", component=" + comps[ii].getName() +
+                        ", type=" + paramTypes[ii].getName() + "]";
+                    throw new RuntimeException(errmsg);
+                }
+                if (ObjectInputStream.STREAM_DEBUG) {
+                    log.info("Using " + _marshallers[ii] + " for " + target.getName() + "." +
+                             comps[ii].getName() + ".");
+                }
+            }
+            try {
+                _ctor = target.getDeclaredConstructor(paramTypes);
+            } catch (NoSuchMethodException nsme) {
+                throw new RuntimeException(
+                    "Record lacks a canonical constructor?! [class=" + target.getName() + "]", nsme);
+            }
+        }
+
+        @Override
+        public void writeObject (Object object, ObjectOutputStream out, boolean useWriter)
+            throws IOException
+        {
+            for (var ii = 0; ii < _accessors.length; ++ii) {
+                Method accessor = _accessors[ii];
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info("Writing component",
+                            "class", _target.getName(), "component", accessor.getName());
+                    }
+                    _marshallers[ii].writeValue(accessor.invoke(object), out);
+                } catch (Exception e) {
+                    Throwable cause = (e instanceof InvocationTargetException) ? e.getCause() : e;
+                    String errmsg = "Failure writing streamable record component [class=" +
+                        _target.getName() + ", component=" + accessor.getName() + "]";
+                    throw (IOException) new IOException(errmsg).initCause(cause);
+                }
+            }
+        }
+
+        @Override
+        public Object createObject (ObjectInputStream in)
+            throws IOException, ClassNotFoundException
+        {
+            Object[] args = new Object[_accessors.length];
+            for (var ii = 0; ii < args.length; ++ii) {
+                Method accessor = _accessors[ii];
+                try {
+                    if (ObjectInputStream.STREAM_DEBUG) {
+                        log.info(in.hashCode() + ": Reading component '" + accessor.getName() +
+                                 "' with " + _marshallers[ii] + ".");
+                    }
+                    // gracefully deal with objects that have had new components added to their
+                    // record definition
+                    if (in.available() > 0) {
+                        args[ii] = _marshallers[ii].readValue(in);
+                    } else {
+                        args[ii] = Defaults.defaultValue(accessor.getReturnType());
+                        noteMissingField(_target, accessor.getName());
+                    }
+                } catch (Exception e) {
+                    String errmsg = "Failure reading streamable record component [class=" +
+                        _target.getName() + ", component=" + accessor.getName() +
+                        ", error=" + e + "]";
+                    throw (IOException) new IOException(errmsg).initCause(e);
+                }
+            }
+
+            try {
+                return _ctor.newInstance(args);
+            } catch (Exception e) {
+                Throwable cause = (e instanceof InvocationTargetException) ? e.getCause() : e;
+                String errmsg = "Error instantiating record [type=" + _target.getName() + "]";
+                throw (IOException) new IOException(errmsg).initCause(cause);
+            }
+        }
+
+        @Override
+        public void readObject (Object object, ObjectInputStream in, boolean useReader)
+            throws IOException, ClassNotFoundException
+        {
+            // nothing here: handled in createObject
+        }
+
+        @Override
+        protected ToStringHelper toStringHelper ()
+        {
+            return super.toStringHelper()
+                .add("target", _target.getName())
+                .add("ccount", _accessors.length);
+        }
+
+        /** The record class for which this streamer instance is configured. */
+        protected Class<?> _target;
+
+        /** The canonical constructor, through which we create instances. */
+        protected Constructor<?> _ctor;
+
+        /** The accessors for the record's components, in declaration order. */
+        protected Method[] _accessors;
+
+        /** Marshallers for each of the record's components. */
+        protected FieldMarshaller[] _marshallers;
+    } // end: static class RecordStreamer
 
     /**
      * A streamer that streams the fields of a class.
