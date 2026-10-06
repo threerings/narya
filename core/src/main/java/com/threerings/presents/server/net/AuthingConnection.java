@@ -10,6 +10,7 @@ import static com.threerings.presents.Log.log;
 import java.io.IOException;
 import java.security.PrivateKey;
 
+import com.threerings.io.FramedInputStream;
 import com.threerings.presents.data.AuthCodes;
 import com.threerings.presents.net.AESAuthRequest;
 import com.threerings.presents.net.AuthRequest;
@@ -27,6 +28,12 @@ import com.threerings.util.Name;
  */
 public class AuthingConnection extends PresentsConnection
 {
+    /** The largest frame we'll read from a client that hasn't authenticated yet. The auth
+     * handshake is tiny; the running connection restores the generous default cap once the
+     * client authenticates (see PresentsConnection.inheritStreams). */
+    public static final int PRE_AUTH_MAX_FRAME =
+        Integer.getInteger("com.threerings.presents.preAuthMaxFrame", 64 * 1024);
+
     public AuthingConnection ()
     {
         setMessageHandler(new MessageHandler() {
@@ -152,6 +159,14 @@ public class AuthingConnection extends PresentsConnection
                 postMessage(msg);
             }
         });
+    }
+
+    @Override
+    protected FramedInputStream createFramedInputStream ()
+    {
+        FramedInputStream fin = super.createFramedInputStream();
+        fin.setMaxLength(PRE_AUTH_MAX_FRAME);
+        return fin;
     }
 
     protected AuthRequest _authreq;

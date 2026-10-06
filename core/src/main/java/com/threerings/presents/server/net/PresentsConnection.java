@@ -201,7 +201,7 @@ public class PresentsConnection extends Connection
             // we're lazy about creating our input streams because we may be inheriting them from
             // our authing connection and we don't want to unnecessarily create them in that case
             if (_fin == null) {
-                _oin = createObjectInputStream(_fin = new FramedInputStream());
+                _oin = createObjectInputStream(_fin = createFramedInputStream());
                 if (_loader != null) {
                     _oin.setClassLoader(_loader);
                 }
@@ -263,6 +263,15 @@ public class PresentsConnection extends Connection
     }
 
     /**
+     * Creates the framed input stream used by this connection. Overridden by {@link
+     * AuthingConnection} to cap frame sizes tightly until the client has authenticated.
+     */
+    protected FramedInputStream createFramedInputStream ()
+    {
+        return new FramedInputStream();
+    }
+
+    /**
      * Instructs this connection to inherit its streams from the supplied connection object. This
      * is called by the connection manager when the time comes to pass streams from the authing
      * connection to the running connection.
@@ -270,6 +279,11 @@ public class PresentsConnection extends Connection
     protected void inheritStreams (PresentsConnection other)
     {
         _fin = other._fin;
+        // the client has authenticated, so relax the tight pre-auth frame cap back to the
+        // generous default (setMaxLength clamps to it)
+        if (_fin != null) {
+            _fin.setMaxLength(Integer.MAX_VALUE);
+        }
         _oin = other._oin;
         _oout = other._oout;
         if (_loader != null) {

@@ -48,6 +48,16 @@ public class FramedInputStream extends InputStream
     }
 
     /**
+     * Configures the largest frame this stream will accept. A frame whose length header exceeds
+     * this is rejected with an {@link IOException} rather than buffered toward. The value is
+     * clamped to {@link #DEFAULT_MAX_LENGTH}.
+     */
+    public void setMaxLength (int maxLength)
+    {
+        _maxLength = Math.min(maxLength, DEFAULT_MAX_LENGTH);
+    }
+
+    /**
      * Reads a frame from the provided channel, appending to any partially
      * read frame. If the entire frame data is not yet available,
      * <code>readFrame</code> will return false, otherwise true.
@@ -133,6 +143,7 @@ public class FramedInputStream extends InputStream
      * if possible. Returns -1 otherwise.
      */
     protected final int decodeLength ()
+        throws IOException
     {
         // if we don't have enough bytes to determine our frame size, stop
         // here and let the caller know that we're not ready
@@ -147,6 +158,12 @@ public class FramedInputStream extends InputStream
         length += (_buffer.get() & 0xFF) << 8;
         length += (_buffer.get() & 0xFF);
         _buffer.position(_have);
+
+        // reject a nonsensical or oversized length rather than buffer toward it forever; the
+        // length includes the header bytes, so anything below HEADER_SIZE is malformed
+        if (length < HEADER_SIZE || length > _maxLength) {
+            throw new IOException("Invalid frame length: " + length + " (max " + _maxLength + ")");
+        }
 
         return length;
     }
@@ -302,8 +319,17 @@ public class FramedInputStream extends InputStream
     /** Tracks whether we read a complete frame in our last call to {@link #readFrame}. */
     protected boolean _haveCompleteFrame;
 
+    /** The largest frame we'll accept. Generous by default (it must cover the biggest legitimate
+     * message on any connection); the server tightens it for not-yet-authenticated clients via
+     * {@link #setMaxLength}. */
+    protected int _maxLength = DEFAULT_MAX_LENGTH;
+
     /** The size of the frame header (a 32-bit integer). */
     protected static final int HEADER_SIZE = 4;
+
+    /** The default (and absolute) cap on a single frame's length. */
+    protected static final int DEFAULT_MAX_LENGTH =
+        Integer.getInteger("com.threerings.io.maxFrameLength", 64 * 1024 * 1024);
 
     /** The default initial size of the internal buffer. */
     protected static final int INITIAL_BUFFER_CAPACITY = 32;
