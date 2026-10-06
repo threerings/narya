@@ -7,6 +7,7 @@ package com.threerings.io;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.RecordComponent;
 import java.lang.reflect.ReflectPermission;
 
 import java.util.Date;
@@ -17,7 +18,8 @@ import com.google.common.collect.Maps;
 import static com.threerings.NaryaLog.log;
 
 /**
- * Used to read and write a single field of a {@link Streamable} instance.
+ * Used to read and write a single field of a {@link Streamable} instance, or a single component
+ * of a streamable record.
  */
 public abstract class FieldMarshaller
 {
@@ -32,17 +34,36 @@ public abstract class FieldMarshaller
     }
 
     /**
+     * Reads a value from the supplied stream, boxed if primitive. Record components are read this
+     * way, as they are passed to the record's canonical constructor rather than set.
+     */
+    public abstract Object readValue (ObjectInputStream in)
+        throws Exception;
+
+    /**
+     * Writes the supplied value, boxed if primitive, to the supplied stream.
+     */
+    public abstract void writeValue (Object value, ObjectOutputStream out)
+        throws Exception;
+
+    /**
      * Reads the contents of the supplied field from the supplied stream and sets it in the
      * supplied object.
      */
-    public abstract void readField (Field field, Object target, ObjectInputStream in)
-        throws Exception;
+    public void readField (Field field, Object target, ObjectInputStream in)
+        throws Exception
+    {
+        field.set(target, readValue(in));
+    }
 
     /**
      * Writes the contents of the supplied field in the supplied object to the supplied stream.
      */
-    public abstract void writeField (Field field, Object source, ObjectOutputStream out)
-        throws Exception;
+    public void writeField (Field field, Object source, ObjectOutputStream out)
+        throws Exception
+    {
+        writeValue(field.get(source), out);
+    }
 
     @Override
     public String toString ()
@@ -61,12 +82,6 @@ public abstract class FieldMarshaller
      */
     public static FieldMarshaller getFieldMarshaller (Field field)
     {
-        if (_marshallers == null) {
-            // multiple threads may attempt to create the stock marshallers, but they'll just do
-            // extra work and _marshallers will only ever contain a fully populated table
-            _marshallers = createMarshallers();
-        }
-
         // if necessary (we're running in a sandbox), look for custom field accessors
         if (useFieldAccessors()) {
             Method reader = null, writer = null;
@@ -93,10 +108,39 @@ public abstract class FieldMarshaller
             }
         }
 
-        Class<?> ftype = field.getType();
+        return getMarshaller(field.getType(), field.isAnnotationPresent(Intern.class),
+                             field.getDeclaringClass(), field.getName());
+    }
+
+    /**
+     * Returns a marshaller appropriate for the supplied record component or null if no
+     * marshaller exists for its type.
+     */
+    public static FieldMarshaller getComponentMarshaller (RecordComponent comp)
+    {
+        return getMarshaller(comp.getType(), comp.isAnnotationPresent(Intern.class),
+                             comp.getDeclaringRecord(), comp.getName());
+    }
+
+    /**
+     * Returns a marshaller for values of the supplied type or null if no marshaller exists for
+     * that type.
+     *
+     * @param intern whether the values are {@link Intern}ed strings.
+     * @param owner the class declaring the field or component, for logging.
+     * @param name the name of the field or component, for logging.
+     */
+    protected static FieldMarshaller getMarshaller (
+        Class<?> ftype, boolean intern, Class<?> owner, String name)
+    {
+        if (_marshallers == null) {
+            // multiple threads may attempt to create the stock marshallers, but they'll just do
+            // extra work and _marshallers will only ever contain a fully populated table
+            _marshallers = createMarshallers();
+        }
 
         // use the intern marshaller for pooled strings
-        if (ftype == String.class && field.isAnnotationPresent(Intern.class)) {
+        if (ftype == String.class && intern) {
             return _internMarshaller;
         }
 
@@ -108,7 +152,7 @@ public abstract class FieldMarshaller
                 log.warning("Specific field types are discouraged " +
                     "for Iterables/Collections and Maps. The implementation type may not be " +
                     "recreated on the other side.",
-                    "class", field.getDeclaringClass(), "field", field.getName(),
+                    "class", owner, "field", name,
                     "type", ftype, "shouldBe", collClass);
                 fm = _marshallers.get(collClass);
             }
@@ -169,23 +213,22 @@ public abstract class FieldMarshaller
         }
 
         @Override
-        public void readField (Field field, Object target, ObjectInputStream in)
+        public Object readValue (ObjectInputStream in)
             throws Exception
         {
             if (in.readBoolean()) {
                 Object value = _streamer.createObject(in);
                 _streamer.readObject(value, in, true);
-                field.set(target, value);
+                return value;
             } else {
-                field.set(target, null);
+                return null;
             }
         }
 
         @Override
-        public void writeField (Field field, Object source, ObjectOutputStream out)
+        public void writeValue (Object value, ObjectOutputStream out)
             throws Exception
         {
-            Object value = field.get(source);
             if (value == null) {
                 out.writeBoolean(false);
             } else {
@@ -229,6 +272,19 @@ public abstract class FieldMarshaller
             _writer.invoke(source, out);
         }
 
+        // the custom accessors read into and write from an instance, never a bare value
+        @Override
+        public Object readValue (ObjectInputStream in)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeValue (Object value, ObjectOutputStream out)
+        {
+            throw new UnsupportedOperationException();
+        }
+
         protected Method _reader, _writer;
     }
 
@@ -242,14 +298,14 @@ public abstract class FieldMarshaller
         // create a generic marshaller for streamable instances
         FieldMarshaller gmarsh = new FieldMarshaller("Generic") {
             @Override
-            public void readField (Field field, Object target, ObjectInputStream in)
+            public Object readValue (ObjectInputStream in)
                 throws Exception {
-                field.set(target, in.readObject());
+                return in.readObject();
             }
             @Override
-            public void writeField (Field field, Object source, ObjectOutputStream out)
+            public void writeValue (Object value, ObjectOutputStream out)
                 throws Exception {
-                out.writeObject(field.get(source));
+                out.writeObject(value);
             }
         };
         marshallers.put(Streamable.class, gmarsh);
@@ -259,7 +315,8 @@ public abstract class FieldMarshaller
         // informatively if we attempt to store non-Streamable objects in that field
         marshallers.put(Object.class, gmarsh);
 
-        // create marshallers for the primitive types
+        // create marshallers for the primitive types, which override the field methods to avoid
+        // boxing
         marshallers.put(Boolean.TYPE, new FieldMarshaller("boolean") {
             @Override
             public void readField (Field field, Object target, ObjectInputStream in)
@@ -270,6 +327,16 @@ public abstract class FieldMarshaller
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeBoolean(field.getBoolean(source));
+            }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readBoolean();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeBoolean((Boolean)value);
             }
         });
         marshallers.put(Byte.TYPE, new FieldMarshaller("byte") {
@@ -283,6 +350,16 @@ public abstract class FieldMarshaller
                 throws Exception {
                 out.writeByte(field.getByte(source));
             }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readByte();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeByte((Byte)value);
+            }
         });
         marshallers.put(Character.TYPE, new FieldMarshaller("char") {
             @Override
@@ -294,6 +371,16 @@ public abstract class FieldMarshaller
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeChar(field.getChar(source));
+            }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readChar();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeChar((Character)value);
             }
         });
         marshallers.put(Short.TYPE, new FieldMarshaller("short") {
@@ -307,6 +394,16 @@ public abstract class FieldMarshaller
                 throws Exception {
                 out.writeShort(field.getShort(source));
             }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readShort();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeShort((Short)value);
+            }
         });
         marshallers.put(Integer.TYPE, new FieldMarshaller("int") {
             @Override
@@ -318,6 +415,16 @@ public abstract class FieldMarshaller
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeInt(field.getInt(source));
+            }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readInt();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeInt((Integer)value);
             }
         });
         marshallers.put(Long.TYPE, new FieldMarshaller("long") {
@@ -331,6 +438,16 @@ public abstract class FieldMarshaller
                 throws Exception {
                 out.writeLong(field.getLong(source));
             }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readLong();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeLong((Long)value);
+            }
         });
         marshallers.put(Float.TYPE, new FieldMarshaller("float") {
             @Override
@@ -342,6 +459,16 @@ public abstract class FieldMarshaller
             public void writeField (Field field, Object source, ObjectOutputStream out)
                 throws Exception {
                 out.writeFloat(field.getFloat(source));
+            }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readFloat();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeFloat((Float)value);
             }
         });
         marshallers.put(Double.TYPE, new FieldMarshaller("double") {
@@ -355,17 +482,27 @@ public abstract class FieldMarshaller
                 throws Exception {
                 out.writeDouble(field.getDouble(source));
             }
+            @Override
+            public Object readValue (ObjectInputStream in)
+                throws Exception {
+                return in.readDouble();
+            }
+            @Override
+            public void writeValue (Object value, ObjectOutputStream out)
+                throws Exception {
+                out.writeDouble((Double)value);
+            }
         });
         marshallers.put(Date.class, new FieldMarshaller("Date") {
             @Override
-            public void readField (Field field, Object target, ObjectInputStream in)
+            public Object readValue (ObjectInputStream in)
                 throws Exception {
-                field.set(target, new Date(in.readLong()));
+                return new Date(in.readLong());
             }
             @Override
-            public void writeField (Field field, Object source, ObjectOutputStream out)
+            public void writeValue (Object value, ObjectOutputStream out)
                 throws Exception {
-                out.writeLong(((Date)field.get(source)).getTime());
+                out.writeLong(((Date)value).getTime());
             }
         });
 
@@ -377,14 +514,14 @@ public abstract class FieldMarshaller
         // create the field marshaller for pooled strings
         _internMarshaller = new FieldMarshaller("intern") {
             @Override
-            public void readField (Field field, Object target, ObjectInputStream in)
+            public Object readValue (ObjectInputStream in)
                 throws Exception {
-                field.set(target, in.readIntern());
+                return in.readIntern();
             }
             @Override
-            public void writeField (Field field, Object source, ObjectOutputStream out)
+            public void writeValue (Object value, ObjectOutputStream out)
                 throws Exception {
-                out.writeIntern((String)field.get(source));
+                out.writeIntern((String)value);
             }
         };
 

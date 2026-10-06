@@ -382,7 +382,7 @@ public abstract class Streamer
                     if (in.available() > 0) {
                         fm.readField(field, object, in);
                     } else {
-                        noteMissingField(_target, field);
+                        noteMissingField(_target, field.getName());
                     }
                 } catch (Exception e) {
                     String errmsg = "Failure reading streamable field [class=" + _target.getName() +
@@ -999,13 +999,13 @@ public abstract class Streamer
      * the message is only logged the first time each field is seen missing.
      *
      * @param target the class being unstreamed.
-     * @param field the field that the stream had no data for.
+     * @param field the name of the field (or record component) that the stream had no data for.
      */
-    protected static void noteMissingField (Class<?> target, Field field)
+    protected static void noteMissingField (Class<?> target, String field)
     {
-        if (_missingFields.add(target.getName() + "." + field.getName())) {
+        if (_missingFields.add(target.getName() + "." + field)) {
             log.info("Streamed instance missing field (probably newly added)",
-                     "class", target.getName(), "field", field.getName());
+                     "class", target.getName(), "field", field);
         }
     }
 
