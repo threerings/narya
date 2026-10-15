@@ -5,8 +5,11 @@
 
 package com.threerings.presents.server;
 
+import java.util.HashMap;
+
 import java.util.concurrent.Executor;
 
+import com.samskivert.util.Histogram;
 import com.samskivert.util.Invoker;
 import com.samskivert.util.StringUtil;
 
@@ -24,12 +27,12 @@ public class ReportingInvoker extends Invoker
 
     /**
      * Creates a new reporting invoker. The instance will be registered with the report manager
-     * if profiling is enabled ({@link Invoker#PERF_TRACK}).
+     * if performance tracking is enabled (see {@link Invoker#setPerfTrack}).
      */
     public ReportingInvoker (String name, Executor receiver, ReportManager repmgr)
     {
         super(name, receiver);
-        if (PERF_TRACK) {
+        if (_perfTrack) {
             repmgr.registerReporter(ReportManager.DEFAULT_TYPE, _defrep);
             repmgr.registerReporter(ReportManager.PROFILE_TYPE, _profrep);
         }
@@ -55,10 +58,27 @@ public class ReportingInvoker extends Invoker
         }
     }
 
+    /**
+     * Sets the parameters of the unit profiling histogram. This only affects unit classes that
+     * have not yet been run, so should be called early on in program initialization.
+     * @param bucketWidthMs size of time buckets, in milliseconds
+     * @param bucketCount number of time buckets
+     */
+    public void setProfilingParameters (int bucketWidthMs, int bucketCount)
+    {
+        _profileBucketWidth = bucketWidthMs;
+        _profileBucketCount = bucketCount;
+    }
+
     @Override // from Invoker
     protected void willInvokeUnit (Unit unit, long start)
     {
         super.willInvokeUnit(unit, start);
+
+        if (_perfTrack) {
+            // record the time this unit spent waiting on the queue
+            recordMetrics("queue_wait_time", start - unit.queueStamp);
+        }
 
         int queueSize = _queue.size();
         synchronized (this) {
@@ -80,11 +100,25 @@ public class ReportingInvoker extends Invoker
     {
         super.didInvokeUnit(unit, start);
 
+        if (_perfTrack) {
+            // profile this unit's run time, keyed on its class
+            recordMetrics(unit.getClass(), System.currentTimeMillis() - start);
+        }
+
         synchronized (this) {
             // clear out our currently invoking unit
             _currentUnit = null;
             _currentUnitStart = 0L;
         }
+    }
+
+    protected void recordMetrics (Object key, long duration)
+    {
+        UnitProfile prof = _tracker.get(key);
+        if (prof == null) {
+            _tracker.put(key, prof = new UnitProfile(_profileBucketWidth, _profileBucketCount));
+        }
+        prof.record(duration);
     }
 
     /** Generates a report on our runtime behavior. */
@@ -131,6 +165,33 @@ public class ReportingInvoker extends Invoker
         }
     };
 
+    /** Used to track profile information on invoked units. */
+    protected static class UnitProfile
+    {
+        public UnitProfile (int bucketWidth, int bucketCount) {
+            _histo = new Histogram(0, bucketWidth, bucketCount);
+        }
+
+        public void record (long duration) {
+            _totalElapsed += duration;
+            _histo.addValue((int)duration);
+        }
+
+        public void clear () {
+            _totalElapsed = 0L;
+            _histo.clear();
+        }
+
+        @Override public String toString () {
+            int count = _histo.size();
+            return _totalElapsed + "ms/" + count + " = " + (_totalElapsed/count) + "ms avg " +
+                StringUtil.toString(_histo.getBuckets());
+        }
+
+        protected Histogram _histo;
+        protected long _totalElapsed;
+    }
+
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
 
@@ -142,4 +203,13 @@ public class ReportingInvoker extends Invoker
 
     /** The time at which our current unit started. */
     protected long _currentUnitStart;
+
+    /** Tracks the counts of invocations by unit's class. */
+    protected HashMap<Object,UnitProfile> _tracker = new HashMap<Object,UnitProfile>();
+
+    /** Size of buckets to use when profiling unit times. */
+    protected int _profileBucketWidth = 50;
+
+    /** Number of buckets to use when profiling unit times. */
+    protected int _profileBucketCount = 10;
 }
