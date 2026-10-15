@@ -856,7 +856,7 @@ public class PresentsDObjectMgr
 
         if (refs != null) {
             for (int ii = 0; ii < refs.length; ii++) {
-                if (refs[ii].equals(reffer.getOid(), field)) {
+                if (refs[ii] != null && refs[ii].equals(reffer.getOid(), field)) {
                     ref = refs[ii];
                     refs[ii] = null;
                     break;
