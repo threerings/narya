@@ -192,9 +192,6 @@ public class ReportingInvoker extends Invoker
         protected long _totalElapsed;
     }
 
-    @Deprecated // TODO: Remove soon!
-    protected boolean _perfTrack = true;
-
     /** Used to track runtime statistics. */
     protected Stats _recent = new Stats(), _current = _recent;
 
