@@ -77,7 +77,7 @@ public class EntryUpdatedEvent<T extends DSet.Entry> extends EntryEvent<T>
             _oldEntry = set.update(_entry);
             if (_oldEntry == null) {
                 // complain if we didn't update anything
-                log.warning("No matching entry to update", "entry", this, "set", set);
+                log.warning("No matching entry to update", "entry", this, "size", set.size());
                 return false;
             }
         }

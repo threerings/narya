@@ -75,7 +75,8 @@ public class EntryRemovedEvent<T extends DSet.Entry> extends EntryEvent<T>
             _oldEntry = set.removeKey(_key);
             if (_oldEntry == null) {
                 // complain if there was actually nothing there
-                log.warning("No matching entry to remove", "key", _key, "set", set);
+                log.warning("No matching entry to remove", "set", _name, "key", _key,
+                            "size", set.size());
                 return false;
             }
         }

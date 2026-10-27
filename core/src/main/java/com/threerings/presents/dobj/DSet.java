@@ -284,7 +284,7 @@ public class DSet<E extends DSet.Entry>
 
         // if the element is already in the set, bail now
         if (eidx >= 0) {
-            log.warning("Refusing to add duplicate entry", "entry", elem, "set", this,
+            log.warning("Refusing to add duplicate entry", "entry", elem, "size", _size,
                         new Exception());
             return false;
         }
