@@ -54,8 +54,7 @@ public class StreamableEnumSet<E extends Enum<E>> extends AbstractSet<E>
      */
     public static <E extends Enum<E>> StreamableEnumSet<E> copyOf (Collection<E> s)
     {
-        if (s instanceof StreamableEnumSet<?>) {
-            StreamableEnumSet<E> set = (StreamableEnumSet<E>)s;
+        if (s instanceof StreamableEnumSet<E> set) {
             return copyOf(set);
         }
         if (s.isEmpty()) {

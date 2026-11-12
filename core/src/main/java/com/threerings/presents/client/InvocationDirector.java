@@ -210,8 +210,7 @@ public class InvocationDirector
         int acount = args.length;
         for (int ii = 0; ii < acount; ii++) {
             Object arg = args[ii];
-            if (arg instanceof ListenerMarshaller) {
-                ListenerMarshaller lm = (ListenerMarshaller)arg;
+            if (arg instanceof ListenerMarshaller lm) {
                 lm.requestId = nextRequestId();
                 lm.mapStamp = System.currentTimeMillis();
                 // create a mapping for this marshaller so that we can properly dispatch responses
@@ -240,16 +239,13 @@ public class InvocationDirector
      */
     public void eventReceived (DEvent event)
     {
-        if (event instanceof InvocationResponseEvent) {
-            InvocationResponseEvent ire = (InvocationResponseEvent)event;
+        if (event instanceof InvocationResponseEvent ire) {
             handleInvocationResponse(ire.getRequestId(), ire.getMethodId(), ire.getArgs());
 
-        } else if (event instanceof InvocationNotificationEvent) {
-            InvocationNotificationEvent ine = (InvocationNotificationEvent)event;
+        } else if (event instanceof InvocationNotificationEvent ine) {
             handleInvocationNotification(ine.getReceiverId(), ine.getMethodId(), ine.getArgs());
 
-        } else if (event instanceof MessageEvent) {
-            MessageEvent mevt = (MessageEvent)event;
+        } else if (event instanceof MessageEvent mevt) {
             if (mevt.getName().equals(ClientObject.CLOBJ_CHANGED)) {
                 handleClientObjectChanged(((Integer)mevt.getArgs()[0]).intValue());
             }

@@ -28,9 +28,9 @@ public class PlaceViewUtil
     public static void dispatchWillEnterPlace (Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
-        if (root instanceof PlaceView) {
+        if (root instanceof PlaceView view) {
             try {
-                ((PlaceView)root).willEnterPlace(plobj);
+                view.willEnterPlace(plobj);
             } catch (Exception e) {
                 log.warning("Component choked on willEnterPlace()", "component", root,
                     "plobj", plobj, e);
@@ -38,8 +38,7 @@ public class PlaceViewUtil
         }
 
         // now traverse all of this component's children
-        if (root instanceof Container) {
-            Container cont = (Container)root;
+        if (root instanceof Container cont) {
             int ccount = cont.getComponentCount();
             for (int ii = 0; ii < ccount; ii++) {
                 dispatchWillEnterPlace(cont.getComponent(ii), plobj);
@@ -57,9 +56,9 @@ public class PlaceViewUtil
     public static void dispatchDidLeavePlace (Object root, PlaceObject plobj)
     {
         // dispatch the call on this component if it implements PlaceView
-        if (root instanceof PlaceView) {
+        if (root instanceof PlaceView view) {
             try {
-                ((PlaceView)root).didLeavePlace(plobj);
+                view.didLeavePlace(plobj);
             } catch (Exception e) {
                 log.warning("Component choked on didLeavePlace()", "component", root,
                     "plobj", plobj, e);
@@ -67,8 +66,7 @@ public class PlaceViewUtil
         }
 
         // now traverse all of this component's children
-        if (root instanceof Container) {
-            Container cont = (Container)root;
+        if (root instanceof Container cont) {
             int ccount = cont.getComponentCount();
             for (int ii = 0; ii < ccount; ii++) {
                 dispatchDidLeavePlace(cont.getComponent(ii), plobj);

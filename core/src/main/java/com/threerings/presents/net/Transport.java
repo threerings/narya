@@ -210,8 +210,7 @@ public class Transport
     @Override
     public boolean equals (Object other)
     {
-        Transport otrans;
-        return other instanceof Transport && (otrans = (Transport)other)._type == _type &&
+        return other instanceof Transport otrans && otrans._type == _type &&
             otrans._channel == _channel;
     }
 

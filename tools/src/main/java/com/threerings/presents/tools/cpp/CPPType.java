@@ -44,10 +44,10 @@ public class CPPType
     @SuppressWarnings("this-escape")
     public CPPType (Type javaType)
     {
-        if (javaType instanceof ParameterizedType) {
-            rawType = (Class<?>)((ParameterizedType)javaType).getRawType();
-        } else if (javaType instanceof TypeVariable<?>) {
-            rawType = (Class<?>)((TypeVariable<?>)javaType).getBounds()[0];
+        if (javaType instanceof ParameterizedType ptype) {
+            rawType = (Class<?>)ptype.getRawType();
+        } else if (javaType instanceof TypeVariable<?> tvtype) {
+            rawType = (Class<?>)tvtype.getBounds()[0];
         } else {
             rawType = (Class<?>)javaType;
         }
@@ -69,15 +69,15 @@ public class CPPType
         } else {
             type = CPPUtil.getCPPType(javaType);
             interpreter = getCPPInterpreter(rawType);
-            if (javaType instanceof ParameterizedType) {
-                Type[] typeArguments = ((ParameterizedType)javaType).getActualTypeArguments();
+            if (javaType instanceof ParameterizedType ptype) {
+                Type[] typeArguments = ptype.getActualTypeArguments();
                 if (rawType.equals(Comparable.class)) {
                     dependent = new CPPType(Streamable.class);
                     representationImport = "presents/Streamable.h";
                 } else if (rawType == List.class) {
                     Class<?> param;
-                    if (typeArguments[0] instanceof ParameterizedType) {
-                        param = (Class<?>)((ParameterizedType)typeArguments[0]).getRawType();
+                    if (typeArguments[0] instanceof ParameterizedType argtype) {
+                        param = (Class<?>)argtype.getRawType();
                     } else {
                         param = (Class<?>)typeArguments[0];
                     }

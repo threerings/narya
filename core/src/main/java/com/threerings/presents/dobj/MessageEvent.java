@@ -60,8 +60,8 @@ public class MessageEvent extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof MessageListener) {
-            ((MessageListener)listener).messageReceived(this);
+        if (listener instanceof MessageListener mlistener) {
+            mlistener.messageReceived(this);
         }
     }
 

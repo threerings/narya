@@ -176,42 +176,40 @@ public class ClientDObjectMgr
 
     protected void dispatchAction (Object obj)
     {
-        if (obj instanceof EventNotification) {
-            dispatchEvent(((EventNotification)obj).getEvent());
+        if (obj instanceof EventNotification notification) {
+            dispatchEvent(notification.getEvent());
 
-        } else if (obj instanceof BootstrapNotification) {
-            BootstrapData data = ((BootstrapNotification)obj).getData();
+        } else if (obj instanceof BootstrapNotification notification) {
+            BootstrapData data = notification.getData();
             _client.gotBootstrap(data, this);
 
-        } else if (obj instanceof ObjectResponse<?>) {
-            registerObjectAndNotify((ObjectResponse<?>)obj);
+        } else if (obj instanceof ObjectResponse<?> response) {
+            registerObjectAndNotify(response);
 
-        } else if (obj instanceof UnsubscribeResponse) {
-            int oid = ((UnsubscribeResponse)obj).getOid();
+        } else if (obj instanceof UnsubscribeResponse response) {
+            int oid = response.getOid();
             if (_dead.remove(oid) == null) {
                 log.warning("Received unsub ACK from unknown object", "oid", oid);
             }
 
-        } else if (obj instanceof FailureResponse) {
-            notifyFailure(((FailureResponse)obj).getOid(), ((FailureResponse)obj).getMessage());
+        } else if (obj instanceof FailureResponse response) {
+            notifyFailure(response.getOid(), response.getMessage());
 
-        } else if (obj instanceof PongResponse) {
-            _client.gotPong((PongResponse)obj);
+        } else if (obj instanceof PongResponse response) {
+            _client.gotPong(response);
 
-        } else if (obj instanceof UpdateThrottleMessage) {
-            UpdateThrottleMessage upmsg = (UpdateThrottleMessage)obj;
+        } else if (obj instanceof UpdateThrottleMessage upmsg) {
             _client.setOutgoingMessageThrottle(upmsg.messagesPerSec);
 
-        } else if (obj instanceof ObjectAction<?>) {
-            ObjectAction<?> act = (ObjectAction<?>)obj;
+        } else if (obj instanceof ObjectAction<?> act) {
             if (act.subscribe) {
                 doSubscribe(act);
             } else {
                 doUnsubscribe(act.oid, act.target);
             }
 
-        } else if (obj instanceof CompoundDownstreamMessage) {
-            for (DownstreamMessage submsg : ((CompoundDownstreamMessage)obj).msgs) {
+        } else if (obj instanceof CompoundDownstreamMessage compound) {
+            for (DownstreamMessage submsg : compound.msgs) {
                 dispatchAction(submsg);
             }
         } else {
@@ -275,12 +273,12 @@ public class ClientDObjectMgr
         _client.convertFromRemote(target, event);
 
         // if this is a compound event, we need to process its contained events in order
-        if (event instanceof CompoundEvent) {
+        if (event instanceof CompoundEvent compound) {
             // notify our proxy subscribers in one fell swoop
             target.notifyProxies(event);
 
             // now break the event up and dispatch each event to listeners individually
-            List<DEvent> events = ((CompoundEvent)event).getEvents();
+            List<DEvent> events = compound.getEvents();
             int ecount = events.size();
             for (int ii = 0; ii < ecount; ii++) {
                 dispatchEvent(remoteOid, target, events.get(ii));

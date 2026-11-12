@@ -229,11 +229,11 @@ public class Resulting<T> extends Invoker.Unit
         if (_chain != null) {
             _chain.requestCompleted(result);
 
-        } else if (_invChain instanceof InvocationService.ResultListener) {
-            ((InvocationService.ResultListener)_invChain).requestProcessed(result);
+        } else if (_invChain instanceof InvocationService.ResultListener rlist) {
+            rlist.requestProcessed(result);
 
-        } else if (_invChain instanceof InvocationService.ConfirmListener) {
-            ((InvocationService.ConfirmListener)_invChain).requestProcessed();
+        } else if (_invChain instanceof InvocationService.ConfirmListener clist) {
+            clist.requestProcessed();
         }
     }
 

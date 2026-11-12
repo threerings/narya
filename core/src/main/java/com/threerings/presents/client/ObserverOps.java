@@ -35,8 +35,8 @@ public class ObserverOps
         }
 
         @Override public void notify (SessionObserver obs) {
-            if (obs instanceof ClientObserver) {
-                notify((ClientObserver)obs);
+            if (obs instanceof ClientObserver cobs) {
+                notify(cobs);
             }
         }
 

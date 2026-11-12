@@ -143,8 +143,8 @@ public class AttributeChangedEvent extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof AttributeChangeListener) {
-            ((AttributeChangeListener)listener).attributeChanged(this);
+        if (listener instanceof AttributeChangeListener alistener) {
+            alistener.attributeChanged(this);
         }
     }
 

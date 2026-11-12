@@ -36,8 +36,8 @@ public class ObjectDestroyedEvent extends DEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof ObjectDeathListener) {
-            ((ObjectDeathListener)listener).objectDestroyed(this);
+        if (listener instanceof ObjectDeathListener dlistener) {
+            dlistener.objectDestroyed(this);
         }
     }
 

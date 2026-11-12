@@ -141,10 +141,9 @@ public class StreamableTest
 
         @Override
         public boolean equals (Object other) {
-            if (!(other instanceof Widget)) {
+            if (!(other instanceof Widget ow)) {
                 return false;
             }
-            Widget ow = (Widget)other;
             return bool1 == ow.bool1 &&
                 byte1 == ow.byte1 &&
                 char1 == ow.char1 &&
@@ -257,10 +256,9 @@ public class StreamableTest
 
         @Override
         public boolean equals (Object other) {
-            if (!(other instanceof Wocket)) {
+            if (!(other instanceof Wocket ow)) {
                 return false;
             }
-            Wocket ow = (Wocket)other;
             return bizyte == ow.bizyte &&
                 shizort == ow.shizort &&
                 dizouble == ow.dizouble;
@@ -289,10 +287,9 @@ public class StreamableTest
 
         @Override
         public boolean equals (Object other) {
-            if (!(other instanceof Wicket)) {
+            if (!(other instanceof Wicket ow)) {
                 return false;
             }
-            Wicket ow = (Wicket)other;
             return bizyte == ow.bizyte &&
                 shizort == ow.shizort &&
                 dizouble == ow.dizouble &&
@@ -339,10 +336,9 @@ public class StreamableTest
         @Override
         public boolean equals (Object other)
         {
-            if (!(other instanceof Wacket)) {
+            if (!(other instanceof Wacket that)) {
                 return false;
             }
-            Wacket that = (Wacket)other;
             return Objects.equal(this.strizzing, that.strizzing);
         }
 

@@ -56,8 +56,8 @@ public class ObjectAddedEvent extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof OidListListener) {
-            ((OidListListener)listener).objectAdded(this);
+        if (listener instanceof OidListListener olistener) {
+            olistener.objectAdded(this);
         }
     }
 

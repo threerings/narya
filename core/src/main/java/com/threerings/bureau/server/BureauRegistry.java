@@ -115,13 +115,13 @@ public class BureauRegistry
                                              BureauAuthName.class, getClientResolverClass()));
         clmgr.addClientObserver(new ClientManager.ClientObserver() {
             public void clientSessionDidStart (PresentsSession client) {
-                if (client.getCredentials() instanceof BureauCredentials) {
-                    sessionDidStart(client, ((BureauCredentials)client.getCredentials()).clientId);
+                if (client.getCredentials() instanceof BureauCredentials creds) {
+                    sessionDidStart(client, creds.clientId);
                 }
             }
             public void clientSessionDidEnd (PresentsSession client) {
-                if (client.getCredentials() instanceof BureauCredentials) {
-                    sessionDidEnd(client, ((BureauCredentials)client.getCredentials()).clientId);
+                if (client.getCredentials() instanceof BureauCredentials creds) {
+                    sessionDidEnd(client, creds.clientId);
                 }
             }
         });
@@ -518,12 +518,11 @@ public class BureauRegistry
             return null;
         }
 
-        if (!(dobj instanceof AgentObject)) {
+        if (!(dobj instanceof AgentObject agent)) {
             log.warning("Object not an agent", "function", resolver, "obj", dobj.getClass());
             return null;
         }
 
-        AgentObject agent = (AgentObject)dobj;
         Bureau bureau = _bureaus.get(agent.bureauId);
         if (bureau == null) {
             log.warning("Bureau not found for agent", "function", resolver, "agent", agent.which());

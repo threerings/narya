@@ -66,10 +66,9 @@ public class ASStreamableSubset extends SimpleStreamableObject
     @Override
     public boolean equals (Object other)
     {
-        if (!(other instanceof ASStreamableSubset)) {
+        if (!(other instanceof ASStreamableSubset ow)) {
             return false;
         }
-        ASStreamableSubset ow = (ASStreamableSubset)other;
         return bool1 == ow.bool1 && byte8 == ow.byte8 && char7 == ow.char7 && short2 == ow.short2
             && int3 == ow.int3 && long4 == ow.long4
             && float5 == ow.float5

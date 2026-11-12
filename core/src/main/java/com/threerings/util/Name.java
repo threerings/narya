@@ -91,8 +91,7 @@ public class Name extends SimpleStreamableObject
     @Override
     public boolean equals (Object other)
     {
-        if (other instanceof Name) {
-            Name oname = (Name)other;
+        if (other instanceof Name oname) {
             Boolean override = overrideEquals(oname);
             if (override != null || (override = oname.overrideEquals(this)) != null) {
                 return override;

@@ -725,14 +725,13 @@ public class ChatDirector extends BasicDirector
         byte mode = (byte)-1;
 
         // figure out if the message was triggered by another user
-        if (msg instanceof UserMessage) {
-            UserMessage umsg = (UserMessage)msg;
+        if (msg instanceof UserMessage umsg) {
             speaker = umsg.speaker;
             speakerDisplay = umsg.getSpeakerDisplayName();
             mode = umsg.mode;
 
-        } else if (msg instanceof UserSystemMessage) {
-            speaker = ((UserSystemMessage)msg).speaker;
+        } else if (msg instanceof UserSystemMessage usmsg) {
+            speaker = usmsg.speaker;
             speakerDisplay = speaker;
         }
 

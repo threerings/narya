@@ -171,11 +171,11 @@ public class GenActionScriptStreamableTask extends GenTask
 
             List<String> parameters = Lists.newLinkedList();
             Type genType = f.getGenericType();
-            if (genType instanceof ParameterizedType) {
-                for (Type param : ((ParameterizedType) genType).getActualTypeArguments()) {
-                    if (param instanceof Class) {
+            if (genType instanceof ParameterizedType ptype) {
+                for (Type param : ptype.getActualTypeArguments()) {
+                    if (param instanceof Class<?> pclass) {
                         // Convert any box classes to primitives to avoid having to import them
-                        Class<?> primitive = Primitives.unwrap((Class<?>) param);
+                        Class<?> primitive = Primitives.unwrap(pclass);
                         parameters.add(ActionScriptUtils.addImportAndGetShortType(
                             primitive, false, imports));
                     }

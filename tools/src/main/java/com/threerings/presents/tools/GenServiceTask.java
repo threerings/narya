@@ -572,8 +572,8 @@ public class GenServiceTask extends InvocationTask
         {
             service = serviceClass;
             Type[] genint = service.getGenericInterfaces();
-            if (genint.length > 0 && genint[0] instanceof ParameterizedType) {
-                callerType = (Class<?>)((ParameterizedType)genint[0]).getActualTypeArguments()[0];
+            if (genint.length > 0 && genint[0] instanceof ParameterizedType ptype) {
+                callerType = (Class<?>)ptype.getActualTypeArguments()[0];
                 callerTypeSpecified = true;
             }
             sname = service.getSimpleName();

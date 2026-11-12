@@ -34,10 +34,9 @@ public class DObjectAddress extends SimpleStreamableObject
     @Override
     public boolean equals (Object obj)
     {
-        if (!(obj instanceof DObjectAddress)) {
+        if (!(obj instanceof DObjectAddress o)) {
             return false;
         }
-        DObjectAddress o = (DObjectAddress)obj;
         return oid == o.oid
             && (nodeName == o.nodeName || (nodeName != null && nodeName.equals(o.nodeName)));
     }

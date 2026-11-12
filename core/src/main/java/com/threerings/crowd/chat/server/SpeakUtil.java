@@ -161,13 +161,13 @@ public class SpeakUtil
         speakObj.postMessage(ChatCodes.CHAT_NOTIFICATION, new Object[] { msg });
 
         // if this is a user message; add it to the heard history of all users that can "hear" it
-        if (!(msg instanceof UserMessage)) {
+        if (!(msg instanceof UserMessage umsg)) {
             return;
 
-        } else if (speakObj instanceof SpeakObject) {
+        } else if (speakObj instanceof SpeakObject sobj) {
             _messageMapper.omgr = (RootDObjectManager)speakObj.getManager();
-            _messageMapper.message = (UserMessage)msg;
-            ((SpeakObject)speakObj).applyToListeners(_messageMapper);
+            _messageMapper.message = umsg;
+            sobj.applyToListeners(_messageMapper);
             _messageMapper.omgr = null;
             _messageMapper.message = null;
 
@@ -210,8 +210,8 @@ public class SpeakUtil
 
         public void apply (SpeakObject sender, int bodyOid) {
             DObject dobj = omgr.getObject(bodyOid);
-            if (dobj != null && dobj instanceof BodyObject) {
-                noteMessage(sender, ((BodyObject)dobj).getVisibleName(), message);
+            if (dobj instanceof BodyObject body) {
+                noteMessage(sender, body.getVisibleName(), message);
             }
         }
 

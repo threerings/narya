@@ -80,8 +80,7 @@ public abstract class Streamer
      */
     public static Class<?> getStreamerClass (Object object)
     {
-        return (object instanceof Enum<?>) ?
-            ((Enum<?>)object).getDeclaringClass() : object.getClass();
+        return (object instanceof Enum<?> e) ? e.getDeclaringClass() : object.getClass();
     }
 
     /**
@@ -680,11 +679,11 @@ public abstract class Streamer
                     _writer.invoke(object, new Object[] { out });
 
                 } catch (Throwable t) {
-                    if (t instanceof InvocationTargetException) {
-                        t = ((InvocationTargetException)t).getTargetException();
+                    if (t instanceof InvocationTargetException ite) {
+                        t = ite.getTargetException();
                     }
-                    if (t instanceof IOException) {
-                        throw (IOException)t;
+                    if (t instanceof IOException ioe) {
+                        throw ioe;
                     }
                     String errmsg = "Failure invoking streamable writer " +
                         "[class=" + _target.getName() + "]";
@@ -716,11 +715,11 @@ public abstract class Streamer
                     _reader.invoke(object, new Object[] { in });
 
                 } catch (Throwable t) {
-                    if (t instanceof InvocationTargetException) {
-                        t = ((InvocationTargetException)t).getTargetException();
+                    if (t instanceof InvocationTargetException ite) {
+                        t = ite.getTargetException();
                     }
-                    if (t instanceof IOException) {
-                        throw (IOException)t;
+                    if (t instanceof IOException ioe) {
+                        throw ioe;
                     }
                     String errmsg = "Failure invoking streamable reader " +
                         "[class=" + _target.getName() + "]";

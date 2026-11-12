@@ -34,8 +34,8 @@ public class CrowdObjectAccess
     {
         public boolean allowSubscribe (DObject object, Subscriber<?> sub)
         {
-            if (sub instanceof ProxySubscriber) {
-                ClientObject co = ((ProxySubscriber)sub).getClientObject();
+            if (sub instanceof ProxySubscriber proxy) {
+                ClientObject co = proxy.getClientObject();
                 return ((PlaceObject)object).occupants.contains(_locator.forClient(co).getOid());
             }
             return true;
@@ -58,8 +58,8 @@ public class CrowdObjectAccess
     {
         @Override
         public boolean allowSubscribe (DObject object, Subscriber<?> sub) {
-            if (sub instanceof ProxySubscriber) {
-                ClientObject co = ((ProxySubscriber)sub).getClientObject();
+            if (sub instanceof ProxySubscriber proxy) {
+                ClientObject co = proxy.getClientObject();
                 if (co instanceof BureauClientObject) {
                     return true;
                 }

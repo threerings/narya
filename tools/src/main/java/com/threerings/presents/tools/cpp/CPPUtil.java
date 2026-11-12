@@ -26,9 +26,9 @@ public class CPPUtil
         if (ftype.equals(com.threerings.presents.dobj.DSet.Entry.class)) {
             return "Shared<Streamable>";
         }
-        if (ftype instanceof ParameterizedType) {
-            Type[] typeArguments = ((ParameterizedType)ftype).getActualTypeArguments();
-            Type raw = ((ParameterizedType)ftype).getRawType();
+        if (ftype instanceof ParameterizedType ptype) {
+            Type[] typeArguments = ptype.getActualTypeArguments();
+            Type raw = ptype.getRawType();
             if (raw.equals(Comparable.class)) {
                 return "Shared<Streamable>";
             } else if (raw.equals(List.class)) {

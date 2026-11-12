@@ -154,8 +154,8 @@ public class ElementUpdatedEvent extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof ElementUpdateListener) {
-            ((ElementUpdateListener)listener).elementUpdated(this);
+        if (listener instanceof ElementUpdateListener ulistener) {
+            ulistener.elementUpdated(this);
         }
     }
 

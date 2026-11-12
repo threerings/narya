@@ -238,8 +238,8 @@ public class InvocationMarshaller<T extends ClientObject>
      */
     public static void setNoResponse (InvocationListener listener)
     {
-        if (listener instanceof ListenerMarshaller) {
-            ((ListenerMarshaller) listener).setNoResponse();
+        if (listener instanceof ListenerMarshaller lm) {
+            lm.setNoResponse();
         }
     }
 
@@ -250,8 +250,8 @@ public class InvocationMarshaller<T extends ClientObject>
         throws IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        if (in instanceof ClientObjectInputStream) {
-            _invdir = ((ClientObjectInputStream)in).client.getInvocationDirector();
+        if (in instanceof ClientObjectInputStream cin) {
+            _invdir = cin.client.getInvocationDirector();
         }
     }
 

@@ -115,11 +115,10 @@ public class GenDObjectTask extends GenTask
             if (_dsclass.isAssignableFrom(ftype)) {
                 Type t = f.getGenericType();
                 // we need to walk up the heirarchy until we get to the parameterized DSet
-                while (t instanceof Class<?>) {
-                    t = ((Class<?>)t).getGenericSuperclass();
+                while (t instanceof Class<?> tclass) {
+                    t = tclass.getGenericSuperclass();
                 }
-                if (t instanceof ParameterizedType) {
-                    ParameterizedType pt = (ParameterizedType)t;
+                if (t instanceof ParameterizedType pt) {
                     if (pt.getActualTypeArguments().length > 0) {
                         data.put("etype", GenUtil.simpleName(pt.getActualTypeArguments()[0]));
                     }

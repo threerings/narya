@@ -130,7 +130,7 @@ public class TestClient
     {
         log.info("Got event [event=" + event + "].");
 
-        if (event instanceof MessageEvent && ((MessageEvent)event).getName().equals("shutdown")) {
+        if (event instanceof MessageEvent mevt && mevt.getName().equals("shutdown")) {
             // request that we log off
             _client.logoff(true);
         }

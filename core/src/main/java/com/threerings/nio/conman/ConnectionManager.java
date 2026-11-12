@@ -264,8 +264,8 @@ public abstract class ConnectionManager extends LoopingThread
                 log.warning("Error processing network data: " + handler + ".", e);
 
                 // if you freak out here, you go straight in the can
-                if (handler != null && handler instanceof Connection) {
-                    closeConnection((Connection)handler);
+                if (handler instanceof Connection conn) {
+                    closeConnection(conn);
                 }
             }
         }

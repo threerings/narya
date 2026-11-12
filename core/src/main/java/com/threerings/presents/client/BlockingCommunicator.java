@@ -658,11 +658,11 @@ public class BlockingCommunicator extends Communicator
 
                     response = (AuthResponse)receiveMessage();
                     // If we've received a secure response, proceed with authentication
-                    if (response instanceof SecureResponse) {
+                    if (response instanceof SecureResponse sresp) {
                         AuthRequest areq = AESAuthRequest.createAuthRequest(
                                     _client.getCredentials(), _client.getVersion(),
                                     _client.getBootGroups(), _client.requireSecureAuth(),
-                                    pkcreds, (SecureResponse)response);
+                                    pkcreds, sresp);
                         sendMessage(areq);
                         _client.setSecret(areq.getSecret());
 

@@ -207,28 +207,28 @@ public abstract class ConfigRegistry
         protected void updateValue (String name, Object value)
         {
             String key = nameToKey(name);
-            if (value instanceof Boolean) {
-                setValue(key, ((Boolean)value).booleanValue());
-            } else if (value instanceof Byte) {
-                setValue(key, ((Byte)value).byteValue());
-            } else if (value instanceof Short) {
-                setValue(key, ((Short)value).shortValue());
-            } else if (value instanceof Integer) {
-                setValue(key, ((Integer)value).intValue());
-            } else if (value instanceof Long) {
-                setValue(key, ((Long)value).longValue());
-            } else if (value instanceof Float) {
-                setValue(key, ((Float)value).floatValue());
-            } else if (value instanceof String) {
-                setValue(key, (String)value);
-            } else if (value instanceof float[]) {
-                setValue(key, (float[])value);
-            } else if (value instanceof int[]) {
-                setValue(key, (int[])value);
-            } else if (value instanceof String[]) {
-                setValue(key, (String[])value);
-            } else if (value instanceof long[]) {
-                setValue(key, (long[])value);
+            if (value instanceof Boolean b) {
+                setValue(key, b.booleanValue());
+            } else if (value instanceof Byte b) {
+                setValue(key, b.byteValue());
+            } else if (value instanceof Short s) {
+                setValue(key, s.shortValue());
+            } else if (value instanceof Integer i) {
+                setValue(key, i.intValue());
+            } else if (value instanceof Long l) {
+                setValue(key, l.longValue());
+            } else if (value instanceof Float f) {
+                setValue(key, f.floatValue());
+            } else if (value instanceof String str) {
+                setValue(key, str);
+            } else if (value instanceof float[] farr) {
+                setValue(key, farr);
+            } else if (value instanceof int[] iarr) {
+                setValue(key, iarr);
+            } else if (value instanceof String[] sarr) {
+                setValue(key, sarr);
+            } else if (value instanceof long[] larr) {
+                setValue(key, larr);
             } else if (value == null || Streamer.isStreamable(value.getClass())) {
                 serializeAttribute(name);
             } else {

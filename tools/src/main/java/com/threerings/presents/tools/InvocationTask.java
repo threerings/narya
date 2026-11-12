@@ -308,7 +308,7 @@ public abstract class InvocationTask extends GenTask
 
         @Override // from Object
         public boolean equals (Object other) {
-            return (other instanceof ServiceMethod) && compareTo((ServiceMethod)other) == 0;
+            return (other instanceof ServiceMethod omethod) && compareTo(omethod) == 0;
         }
 
         @Override // from Object
@@ -317,22 +317,22 @@ public abstract class InvocationTask extends GenTask
         }
 
         protected void addImportsForType (Type type, ImportSet imports) {
-            if (type instanceof Class<?>) {
-                imports.add((Class<?>)type);
-            } else if (type instanceof ParameterizedType) {
-                imports.add((Class<?>)((ParameterizedType)type).getRawType());
-                for (Type param : ((ParameterizedType)type).getActualTypeArguments()) {
+            if (type instanceof Class<?> clazz) {
+                imports.add(clazz);
+            } else if (type instanceof ParameterizedType ptype) {
+                imports.add((Class<?>)ptype.getRawType());
+                for (Type param : ptype.getActualTypeArguments()) {
                     addImportsForType(param, imports);
                 }
-            } else if (type instanceof WildcardType) {
-                for (Type upper : ((WildcardType)type).getUpperBounds()) {
+            } else if (type instanceof WildcardType wtype) {
+                for (Type upper : wtype.getUpperBounds()) {
                     addImportsForType(upper, imports);
                 }
-                for (Type lower : ((WildcardType)type).getLowerBounds()) {
+                for (Type lower : wtype.getLowerBounds()) {
                     addImportsForType(lower, imports);
                 }
-            } else if (type instanceof GenericArrayType) {
-                addImportsForType(((GenericArrayType)type).getGenericComponentType(), imports);
+            } else if (type instanceof GenericArrayType atype) {
+                addImportsForType(atype.getGenericComponentType(), imports);
             } else if (type instanceof TypeVariable) {
                 // nothing needed
             } else {
@@ -343,18 +343,18 @@ public abstract class InvocationTask extends GenTask
         }
 
         protected void collectTypeParams (Type type, List<String> params) {
-            if (type instanceof TypeVariable) {
-                String tvar = ((TypeVariable<?>)type).getName();
+            if (type instanceof TypeVariable<?> tvtype) {
+                String tvar = tvtype.getName();
                 if (!params.contains(tvar)) params.add(tvar);
-            } else if (type instanceof ParameterizedType) {
-                for (Type pt : ((ParameterizedType)type).getActualTypeArguments()) {
+            } else if (type instanceof ParameterizedType ptype) {
+                for (Type pt : ptype.getActualTypeArguments()) {
                     collectTypeParams(pt, params);
                 }
-            } else if (type instanceof WildcardType) {
-                for (Type lb : ((WildcardType)type).getLowerBounds()) {
+            } else if (type instanceof WildcardType wtype) {
+                for (Type lb : wtype.getLowerBounds()) {
                     collectTypeParams(lb, params);
                 }
-                for (Type ub : ((WildcardType)type).getUpperBounds()) {
+                for (Type ub : wtype.getUpperBounds()) {
                     collectTypeParams(ub, params);
                 }
             } // else nada
@@ -369,8 +369,8 @@ public abstract class InvocationTask extends GenTask
         }
 
         protected String unboxArgument (Type type, int index, boolean listenerMode) {
-            if (listenerMode && (type instanceof Class<?>) &&
-                _ilistener.isAssignableFrom((Class<?>)type)) {
+            if (listenerMode && (type instanceof Class<?> clazz) &&
+                _ilistener.isAssignableFrom(clazz)) {
                 return "listener" + index;
             } else {
                 return GenUtil.unboxArgument(type, "args[" + index + "]");

@@ -142,8 +142,7 @@ public class ConfigEditorPanel extends JPanel
         int ccount = _oeditors.getComponentCount();
         for (int ii = 0; ii < ccount; ii++) {
             Component comp = _oeditors.getComponent(ii);
-            if (comp instanceof JScrollPane) {
-                JScrollPane scrolly = (JScrollPane)comp;
+            if (comp instanceof JScrollPane scrolly) {
                 ObjectEditorPanel opanel = (ObjectEditorPanel)scrolly.getViewport().getView();
                 opanel.cleanup();
             }
@@ -233,20 +232,19 @@ public class ConfigEditorPanel extends JPanel
     protected int highlightFields (int tabIndex, String query)
     {
         Component comp = _oeditors.getComponentAt(tabIndex);
-        if (!(comp instanceof JScrollPane)) {
+        if (!(comp instanceof JScrollPane scrolly)) {
             return 0;
         }
-        Component view = ((JScrollPane)comp).getViewport().getView();
-        if (!(view instanceof ObjectEditorPanel)) {
+        Component view = scrolly.getViewport().getView();
+        if (!(view instanceof ObjectEditorPanel opanel)) {
             return 0;
         }
 
         int matchCount = 0;
-        for (Component child : ((ObjectEditorPanel)view).getComponents()) {
-            if (!(child instanceof FieldEditor)) {
+        for (Component child : opanel.getComponents()) {
+            if (!(child instanceof FieldEditor editor)) {
                 continue;
             }
-            FieldEditor editor = (FieldEditor)child;
             boolean matches = query != null && fieldMatches(editor, query);
             editor.setOpaque(matches);
             editor.setBackground(matches ? HIGHLIGHT_COLOR : null);
@@ -264,8 +262,8 @@ public class ConfigEditorPanel extends JPanel
     /** Checks whether a field editor matches the search query by name or tooltip. */
     protected boolean fieldMatches (JPanel editor, String query)
     {
-        if (editor instanceof FieldEditor) {
-            if (((FieldEditor)editor)._field.getName().toLowerCase().contains(query)) {
+        if (editor instanceof FieldEditor fe) {
+            if (fe._field.getName().toLowerCase().contains(query)) {
                 return true;
             }
         }
@@ -292,20 +290,19 @@ public class ConfigEditorPanel extends JPanel
             return;
         }
         Component comp = _oeditors.getComponentAt(tabIndex);
-        if (!(comp instanceof JScrollPane)) {
+        if (!(comp instanceof JScrollPane scrolly)) {
             return;
         }
-        Component view = ((JScrollPane)comp).getViewport().getView();
-        if (!(view instanceof ObjectEditorPanel)) {
+        Component view = scrolly.getViewport().getView();
+        if (!(view instanceof ObjectEditorPanel opanel)) {
             return;
         }
         String query = _searchField.getText().trim().toLowerCase();
         if (query.isEmpty()) {
             return;
         }
-        ObjectEditorPanel opanel = (ObjectEditorPanel)view;
         for (Component child : opanel.getComponents()) {
-            if (child instanceof FieldEditor && fieldMatches((FieldEditor)child, query)) {
+            if (child instanceof FieldEditor editor && fieldMatches(editor, query)) {
                 opanel.scrollRectToVisible(child.getBounds());
                 break;
             }

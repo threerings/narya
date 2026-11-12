@@ -400,8 +400,8 @@ public class DObject
             if (listener == null) {
                 continue;
             }
-            if (listener instanceof WeakReference<?>) {
-                if ((listener = ((WeakReference<?>)listener).get()) == null) {
+            if (listener instanceof WeakReference<?> ref) {
+                if ((listener = ref.get()) == null) {
                     _listeners[ii] = null;
                     continue;
                 }
@@ -412,8 +412,8 @@ public class DObject
                 event.notifyListener(listener);
 
                 // and notify them if they are listening for all events
-                if (listener instanceof EventListener) {
-                    ((EventListener)listener).eventReceived(event);
+                if (listener instanceof EventListener elistener) {
+                    elistener.eventReceived(event);
                 }
 
             } catch (Exception e) {
@@ -437,8 +437,8 @@ public class DObject
 
         for (Object sub : _subs) {
             try {
-                if (sub instanceof ProxySubscriber) {
-                    ((ProxySubscriber)sub).eventReceived(event);
+                if (sub instanceof ProxySubscriber proxy) {
+                    proxy.eventReceived(event);
                 }
             } catch (Exception e) {
                 log.warning("Proxy choked during notification", "sub", sub, "event", event, e);
@@ -984,8 +984,8 @@ public class DObject
         }
         for (int ii = 0, ll = _listeners.length; ii < ll; ii++) {
             Object olistener = _listeners[ii];
-            if (olistener == listener || (olistener instanceof WeakReference<?> &&
-                    ((WeakReference<?>)olistener).get() == listener)) {
+            if (olistener == listener ||
+                    (olistener instanceof WeakReference<?> ref && ref.get() == listener)) {
                 return ii;
             }
         }

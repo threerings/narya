@@ -56,8 +56,8 @@ public class ObjectRemovedEvent extends NamedEvent
     @Override
     protected void notifyListener (Object listener)
     {
-        if (listener instanceof OidListListener) {
-            ((OidListListener)listener).objectRemoved(this);
+        if (listener instanceof OidListListener olistener) {
+            olistener.objectRemoved(this);
         }
     }
 
