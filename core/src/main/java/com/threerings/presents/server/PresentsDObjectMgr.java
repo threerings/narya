@@ -1019,11 +1019,7 @@ public class PresentsDObjectMgr
         }
 
         public boolean equals (Reference other) {
-            if (other == null) {
-                return false;
-            } else {
-                return (reffingOid == other.reffingOid && field.equals(other.field));
-            }
+            return other != null && reffingOid == other.reffingOid && field.equals(other.field);
         }
 
         public boolean equals (int oReffingOid, String oField) {

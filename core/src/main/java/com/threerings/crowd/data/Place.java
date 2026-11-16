@@ -26,10 +26,8 @@ public class Place extends SimpleStreamableObject
     @Override // from Object
     public boolean equals (Object other)
     {
-        if (other == null) {
-            return false;
-        }
-        return getClass().equals(other.getClass()) ? placeOid == ((Place)other).placeOid : false;
+        return other != null && getClass().equals(other.getClass()) &&
+            placeOid == ((Place)other).placeOid;
     }
 
     @Override // from Object
