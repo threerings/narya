@@ -33,7 +33,7 @@ public abstract class ChatChannel extends SimpleStreamableObject
     @Override
     public boolean equals (Object other)
     {
-        return compareTo((ChatChannel)other) == 0;
+        return other instanceof ChatChannel ochan && compareTo(ochan) == 0;
     }
 
     @Override

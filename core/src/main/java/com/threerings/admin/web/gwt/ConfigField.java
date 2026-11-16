@@ -83,7 +83,8 @@ public class ConfigField
     @Override // from Object
     public boolean equals (Object o)
     {
-        return compareTo((ConfigField) o) == 0;
+        // no pattern variable: this class is also compiled by GWT
+        return o instanceof ConfigField && compareTo((ConfigField) o) == 0;
     }
 
     @Override // from Object

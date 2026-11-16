@@ -95,8 +95,8 @@ public class NodeObject extends DObject
         @Override
         public boolean equals (Object other)
         {
-            Lock olock = (Lock)other;
-            return type.equals(olock.type) && Objects.equal(id, olock.id);
+            return other instanceof Lock olock &&
+                type.equals(olock.type) && Objects.equal(id, olock.id);
         }
     }
 
