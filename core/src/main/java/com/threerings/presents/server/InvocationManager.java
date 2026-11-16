@@ -246,7 +246,7 @@ public class InvocationManager
                         return entry.getKey();
                     }
                 }
-                return -1;
+                return 0;
             }
 
             public void dispatchRequest (ClientObject source, int methodId, Object[] args)
@@ -352,7 +352,7 @@ public class InvocationManager
      * implementations that also happen to have overloaded methods with the same name as
      * invocation service methods; I'm looking at you ChatProvider...
      */
-    public static boolean isServiceMethod (Method method)
+    protected boolean isServiceMethod (Method method)
     {
         return method.getParameterCount() > 0 &&
             ClientObject.class.isAssignableFrom(method.getParameterTypes()[0]);
@@ -465,12 +465,12 @@ public class InvocationManager
             throws InvocationException;
 
         /**
-         * Returns the id of the named service method, or -1 if this dispatcher has none.
+         * Returns the id of the named service method, or 0 if this dispatcher has none.
          * Service method names are unique within a service.
          */
         public default int getMethodId (String methodName)
         {
-            return -1;
+            return 0;
         }
     }
 
