@@ -204,13 +204,7 @@ public class InvocationManager
         // determine the invocation service code mappings
         final Map<Integer,Method> invmeths = Maps.newHashMap();
         for (Method method : pclass.getMethods()) {
-            Class<?>[] ptypes = method.getParameterTypes();
-            // only consider methods whose first argument is of type ClientObject; this is a
-            // non-issue if we are looking at an auto-generated FooProvider interface, but is
-            // necessary to avoid problems for legacy concrete FooProvider implementations that
-            // also happen to have overloaded methods with the same name as invocation service
-            // methods; I'm looking at you ChatProvider...
-            if (ptypes.length == 0 || !ClientObject.class.isAssignableFrom(ptypes[0])) {
+            if (!isServiceMethod(method)) {
                 continue;
             }
             try {
@@ -244,6 +238,15 @@ public class InvocationManager
 
             public InvocationProvider getProvider () {
                 return provider;
+            }
+
+            public int getMethodId (String methodName) {
+                for (Map.Entry<Integer,Method> entry : invmeths.entrySet()) {
+                    if (entry.getValue().getName().equals(methodName)) {
+                        return entry.getKey();
+                    }
+                }
+                return -1;
             }
 
             public void dispatchRequest (ClientObject source, int methodId, Object[] args)
@@ -340,6 +343,19 @@ public class InvocationManager
     {
         var dispatcher = _dispatchers.get(ire.getInvCode());
         return dispatcher != null ? dispatcher.getProvider().getClass() : null;
+    }
+
+    /**
+     * Is the specified method an invocation service method? Those are the methods whose first
+     * argument is a ClientObject. This is a non-issue for an auto-generated FooProvider
+     * interface, but is necessary to avoid problems for legacy concrete FooProvider
+     * implementations that also happen to have overloaded methods with the same name as
+     * invocation service methods; I'm looking at you ChatProvider...
+     */
+    public static boolean isServiceMethod (Method method)
+    {
+        return method.getParameterCount() > 0 &&
+            ClientObject.class.isAssignableFrom(method.getParameterTypes()[0]);
     }
 
     /**
@@ -447,6 +463,15 @@ public class InvocationManager
         public InvocationProvider getProvider ();
         public void dispatchRequest (ClientObject source, int methodId, Object[] args)
             throws InvocationException;
+
+        /**
+         * Returns the id of the named service method, or -1 if this dispatcher has none.
+         * Service method names are unique within a service.
+         */
+        public default int getMethodId (String methodName)
+        {
+            return -1;
+        }
     }
 
     /** The object id on which we receive global invocation service requests. */
